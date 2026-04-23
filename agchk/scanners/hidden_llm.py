@@ -21,6 +21,12 @@ MAIN_LOOP_RE = re.compile(
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "test", "tests"}
 SKIP_FILE_NAMES = {"main", "agent", "orchestrat", "chain"}
+# Provider/adapter files that legitimately contain LLM calls — exclude from
+# hidden-LLM detection. These are the infrastructure layer, not hidden loops.
+SKIP_PROVIDER_RE = re.compile(
+    r"(?:provider|adapter|client_factory|model_backend|llm_gateway)",
+    re.IGNORECASE,
+)
 SCAN_EXTENSIONS = {".py", ".ts", ".js"}
 
 
@@ -44,6 +50,10 @@ def scan_hidden_llm_calls(target: Path) -> List[Dict[str, Any]]:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue
         if _is_skip_filename(fp.name):
+            continue
+        # Skip provider/adapter/adapter-like files — they legitimately contain
+        # LLM calls as their purpose. Flagging them dilutes signal.
+        if SKIP_PROVIDER_RE.search(fp.stem):
             continue
 
         try:

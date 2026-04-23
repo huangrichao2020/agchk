@@ -5,10 +5,13 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 # Precompiled patterns
+# NOTE: "compile(" is intentionally removed — Python's re.compile() and
+# JavaScript's RegExp compilation are normal, safe patterns. The Python
+# built-in compile() is rarely used for user input. If you truly need to
+# scan for compile(), use a narrower pattern like r"\bcompile\s*\(\s*f["
 DANGEROUS_CALLS = {
     "exec(": re.compile(r"\bexec\s*\("),
     "eval(": re.compile(r"\beval\s*\("),
-    "compile(": re.compile(r"\bcompile\s*\("),
     "os.system(": re.compile(r"\bos\.system\s*\("),
     "new Function(": re.compile(r"\bnew\s+Function\s*\("),
 }
