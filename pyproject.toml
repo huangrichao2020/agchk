@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agchk"
+version = "0.1.0"
+description = "Audit the architecture and health of any AI agent system or LLM-integrated project"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8"
+keywords = ["agent", "llm", "audit", "health-check", "ai", "security"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+agchk = "agchk.cli:main"
+
+[project.urls]
+"Homepage" = "https://github.com/huangrichao2020/agchk"
+"Bug Tracker" = "https://github.com/huangrichao2020/agchk/issues"
+
+[tool.setuptools.packages.find]
+include = ["agchk*"]
+
+[tool.ruff]
+line-length = 120

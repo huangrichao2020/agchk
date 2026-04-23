@@ -1,0 +1,10 @@
+
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+.venv/
+audit_results.json
+audit_report.md
+

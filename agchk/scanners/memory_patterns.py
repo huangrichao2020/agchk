@@ -1,0 +1,103 @@
+"""Scan for memory-related patterns: admission, growth, and missing limits."""
+
+import re
+from pathlib import Path
+from typing import Any, Dict, List
+
+# Precompiled patterns
+MEMORY_ADMISSION_RE = re.compile(
+    r"(?:memory.*admit|long.?term.*update|persist.*memory|save.*to.*memory|"
+    r"memory.*store|write.*memory|commit.*memory|memory.*insert)",
+    re.IGNORECASE,
+)
+
+MEMORY_GROWTH_RE = re.compile(
+    r"(?:add.*memory|upsert.*vector|append.*context|history.*append|"
+    r"messages.*append|memory.*push|context.*grow|buffer.*append|"
+    r"memory.*add|vector.*insert|embeddings.*store)",
+    re.IGNORECASE,
+)
+
+MEMORY_LIMIT_RE = re.compile(
+    r"(?:max_|limit|ttl|expire|k=|top_|threshold|trim|truncate|"
+    r"max_|_max|capacity|bounded|evict|prune|retention|window_size)",
+    re.IGNORECASE,
+)
+
+SCAN_EXTENSIONS = {".py", ".ts", ".js"}
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}
+LOOKAHEAD_LINES = 5
+
+
+def _should_skip(path: Path) -> bool:
+    return any(part in SKIP_DIRS for part in path.parts)
+
+
+def _check_limit_nearby(lines: List[str], growth_lineno: int, window: int) -> bool:
+    """Check if a limit pattern exists within `window` lines of the growth operation."""
+    start = max(0, growth_lineno - 1 - window)
+    end = min(len(lines), growth_lineno + window)
+    for i in range(start, end):
+        if MEMORY_LIMIT_RE.search(lines[i]):
+            return True
+    return False
+
+
+def scan_memory_patterns(target: Path) -> List[Dict[str, Any]]:
+    findings: List[Dict[str, Any]] = []
+
+    files = [target] if target.is_file() else sorted(target.rglob("*"))
+
+    for fp in files:
+        if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
+            continue
+
+        try:
+            content = fp.read_text(encoding="utf-8", errors="ignore")
+            lines = content.splitlines()
+        except (OSError, PermissionError):
+            continue
+
+        has_admission = False
+        has_growth = False
+        has_limit = False
+
+        for lineno, line in enumerate(lines, start=1):
+            if MEMORY_ADMISSION_RE.search(line):
+                has_admission = True
+            if MEMORY_GROWTH_RE.search(line):
+                has_growth = True
+            if MEMORY_LIMIT_RE.search(line):
+                has_limit = True
+
+        if has_admission:
+            findings.append({
+                "severity": "low",
+                "title": "Memory admission pattern detected",
+                "symptom": f"Memory admission/storage pattern found in {fp.name}.",
+                "user_impact": "Data persisted in agent memory may accumulate sensitive information across sessions.",
+                "source_layer": "memory_management",
+                "mechanism": f"Regex match for memory admission pattern.",
+                "root_cause": "Agent writes data to persistent memory or long-term storage.",
+                "evidence_refs": [str(fp)],
+                "confidence": 0.7,
+                "fix_type": "code_change",
+                "recommended_fix": "Ensure memory admission includes PII filtering, data classification, and user consent checks before storage.",
+            })
+
+        if has_growth and not has_limit:
+            findings.append({
+                "severity": "medium",
+                "title": "Memory growth without apparent limit",
+                "symptom": f"Memory/context growth pattern in {fp.name} without nearby limit/trim/expire pattern.",
+                "user_impact": "Unbounded memory growth can cause context window overflow, increased costs, and degraded response quality.",
+                "source_layer": "memory_management",
+                "mechanism": "Growth operation detected but no limit/truncation pattern found within proximity.",
+                "root_cause": "Memory or context is appended without size bounds, TTL, or eviction policy.",
+                "evidence_refs": [str(fp)],
+                "confidence": 0.75,
+                "fix_type": "code_change",
+                "recommended_fix": "Add memory limits: max context size, TTL for old entries, truncation strategy (e.g., keep last N messages, summary-based compaction).",
+            })
+
+    return findings
