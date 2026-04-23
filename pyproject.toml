@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agchk"
-version = "0.1.1"
+version = "0.1.2"
 description = "Audit the architecture and health of any AI agent system or LLM-integrated project"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -32,6 +32,9 @@ agchk = "agchk.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["agchk*"]
+
+[tool.setuptools.package-data]
+agchk = ["schema.json"]
 
 [tool.ruff]
 line-length = 120
