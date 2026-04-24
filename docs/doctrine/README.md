@@ -13,5 +13,6 @@ Start here:
 - [Mission](./mission.md)
 - [Architecture](./architecture.md)
 - [Agent As Operating System](./agent-os.md)
+- [Impression Memory](./impression-memory.md)
 - [Orchestration](./orchestration.md)
 - [Contribution Backflow](./contribution-backflow.md)

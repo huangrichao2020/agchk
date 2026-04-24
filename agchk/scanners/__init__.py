@@ -10,6 +10,7 @@ from agchk.config import AuditConfig
 from agchk.scanners.code_execution import scan_code_execution
 from agchk.scanners.excessive_agency import scan_excessive_agency
 from agchk.scanners.hidden_llm import scan_hidden_llm_calls
+from agchk.scanners.impression_memory import scan_impression_memory
 from agchk.scanners.internal_orchestration import scan_internal_orchestration
 from agchk.scanners.memory_freshness import scan_memory_freshness
 from agchk.scanners.memory_patterns import scan_memory_patterns
@@ -56,6 +57,12 @@ SCANNER_REGISTRY = [
         name="Memory Freshness Confusion",
         func=_adapt(scan_memory_freshness),
         audited_layers=("session_history", "long_term_memory"),
+    ),
+    ScannerSpec(
+        slug="impression_memory",
+        name="Impression Memory Layer",
+        func=_adapt(scan_impression_memory),
+        audited_layers=("impression_memory", "active_recall"),
     ),
     ScannerSpec(
         slug="role_play_orchestration",
@@ -142,6 +149,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
         personal_priority = [
             "internal_orchestration",
             "memory_freshness",
+            "impression_memory",
             "role_play_orchestration",
             "os_architecture",
             "skill_duplication",
@@ -169,6 +177,7 @@ __all__ = [
     "scan_code_execution",
     "scan_excessive_agency",
     "scan_hidden_llm_calls",
+    "scan_impression_memory",
     "scan_internal_orchestration",
     "scan_memory_freshness",
     "scan_memory_patterns",

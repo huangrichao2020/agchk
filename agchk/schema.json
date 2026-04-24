@@ -93,6 +93,7 @@
               "platform_rendering",
               "fallback_loops",
               "persistence",
+              "impression_memory",
               "os_memory",
               "os_scheduler",
               "os_syscall",

@@ -33,14 +33,15 @@ These checks are the default emphasis for solo builders and local prototypes:
 |---|---------|----------|-----------------|
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
 | 2 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 3 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 4 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
-| 5 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
-| 6 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
-| 7 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
-| 8 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
-| 9 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
-| 10 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
+| 3 | Impression Memory Layer | medium | Fact memory and skills without associative concept cues |
+| 4 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
+| 5 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
+| 6 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
+| 7 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
+| 8 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
+| 9 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
+| 10 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
+| 11 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
 
 ### Additional safety and production checks
 
@@ -48,11 +49,11 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
-| 11 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
-| 12 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
-| 13 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
-| 14 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
-| 15 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
+| 12 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
+| 13 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
+| 14 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
+| 15 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 16 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -90,6 +91,7 @@ Profile differences are not just about safety gates. They also change what `agch
 - `personal` defaults to internal architecture review:
   - orchestration sprawl
   - memory freshness confusion
+  - missing impression chunks between facts and skills
   - role-play handoff chains
   - OS-style architecture gaps: paging, scheduling, syscalls, and semantic mount points
   - duplicated skills/SOPs
@@ -295,6 +297,7 @@ Default fix order (code-first, not prompt-first):
 8. **Match controls to deployment reality** — prototype fast, but require stronger controls in enterprise production
 9. **Prefer fork-and-merge reasoning over org-chart handoffs** — subagents should widen search or isolate context, not cosplay departments
 10. **Name the agent OS primitives** — context is memory, tools are syscalls, orchestrators are kernels, RAG is mounted storage
+11. **Add impression chunks between facts and skills** — concept cues make agents remember routes, not just maps
 
 ## Anti-Patterns to Avoid
 
@@ -305,6 +308,7 @@ Default fix order (code-first, not prompt-first):
 - ❌ Accepting "must use tool" in prompt text when code never enforces it
 - ❌ Modeling multi-agent systems as PM → architect → coder → QA handoff chains without proving the information flow works
 - ❌ Compressing context without a page-fault path back to the exact old detail
+- ❌ Treating every memory as either a verified fact or a full procedure, with no associative middle layer
 
 ## Project Structure
 
@@ -312,7 +316,7 @@ Default fix order (code-first, not prompt-first):
 agchk/                          ← 唯一源码库 (single source of truth)
 ├── .github/                    ← PR templates, governance workflow, code owners
 ├── agchk/
-│   ├── scanners/               ← 15 个反模式扫描器
+│   ├── scanners/               ← 16 个反模式扫描器
 │   ├── audit.py                ← 主编排器
 │   ├── contribute.py           ← 自扫描贡献包与 fork PR 流程
 │   ├── report.py               ← 报告生成
