@@ -10,7 +10,9 @@ MEMORY_FILE_RE = re.compile(
     r"(?:memory|checkpoint|archive|summary|history|session|state|snapshot|insight)",
     re.IGNORECASE,
 )
-GENERATION_SUFFIX_RE = re.compile(r"(?:^|[-_ ])(?:old|new|latest|final|draft|copy|backup|bak|v\d+)(?:$|[-_ ])", re.IGNORECASE)
+GENERATION_SUFFIX_RE = re.compile(
+    r"(?:^|[-_ ])(?:old|new|latest|final|draft|copy|backup|bak|v\d+)(?:$|[-_ ])", re.IGNORECASE
+)
 SCAN_EXTENSIONS = {".py", ".ts", ".js", ".json", ".md", ".txt", ".yaml", ".yml", ".toml"}
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "coverage"}
 
@@ -38,7 +40,17 @@ def scan_memory_freshness(target: Path) -> List[Dict[str, Any]]:
         path_text = "/".join(fp.parts)
         if MEMORY_FILE_RE.search(path_text):
             memory_files.append(fp)
-            for category in ("memory", "checkpoint", "archive", "summary", "history", "session", "state", "snapshot", "insight"):
+            for category in (
+                "memory",
+                "checkpoint",
+                "archive",
+                "summary",
+                "history",
+                "session",
+                "state",
+                "snapshot",
+                "insight",
+            ):
                 if category in path_text.lower():
                     categories_present.add(category)
 

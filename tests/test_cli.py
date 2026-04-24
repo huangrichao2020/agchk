@@ -60,6 +60,35 @@ def test_cli_accepts_direct_target_path_and_writes_outputs(tmp_path: Path) -> No
     assert data["scan_metadata"]["profile"] == "enterprise_production"
 
 
+def test_cli_accepts_package_module_entrypoint(tmp_path: Path) -> None:
+    project = _write_project(
+        tmp_path / "project",
+        "print('hello agent')\n",
+    )
+    json_output = tmp_path / "audit.json"
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "agchk",
+            str(project),
+            "-o",
+            str(json_output),
+            "-r",
+            str(tmp_path / "audit.md"),
+            "--quiet",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=_cli_env(),
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert json_output.exists()
+
+
 def test_cli_can_fail_ci_on_severity_threshold(tmp_path: Path) -> None:
     project = _write_project(
         tmp_path / "project",

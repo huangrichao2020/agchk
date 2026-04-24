@@ -55,22 +55,24 @@ def scan_observability(target: Path) -> List[Dict[str, Any]]:
             break
 
     if not found_any:
-        findings.append({
-            "severity": "medium",
-            "title": "Missing observability/tracing system",
-            "symptom": "No observability, tracing, or telemetry patterns detected in the codebase.",
-            "user_impact": "Without tracing, you cannot audit LLM calls, track costs, detect tool-call anomalies, or replay agent decisions for incident investigation.",
-            "source_layer": "observability",
-            "mechanism": "No match for observability patterns (langsmith, langfuse, opentelemetry, tracer, telemetry, cost tracking, etc.).",
-            "root_cause": "No observability or tracing integration has been added to the agent system.",
-            "evidence_refs": evidence if evidence else ["(none found)"],
-            "confidence": 0.8,
-            "fix_type": "add_integration",
-            "recommended_fix": (
-                "Add an LLM observability layer: LangSmith, Langfuse, or Helicone for tracing LLM calls. "
-                "Implement cost tracking, token counting, and latency monitoring. "
-                "Use OpenTelemetry for distributed traces across agent steps."
-            ),
-        })
+        findings.append(
+            {
+                "severity": "medium",
+                "title": "Missing observability/tracing system",
+                "symptom": "No observability, tracing, or telemetry patterns detected in the codebase.",
+                "user_impact": "Without tracing, you cannot audit LLM calls, track costs, detect tool-call anomalies, or replay agent decisions for incident investigation.",
+                "source_layer": "observability",
+                "mechanism": "No match for observability patterns (langsmith, langfuse, opentelemetry, tracer, telemetry, cost tracking, etc.).",
+                "root_cause": "No observability or tracing integration has been added to the agent system.",
+                "evidence_refs": evidence if evidence else ["(none found)"],
+                "confidence": 0.8,
+                "fix_type": "add_integration",
+                "recommended_fix": (
+                    "Add an LLM observability layer: LangSmith, Langfuse, or Helicone for tracing LLM calls. "
+                    "Implement cost tracking, token counting, and latency monitoring. "
+                    "Use OpenTelemetry for distributed traces across agent steps."
+                ),
+            }
+        )
 
     return findings

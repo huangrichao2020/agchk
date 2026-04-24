@@ -63,22 +63,24 @@ def scan_output_pipeline(target: Path) -> List[Dict[str, Any]]:
             if len(mutation_lines) > 3:
                 finding_lines += f" (+{len(mutation_lines) - 3} more)"
 
-            findings.append({
-                "severity": "medium",
-                "title": "Output mutation / response transformation detected",
-                "symptom": f"Response mutation in {fp.name}: {finding_lines}",
-                "user_impact": "Post-processing of LLM output can silently alter, censor, or inject content into responses, changing what the user sees vs. what the model produced.",
-                "source_layer": "output_pipeline",
-                "mechanism": "Regex match for output mutation/transformation patterns.",
-                "root_cause": "LLM responses are modified after generation but before delivery to user.",
-                "evidence_refs": [f"{fp}:{ln}" for ln, _ in mutation_lines],
-                "confidence": confidence,
-                "fix_type": "code_change",
-                "recommended_fix": (
-                    "Document all output transformations. Use explicit allowlists for modifications. "
-                    "Log both raw LLM output and post-processed output for auditability. "
-                    "Avoid injecting content that could be attributed to the model."
-                ),
-            })
+            findings.append(
+                {
+                    "severity": "medium",
+                    "title": "Output mutation / response transformation detected",
+                    "symptom": f"Response mutation in {fp.name}: {finding_lines}",
+                    "user_impact": "Post-processing of LLM output can silently alter, censor, or inject content into responses, changing what the user sees vs. what the model produced.",
+                    "source_layer": "output_pipeline",
+                    "mechanism": "Regex match for output mutation/transformation patterns.",
+                    "root_cause": "LLM responses are modified after generation but before delivery to user.",
+                    "evidence_refs": [f"{fp}:{ln}" for ln, _ in mutation_lines],
+                    "confidence": confidence,
+                    "fix_type": "code_change",
+                    "recommended_fix": (
+                        "Document all output transformations. Use explicit allowlists for modifications. "
+                        "Log both raw LLM output and post-processed output for auditability. "
+                        "Avoid injecting content that could be attributed to the model."
+                    ),
+                }
+            )
 
     return findings

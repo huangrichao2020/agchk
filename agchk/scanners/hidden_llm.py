@@ -88,33 +88,37 @@ def scan_hidden_llm_calls(target: Path) -> List[Dict[str, Any]]:
             llm_call_sites.append((fp, lineno, line.strip()[:120]))
 
     for fp, lineno, snippet in llm_call_sites:
-        findings.append({
-            "severity": "high",
-            "title": "Hidden or secondary LLM call detected",
-            "symptom": f"LLM API call found at {fp.name}:{lineno}: {snippet}",
-            "user_impact": "Secondary LLM calls may bypass tool restrictions, safety checks, or cost controls defined in the main agent loop.",
-            "source_layer": "llm_routing",
-            "mechanism": "Regex match for LLM call pattern outside main agent loop file.",
-            "root_cause": "Additional LLM invocations exist outside the primary orchestration path, potentially unguarded.",
-            "evidence_refs": [f"{fp}:{lineno}"],
-            "confidence": 0.8,
-            "fix_type": "code_change",
-            "recommended_fix": "Consolidate all LLM calls through the main agent loop. If a secondary call is intentional, add explicit documentation, guardrails, and cost tracking.",
-        })
+        findings.append(
+            {
+                "severity": "high",
+                "title": "Hidden or secondary LLM call detected",
+                "symptom": f"LLM API call found at {fp.name}:{lineno}: {snippet}",
+                "user_impact": "Secondary LLM calls may bypass tool restrictions, safety checks, or cost controls defined in the main agent loop.",
+                "source_layer": "llm_routing",
+                "mechanism": "Regex match for LLM call pattern outside main agent loop file.",
+                "root_cause": "Additional LLM invocations exist outside the primary orchestration path, potentially unguarded.",
+                "evidence_refs": [f"{fp}:{lineno}"],
+                "confidence": 0.8,
+                "fix_type": "code_change",
+                "recommended_fix": "Consolidate all LLM calls through the main agent loop. If a secondary call is intentional, add explicit documentation, guardrails, and cost tracking.",
+            }
+        )
 
     if not has_main_loop and llm_call_sites:
-        findings.append({
-            "severity": "high",
-            "title": "No main agent loop pattern found",
-            "symptom": "LLM calls detected but no recognized main loop (agent_loop, main_loop, orchestrator, chain_run) pattern.",
-            "user_impact": "Without a clear orchestration loop, LLM calls may be scattered and uncoordinated, making it hard to enforce tool policies or cost limits.",
-            "source_layer": "llm_routing",
-            "mechanism": "No match for main loop patterns (agent.*loop, main.*loop, orchestrat, chain.*run).",
-            "root_cause": "Missing or non-standard agent orchestration structure.",
-            "evidence_refs": [f"{fp}:{lineno}" for fp, lineno, _ in llm_call_sites],
-            "confidence": 0.7,
-            "fix_type": "code_change",
-            "recommended_fix": "Implement a clear main agent loop that centralizes all LLM invocations, tool routing, and policy enforcement.",
-        })
+        findings.append(
+            {
+                "severity": "high",
+                "title": "No main agent loop pattern found",
+                "symptom": "LLM calls detected but no recognized main loop (agent_loop, main_loop, orchestrator, chain_run) pattern.",
+                "user_impact": "Without a clear orchestration loop, LLM calls may be scattered and uncoordinated, making it hard to enforce tool policies or cost limits.",
+                "source_layer": "llm_routing",
+                "mechanism": "No match for main loop patterns (agent.*loop, main.*loop, orchestrat, chain.*run).",
+                "root_cause": "Missing or non-standard agent orchestration structure.",
+                "evidence_refs": [f"{fp}:{lineno}" for fp, lineno, _ in llm_call_sites],
+                "confidence": 0.7,
+                "fix_type": "code_change",
+                "recommended_fix": "Implement a clear main agent loop that centralizes all LLM invocations, tool routing, and policy enforcement.",
+            }
+        )
 
     return findings

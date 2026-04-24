@@ -71,9 +71,7 @@ def _infer_channels(target: Path) -> list[str]:
 
     combined = "\n".join(contents).lower()
     channels = [
-        channel
-        for channel, patterns in CHANNEL_HINTS.items()
-        if any(pattern in combined for pattern in patterns)
+        channel for channel, patterns in CHANNEL_HINTS.items() if any(pattern in combined for pattern in patterns)
     ]
     return channels or ["unknown"]
 
@@ -133,9 +131,7 @@ def _build_executive_verdict(
     return {
         "overall_health": health_mapping[top_severity],
         "primary_failure_mode": top_finding["title"] if top_finding else "No significant findings",
-        "most_urgent_fix": (
-            top_finding["recommended_fix"] if top_finding else "No immediate action required."
-        ),
+        "most_urgent_fix": (top_finding["recommended_fix"] if top_finding else "No immediate action required."),
     }
 
 

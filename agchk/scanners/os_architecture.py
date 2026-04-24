@@ -44,8 +44,12 @@ SKIP_FILENAMES = {
 MAX_FILE_BYTES = 250_000
 
 PATTERNS = {
-    "kernel": re.compile(r"\b(?:harness|orchestrator|scheduler|kernel|agent loop|react loop|main loop)\b", re.IGNORECASE),
-    "memory": re.compile(r"\b(?:context|memory|summary|compact|compression|rag|vector|embedding|history)\b", re.IGNORECASE),
+    "kernel": re.compile(
+        r"\b(?:harness|orchestrator|scheduler|kernel|agent loop|react loop|main loop)\b", re.IGNORECASE
+    ),
+    "memory": re.compile(
+        r"\b(?:context|memory|summary|compact|compression|rag|vector|embedding|history)\b", re.IGNORECASE
+    ),
     "paging": re.compile(
         r"\b(?:page table|page fault|paging|swap(?: in| out)?|lru|hot data|cold data|heat score|ttl|recency|pin(?:ned)?)\b",
         re.IGNORECASE,
@@ -58,7 +62,9 @@ PATTERNS = {
         r"\b(?:syscall table|capability|capabilities|cap_[a-z0-9_]+|permission matrix|seccomp)\b",
         re.IGNORECASE,
     ),
-    "scheduler": re.compile(r"\b(?:worker|swarm|queue|task|job|heartbeat|cron|scheduler|delegate|subagent)\b", re.IGNORECASE),
+    "scheduler": re.compile(
+        r"\b(?:worker|swarm|queue|task|job|heartbeat|cron|scheduler|delegate|subagent)\b", re.IGNORECASE
+    ),
     "fairness": re.compile(
         r"\b(?:time slice|timeslice|deadline|budget|priority|preempt|context switch|yield|cancel|cancellation|backpressure)\b",
         re.IGNORECASE,

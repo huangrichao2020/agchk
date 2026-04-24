@@ -12,10 +12,17 @@ SCAN_EXTENSIONS = {".py", ".ts", ".js", ".tsx", ".jsx", ".md", ".yaml", ".yml", 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "coverage"}
 
 ROLE_PATTERNS = {
-    "manager": re.compile(r"\b(?:manager|supervisor|coordinator|pm|product manager|project manager)\b|(?:总管|主管|经理|产品经理|项目经理)", re.IGNORECASE),
+    "manager": re.compile(
+        r"\b(?:manager|supervisor|coordinator|pm|product manager|project manager)\b|(?:总管|主管|经理|产品经理|项目经理)",
+        re.IGNORECASE,
+    ),
     "planner": re.compile(r"\b(?:planner|architect|designer|strategist)\b|(?:规划师|架构师|设计师)", re.IGNORECASE),
-    "builder": re.compile(r"\b(?:coder|developer|engineer|executor|worker|implementer)\b|(?:开发者|工程师|执行者)", re.IGNORECASE),
-    "reviewer": re.compile(r"\b(?:reviewer|critic|qa|tester|verifier|auditor)\b|(?:审核|评审|测试|质检|验证者)", re.IGNORECASE),
+    "builder": re.compile(
+        r"\b(?:coder|developer|engineer|executor|worker|implementer)\b|(?:开发者|工程师|执行者)", re.IGNORECASE
+    ),
+    "reviewer": re.compile(
+        r"\b(?:reviewer|critic|qa|tester|verifier|auditor)\b|(?:审核|评审|测试|质检|验证者)", re.IGNORECASE
+    ),
     "researcher": re.compile(r"\b(?:researcher|analyst|investigator)\b|(?:研究员|分析师|调研员)", re.IGNORECASE),
 }
 

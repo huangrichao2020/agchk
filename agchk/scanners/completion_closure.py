@@ -14,13 +14,33 @@ SKIP_FILENAMES = {"package-lock.json", "pnpm-lock.yaml", "yarn.lock", "poetry.lo
 MAX_FILE_BYTES = 250_000
 
 SIGNAL_PATTERNS = {
-    "file_create": re.compile(r"\b(?:create file|write file|save file|mkdir|touch|open\(.*[\"']w|write_text|writeFile)\b|(?:创建文件|写入文件|落地文件)", re.IGNORECASE),
-    "index_update": re.compile(r"\b(?:update index|index update|registry|manifest|catalog|toc|table of contents)\b|(?:更新索引|索引更新|目录|清单|注册表)", re.IGNORECASE),
-    "impression_card": re.compile(r"\b(?:impression card|memory card|summary card|cue card|concept card)\b|(?:印象卡片|记忆卡片|概念卡片)", re.IGNORECASE),
-    "anchor_mapping": re.compile(r"\b(?:anchor mapping|semantic anchor|topic_anchor|anchor map|concept anchor)\b|(?:锚点映射|语义锚点|主题锚点)", re.IGNORECASE),
-    "pointer_register": re.compile(r"\b(?:pointer register|register pointer|pointer_ref|pointer_type|vector_id|page table entry)\b|(?:指针注册|注册指针|页表项)", re.IGNORECASE),
-    "acceptance": re.compile(r"\b(?:acceptance|acceptance criteria|done criteria|verify|validation|self[-_ ]?test|reusable|can find|next time)\b|(?:验收|验收标准|完成标准|验证|可复用|下次.*找到)", re.IGNORECASE),
-    "premature_done": re.compile(r"\b(?:done|completed|task complete|finished|success)\b|(?:完成|已完成|任务完成|成功)", re.IGNORECASE),
+    "file_create": re.compile(
+        r"\b(?:create file|write file|save file|mkdir|touch|open\(.*[\"']w|write_text|writeFile)\b|(?:创建文件|写入文件|落地文件)",
+        re.IGNORECASE,
+    ),
+    "index_update": re.compile(
+        r"\b(?:update index|index update|registry|manifest|catalog|toc|table of contents)\b|(?:更新索引|索引更新|目录|清单|注册表)",
+        re.IGNORECASE,
+    ),
+    "impression_card": re.compile(
+        r"\b(?:impression card|memory card|summary card|cue card|concept card)\b|(?:印象卡片|记忆卡片|概念卡片)",
+        re.IGNORECASE,
+    ),
+    "anchor_mapping": re.compile(
+        r"\b(?:anchor mapping|semantic anchor|topic_anchor|anchor map|concept anchor)\b|(?:锚点映射|语义锚点|主题锚点)",
+        re.IGNORECASE,
+    ),
+    "pointer_register": re.compile(
+        r"\b(?:pointer register|register pointer|pointer_ref|pointer_type|vector_id|page table entry)\b|(?:指针注册|注册指针|页表项)",
+        re.IGNORECASE,
+    ),
+    "acceptance": re.compile(
+        r"\b(?:acceptance|acceptance criteria|done criteria|verify|validation|self[-_ ]?test|reusable|can find|next time)\b|(?:验收|验收标准|完成标准|验证|可复用|下次.*找到)",
+        re.IGNORECASE,
+    ),
+    "premature_done": re.compile(
+        r"\b(?:done|completed|task complete|finished|success)\b|(?:完成|已完成|任务完成|成功)", re.IGNORECASE
+    ),
 }
 
 REQUIRED_CLOSURE = ("impression_card", "anchor_mapping", "pointer_register", "acceptance")

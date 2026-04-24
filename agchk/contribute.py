@@ -74,9 +74,7 @@ def _load_audit_results(source: str, *, profile: str, quiet: bool) -> dict[str, 
     if source_path.is_dir():
         config = AuditConfig.from_profile(profile)
         return run_audit(str(source_path), config=config, verbose=not quiet)
-    raise FileNotFoundError(
-        "Expected an audit JSON file or a target directory for `agchk contribute prepare`."
-    )
+    raise FileNotFoundError("Expected an audit JSON file or a target directory for `agchk contribute prepare`.")
 
 
 def _build_slug(results: dict[str, Any]) -> str:

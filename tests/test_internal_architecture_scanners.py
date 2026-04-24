@@ -48,7 +48,9 @@ def test_personal_profile_surfaces_internal_architecture_findings(tmp_path: Path
         ),
         encoding="utf-8",
     )
-    (tmp_path / "launch.py").write_text("import subprocess\nsubprocess.run(['python', '-m', 'app'])\n", encoding="utf-8")
+    (tmp_path / "launch.py").write_text(
+        "import subprocess\nsubprocess.run(['python', '-m', 'app'])\n", encoding="utf-8"
+    )
     (tmp_path / "start.sh").write_text("python -m launch\n", encoding="utf-8")
     (tmp_path / "docker-compose.yml").write_text("services:\n  app:\n    image: test\n", encoding="utf-8")
     (tmp_path / "com.example.agent.plist").write_text("<plist></plist>\n", encoding="utf-8")

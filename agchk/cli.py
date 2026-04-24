@@ -91,7 +91,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pr_parser.add_argument("bundle", help="Path to a bundle directory created by `agchk contribute prepare`")
     pr_parser.add_argument("--owner-consent", action="store_true", help="Confirm the agent owner approved publication")
-    pr_parser.add_argument("--public-safe", action="store_true", help="Confirm the contribution is safe for public release")
+    pr_parser.add_argument(
+        "--public-safe", action="store_true", help="Confirm the contribution is safe for public release"
+    )
     pr_parser.add_argument("--repo", default="huangrichao2020/agchk", help="Upstream repository to target")
     pr_parser.add_argument("--ready", action="store_true", help="Create a ready-for-review PR instead of a draft")
     pr_parser.add_argument("--title", help="Override the suggested PR title")

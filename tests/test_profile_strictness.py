@@ -7,9 +7,7 @@ from agchk.config import AuditConfig
 
 
 def _finding(results: dict, title_prefix: str) -> dict:
-    return next(
-        finding for finding in results["findings"] if finding["title"].startswith(title_prefix)
-    )
+    return next(finding for finding in results["findings"] if finding["title"].startswith(title_prefix))
 
 
 def test_personal_profile_relaxes_common_prototyping_findings(tmp_path: Path) -> None:

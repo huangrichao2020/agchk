@@ -70,18 +70,20 @@ def scan_memory_patterns(target: Path) -> List[Dict[str, Any]]:
                 has_limit = True
 
         if has_growth and not has_limit:
-            findings.append({
-                "severity": "medium",
-                "title": "Memory growth without apparent limit",
-                "symptom": f"Memory/context growth pattern in {fp.name} without nearby limit/trim/expire pattern.",
-                "user_impact": "Unbounded memory growth can cause context window overflow, increased costs, and degraded response quality.",
-                "source_layer": "memory_management",
-                "mechanism": "Growth operation detected but no limit/truncation pattern found within proximity.",
-                "root_cause": "Memory or context is appended without size bounds, TTL, or eviction policy.",
-                "evidence_refs": [str(fp)],
-                "confidence": 0.75,
-                "fix_type": "code_change",
-                "recommended_fix": "Add memory limits: max context size, TTL for old entries, truncation strategy (e.g., keep last N messages, summary-based compaction).",
-            })
+            findings.append(
+                {
+                    "severity": "medium",
+                    "title": "Memory growth without apparent limit",
+                    "symptom": f"Memory/context growth pattern in {fp.name} without nearby limit/trim/expire pattern.",
+                    "user_impact": "Unbounded memory growth can cause context window overflow, increased costs, and degraded response quality.",
+                    "source_layer": "memory_management",
+                    "mechanism": "Growth operation detected but no limit/truncation pattern found within proximity.",
+                    "root_cause": "Memory or context is appended without size bounds, TTL, or eviction policy.",
+                    "evidence_refs": [str(fp)],
+                    "confidence": 0.75,
+                    "fix_type": "code_change",
+                    "recommended_fix": "Add memory limits: max context size, TTL for old entries, truncation strategy (e.g., keep last N messages, summary-based compaction).",
+                }
+            )
 
     return findings

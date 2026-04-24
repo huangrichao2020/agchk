@@ -75,9 +75,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
     if results.get("evidence_pack"):
         lines.extend(["## Evidence Pack", ""])
         for evidence in results["evidence_pack"]:
-            lines.append(
-                f"- `{evidence['kind']}` {evidence['location']} — {evidence['summary']}"
-            )
+            lines.append(f"- `{evidence['kind']}` {evidence['location']} — {evidence['summary']}")
         lines.append("")
 
     for index, finding in enumerate(results.get("findings", []), start=1):

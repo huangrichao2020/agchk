@@ -6,10 +6,10 @@ from typing import Any, Dict, List
 
 # Precompiled patterns
 SECRET_PATTERNS = [
-    re.compile(r"sk-[a-zA-Z0-9]{20,}", re.IGNORECASE),       # OpenAI
-    re.compile(r"ghp_[a-zA-Z0-9]{36}", re.IGNORECASE),        # GitHub
-    re.compile(r"glpat-[a-zA-Z0-9]{20,}", re.IGNORECASE),     # GitLab
-    re.compile(r"AKIA[0-9A-Z]{16}", re.IGNORECASE),           # AWS access key
+    re.compile(r"sk-[a-zA-Z0-9]{20,}", re.IGNORECASE),  # OpenAI
+    re.compile(r"ghp_[a-zA-Z0-9]{36}", re.IGNORECASE),  # GitHub
+    re.compile(r"glpat-[a-zA-Z0-9]{20,}", re.IGNORECASE),  # GitLab
+    re.compile(r"AKIA[0-9A-Z]{16}", re.IGNORECASE),  # AWS access key
     re.compile(r"(?i)(?:api[_-]?key|apikey|secret[_-]?key|token)\s*[=:]\s*['\"]([a-zA-Z0-9+/]{20,}={0,2})['\"]"),
 ]
 
@@ -52,19 +52,21 @@ def scan_secrets(target: Path) -> List[Dict[str, Any]]:
             for pat in SECRET_PATTERNS:
                 m = pat.search(line)
                 if m:
-                    findings.append({
-                        "severity": "critical",
-                        "title": "Hardcoded secret or API key detected",
-                        "symptom": f"Secret pattern found at {fp.name}:{lineno}: {line.strip()[:80]}",
-                        "user_impact": "Exposed credentials can be stolen from version control or file dumps, leading to unauthorized access and billing abuse.",
-                        "source_layer": "secrets_management",
-                        "mechanism": f"Regex match for pattern: {pat.pattern}",
-                        "root_cause": "Credentials hardcoded in source instead of using environment variables or a secrets manager.",
-                        "evidence_refs": [f"{fp}:{lineno}"],
-                        "confidence": 0.9,
-                        "fix_type": "code_change",
-                        "recommended_fix": "Move credential to environment variable or secrets manager (e.g., AWS Secrets Manager, Doppler). Add pre-commit hook to block secret commits.",
-                    })
+                    findings.append(
+                        {
+                            "severity": "critical",
+                            "title": "Hardcoded secret or API key detected",
+                            "symptom": f"Secret pattern found at {fp.name}:{lineno}: {line.strip()[:80]}",
+                            "user_impact": "Exposed credentials can be stolen from version control or file dumps, leading to unauthorized access and billing abuse.",
+                            "source_layer": "secrets_management",
+                            "mechanism": f"Regex match for pattern: {pat.pattern}",
+                            "root_cause": "Credentials hardcoded in source instead of using environment variables or a secrets manager.",
+                            "evidence_refs": [f"{fp}:{lineno}"],
+                            "confidence": 0.9,
+                            "fix_type": "code_change",
+                            "recommended_fix": "Move credential to environment variable or secrets manager (e.g., AWS Secrets Manager, Doppler). Add pre-commit hook to block secret commits.",
+                        }
+                    )
                     break  # one finding per line
 
     return findings

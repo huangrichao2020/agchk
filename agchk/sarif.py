@@ -8,9 +8,7 @@ from typing import Any
 
 from agchk import __version__
 
-SARIF_SCHEMA_URL = (
-    "https://json.schemastore.org/sarif-2.1.0.json"
-)
+SARIF_SCHEMA_URL = "https://json.schemastore.org/sarif-2.1.0.json"
 SARIF_LEVEL = {
     "critical": "error",
     "high": "error",

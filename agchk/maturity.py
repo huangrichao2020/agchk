@@ -28,7 +28,9 @@ ERA_BANDS = (
     EraBand("bronze_age", "青铜时代", 20, "开始有事实、技能或工具，但边界和调度仍比较粗糙。"),
     EraBand("iron_age", "铁器时代", 35, "具备较清晰的工具、记忆和技能分层，开始可维护。"),
     EraBand("steam_age", "蒸汽机时代", 50, "出现调度、分页、压缩、外部知识等工程化能力，但效率仍靠堆结构。"),
-    EraBand("combustion_age", "内燃气时代", 65, "具备较强 runtime 动力系统，开始有 syscall、scheduler、paging 或 VFS 意识。"),
+    EraBand(
+        "combustion_age", "内燃气时代", 65, "具备较强 runtime 动力系统，开始有 syscall、scheduler、paging 或 VFS 意识。"
+    ),
     EraBand("new_energy_age", "新能源时代", 80, "OS 原语较完整，能用更低内耗管理记忆、工具、调度和知识挂载。"),
     EraBand("ai_age", "人工智能时代", 92, "具备可进化的 agent OS：印象指针、缺页换入、能力表、调度公平性和优化闭环。"),
 )
@@ -41,24 +43,49 @@ SIGNAL_PATTERNS = {
         r"主体.{0,24}动作.{0,24}场景|风格.{0,24}构图.{0,24}光线|构图.{0,24}光线.{0,24}细节)",
         re.IGNORECASE,
     ),
-    "agent_runtime": re.compile(r"\b(?:agent|react loop|agent loop|harness|orchestrator|swarm|subagent)\b|智能体", re.IGNORECASE),
-    "tool_syscalls": re.compile(r"\b(?:tool_call|tool use|function calling|function_call|execute_shell|subprocess|syscall)\b", re.IGNORECASE),
+    "agent_runtime": re.compile(
+        r"\b(?:agent|react loop|agent loop|harness|orchestrator|swarm|subagent)\b|智能体", re.IGNORECASE
+    ),
+    "tool_syscalls": re.compile(
+        r"\b(?:tool_call|tool use|function calling|function_call|execute_shell|subprocess|syscall)\b", re.IGNORECASE
+    ),
     "fact_memory": re.compile(r"\b(?:facts?|preference|profile|entity|metadata)\b|(?:事实|偏好|画像)", re.IGNORECASE),
-    "skill_memory": re.compile(r"\b(?:skills?|procedure|workflow|runbook|sop|playbook)\b|(?:技能|流程|经验)", re.IGNORECASE),
-    "linear_compaction": re.compile(r"\b(?:summary|summarize|compact|compression|previous_summary|context_compact)\b|(?:摘要|压缩)", re.IGNORECASE),
-    "paging": re.compile(r"\b(?:page table|page entry|paging|lru|hot data|cold data|swap(?: in| out)?)\b|(?:页表|分页|换入|换出)", re.IGNORECASE),
-    "page_fault": re.compile(r"\b(?:page fault|deep dive|swap in|swap-in|fault in)\b|(?:缺页|深挖|换入)", re.IGNORECASE),
-    "impression": re.compile(r"\b(?:impression|cue|semantic hint|route hint|concept map|mental map)\b|(?:印象|联想|概念路标)", re.IGNORECASE),
+    "skill_memory": re.compile(
+        r"\b(?:skills?|procedure|workflow|runbook|sop|playbook)\b|(?:技能|流程|经验)", re.IGNORECASE
+    ),
+    "linear_compaction": re.compile(
+        r"\b(?:summary|summarize|compact|compression|previous_summary|context_compact)\b|(?:摘要|压缩)", re.IGNORECASE
+    ),
+    "paging": re.compile(
+        r"\b(?:page table|page entry|paging|lru|hot data|cold data|swap(?: in| out)?)\b|(?:页表|分页|换入|换出)",
+        re.IGNORECASE,
+    ),
+    "page_fault": re.compile(
+        r"\b(?:page fault|deep dive|swap in|swap-in|fault in)\b|(?:缺页|深挖|换入)", re.IGNORECASE
+    ),
+    "impression": re.compile(
+        r"\b(?:impression|cue|semantic hint|route hint|concept map|mental map)\b|(?:印象|联想|概念路标)", re.IGNORECASE
+    ),
     "impression_pointer": re.compile(
         r"\b(?:topic_anchor|semantic_hash|pointer_ref|pointer_type|activation_level|in_mind|subconscious)\b|"
         r"(?:语义锚点|激活层级|潜意识)",
         re.IGNORECASE,
     ),
-    "scheduler": re.compile(r"\b(?:scheduler|worker queue|task queue|cron|heartbeat|delegate|subagent)\b", re.IGNORECASE),
-    "fairness": re.compile(r"\b(?:time slice|timeslice|priority|budget|preempt|cancel|cancellation|backpressure|deadline)\b", re.IGNORECASE),
-    "capability_table": re.compile(r"\b(?:syscall table|capability|capabilities|cap_[a-z0-9_]+|permission matrix|seccomp)\b", re.IGNORECASE),
-    "semantic_vfs": re.compile(r"\b(?:vfs|virtual file|mount point|resource path|semantic fs|/knowledge|/skills|/memory)\b", re.IGNORECASE),
-    "observability": re.compile(r"\b(?:trace|tracing|telemetry|span|eval|evaluation|reward|cost tracking)\b", re.IGNORECASE),
+    "scheduler": re.compile(
+        r"\b(?:scheduler|worker queue|task queue|cron|heartbeat|delegate|subagent)\b", re.IGNORECASE
+    ),
+    "fairness": re.compile(
+        r"\b(?:time slice|timeslice|priority|budget|preempt|cancel|cancellation|backpressure|deadline)\b", re.IGNORECASE
+    ),
+    "capability_table": re.compile(
+        r"\b(?:syscall table|capability|capabilities|cap_[a-z0-9_]+|permission matrix|seccomp)\b", re.IGNORECASE
+    ),
+    "semantic_vfs": re.compile(
+        r"\b(?:vfs|virtual file|mount point|resource path|semantic fs|/knowledge|/skills|/memory)\b", re.IGNORECASE
+    ),
+    "observability": re.compile(
+        r"\b(?:trace|tracing|telemetry|span|eval|evaluation|reward|cost tracking)\b", re.IGNORECASE
+    ),
 }
 
 SIGNAL_POINTS = {

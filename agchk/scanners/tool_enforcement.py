@@ -76,34 +76,38 @@ def scan_tool_enforcement(target: Path) -> List[Dict[str, Any]]:
     if prompt_files and not tool_call_files:
         # Prompts require tools but no tool-calling code found
         for pf in prompt_files:
-            findings.append({
-                "severity": "high",
-                "title": "Tool calling required by prompt but not implemented in code",
-                "symptom": f"Prompt file {pf.name} specifies tool requirements but no tool-calling code exists.",
-                "user_impact": "The agent may ignore required tool usage, leading to incorrect outputs or hallucinated tool results.",
-                "source_layer": "tool_enforcement",
-                "mechanism": "Prompt declares tool requirements; no corresponding enforcement code found.",
-                "root_cause": "Gap between prompt-specified tool usage and actual implementation.",
-                "evidence_refs": [str(pf) for pf in prompt_files],
-                "confidence": 0.8,
-                "fix_type": "code_change",
-                "recommended_fix": "Implement tool-call validation: add assertions or validation functions that verify tool usage matches prompt requirements.",
-            })
+            findings.append(
+                {
+                    "severity": "high",
+                    "title": "Tool calling required by prompt but not implemented in code",
+                    "symptom": f"Prompt file {pf.name} specifies tool requirements but no tool-calling code exists.",
+                    "user_impact": "The agent may ignore required tool usage, leading to incorrect outputs or hallucinated tool results.",
+                    "source_layer": "tool_enforcement",
+                    "mechanism": "Prompt declares tool requirements; no corresponding enforcement code found.",
+                    "root_cause": "Gap between prompt-specified tool usage and actual implementation.",
+                    "evidence_refs": [str(pf) for pf in prompt_files],
+                    "confidence": 0.8,
+                    "fix_type": "code_change",
+                    "recommended_fix": "Implement tool-call validation: add assertions or validation functions that verify tool usage matches prompt requirements.",
+                }
+            )
 
     elif prompt_files and not has_validation:
         # Tool calling code exists but no validation
-        findings.append({
-            "severity": "high",
-            "title": "Tool calls lack validation or enforcement",
-            "symptom": "Prompts require specific tool usage but code does not validate tool call results or schema.",
-            "user_impact": "Unchecked tool calls can return malformed data or fail silently, causing downstream errors.",
-            "source_layer": "tool_enforcement",
-            "mechanism": "Tool-calling code found but no validation (assert/if not/raise/validate/check/verify/guard).",
-            "root_cause": "Tool results are not validated before being passed to subsequent LLM calls.",
-            "evidence_refs": [str(f) for f in prompt_files + tool_call_files],
-            "confidence": 0.85,
-            "fix_type": "code_change",
-            "recommended_fix": "Add validation layer: validate tool call schemas, assert expected result types, and raise on unexpected responses.",
-        })
+        findings.append(
+            {
+                "severity": "high",
+                "title": "Tool calls lack validation or enforcement",
+                "symptom": "Prompts require specific tool usage but code does not validate tool call results or schema.",
+                "user_impact": "Unchecked tool calls can return malformed data or fail silently, causing downstream errors.",
+                "source_layer": "tool_enforcement",
+                "mechanism": "Tool-calling code found but no validation (assert/if not/raise/validate/check/verify/guard).",
+                "root_cause": "Tool results are not validated before being passed to subsequent LLM calls.",
+                "evidence_refs": [str(f) for f in prompt_files + tool_call_files],
+                "confidence": 0.85,
+                "fix_type": "code_change",
+                "recommended_fix": "Add validation layer: validate tool call schemas, assert expected result types, and raise on unexpected responses.",
+            }
+        )
 
     return findings
