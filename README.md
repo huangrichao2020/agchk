@@ -15,20 +15,42 @@ Now with profile-aware scanning for:
 - `personal` development
 - `enterprise` production
 
+By default, `agchk` now behaves like a **personal developer architecture review**:
+
+- first look for internal drag and architecture mess
+- then look at safety issues that can actually leak secrets or expose the project to outside intrusion
+- do not treat normal prototype shortcuts as if they were enterprise incidents
+
 ## What It Does
 
-`agchk` scans any Python/TypeScript/JavaScript codebase for 8 categories of agent architecture failures:
+`agchk` scans Python/TypeScript/JavaScript agent projects in two layers.
+
+### Default personal-development focus
+
+These checks are the default emphasis for solo builders and local prototypes:
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
-| 1 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
-| 2 | Tool Enforcement Gap | high | "Must use tool X" in prompt but no code validation |
-| 3 | Hidden LLM Calls | high | Secret second-pass LLM calls in fallback/repair loops |
-| 4 | Unrestricted Code Execution | critical | exec(), eval(), subprocess(shell=True) without sandbox |
-| 5 | Memory Pattern Issues | medium | Unbounded context growth, missing TTL, no retention policy |
-| 6 | Output Pipeline Mutation | medium | Response transformation corrupting correct answers |
-| 7 | Missing Observability | medium | No tracing, logging, or cost tracking |
-| 8 | Excessive Agency | critical/high | Powerful agent capabilities without enough enterprise controls |
+| 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
+| 2 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
+| 3 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
+| 4 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
+| 5 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
+| 6 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
+| 7 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
+| 8 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
+
+### Additional safety and production checks
+
+These remain available, but are softer in `personal` and stricter in `enterprise`:
+
+| # | Scanner | Severity | What It Catches |
+|---|---------|----------|-----------------|
+| 9 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
+| 10 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
+| 11 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
+| 12 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 13 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -38,6 +60,9 @@ pip install agchk
 
 # Audit any agent project
 agchk /path/to/your/langchain/project
+
+# Default personal-developer mode: check internal architecture drag first
+agchk /path/to/your/agent
 
 # Enterprise-production audit with machine-readable outputs
 agchk /path/to/your/agent \
@@ -58,10 +83,23 @@ agchk report audit_results.json
 | `personal` | Solo dev, local prototyping, early experiments | Approval/sandbox/allowlist controls are optional |
 | `enterprise` | Production agents, team-owned internal tools, customer-facing systems | Approval, sandbox, allowlist must cover at least **2 of 3** control categories |
 
-This is especially important for shell, browser, network, and file-modifying agents:
+Profile differences are not just about safety gates. They also change what `agchk` cares about first:
 
-- Personal development can move fast without being flooded by production-only findings.
-- Enterprise production gets a stronger opinionated check for high-agency systems.
+- `personal` defaults to internal architecture review:
+  - orchestration sprawl
+  - memory freshness confusion
+  - duplicated skills/SOPs
+  - startup and runtime complexity
+- `personal` also softens common prototype findings:
+  - `exec` / `eval` / `shell=True` findings are downgraded and the fix guidance focuses on untrusted input rather than blanket removal
+  - missing observability, loose tool enforcement, hidden secondary LLM paths, and unbounded memory growth are treated as softer concerns
+  - internal safety gate issues are not the main focus
+- `enterprise` keeps stricter severities and more conservative remediation guidance, especially for code execution, observability, and high-agency runtimes
+
+In short:
+
+- `personal` asks: "Where is this project wasting attention, introducing internal drag, or becoming hard to reason about?"
+- `enterprise` asks: "What could leak, break, loop forever, or become dangerous in production?"
 
 ## Python API
 

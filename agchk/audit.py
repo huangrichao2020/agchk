@@ -8,16 +8,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-from agchk.config import AuditConfig, SEVERITY_ORDER
+from agchk.config import (
+    AuditConfig,
+    SEVERITY_ORDER,
+    health_mapping_for_profile,
+    normalize_finding_for_profile,
+)
 from agchk.scanners import ScannerSpec, get_enabled_scanners
 
-HEALTH_BY_SEVERITY = {
-    "critical": "critical",
-    "high": "high_risk",
-    "medium": "unstable",
-    "low": "acceptable",
-    "none": "strong",
-}
 SEVERITY_BUCKETS = ("critical", "high", "medium", "low")
 MODEL_HINTS = ("openai", "anthropic", "gemini", "ollama", "bedrock", "llama")
 CHANNEL_HINTS = {
@@ -110,11 +108,17 @@ def _build_evidence_pack(target: Path, findings: list[dict[str, Any]]) -> list[d
     return evidence_pack
 
 
-def _build_executive_verdict(findings: list[dict[str, Any]], severity_summary: dict[str, int]) -> dict[str, str]:
+def _build_executive_verdict(
+    findings: list[dict[str, Any]],
+    severity_summary: dict[str, int],
+    *,
+    config: AuditConfig,
+) -> dict[str, str]:
     top_severity = next((severity for severity in SEVERITY_BUCKETS if severity_summary[severity]), "none")
     top_finding = findings[0] if findings else None
+    health_mapping = health_mapping_for_profile(config)
     return {
-        "overall_health": HEALTH_BY_SEVERITY[top_severity],
+        "overall_health": health_mapping[top_severity],
         "primary_failure_mode": top_finding["title"] if top_finding else "No significant findings",
         "most_urgent_fix": (
             top_finding["recommended_fix"] if top_finding else "No immediate action required."
@@ -166,7 +170,8 @@ def run_audit(
         if verbose:
             print(f"  Scanning: {spec.name}...")
         try:
-            for finding in spec.func(target, config):
+            for raw_finding in spec.func(target, config):
+                finding = normalize_finding_for_profile(raw_finding, config)
                 findings.append(finding)
                 severity = finding.get("severity", "low")
                 if severity in severity_summary:
@@ -192,7 +197,7 @@ def run_audit(
             "scan_duration_seconds": duration,
             "scanner_count": len(selected_scanners),
         },
-        "executive_verdict": _build_executive_verdict(findings, severity_summary),
+        "executive_verdict": _build_executive_verdict(findings, severity_summary, config=config),
         "scope": {
             "target_name": str(target),
             "entrypoints": _infer_entrypoints(target),

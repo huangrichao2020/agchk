@@ -10,10 +10,15 @@ from agchk.config import AuditConfig
 from agchk.scanners.code_execution import scan_code_execution
 from agchk.scanners.excessive_agency import scan_excessive_agency
 from agchk.scanners.hidden_llm import scan_hidden_llm_calls
+from agchk.scanners.internal_orchestration import scan_internal_orchestration
+from agchk.scanners.memory_freshness import scan_memory_freshness
 from agchk.scanners.memory_patterns import scan_memory_patterns
 from agchk.scanners.observability import scan_observability
 from agchk.scanners.output_pipeline import scan_output_pipeline
+from agchk.scanners.runtime_complexity import scan_runtime_complexity
 from agchk.scanners.secrets import scan_secrets
+from agchk.scanners.skill_duplication import scan_skill_duplication
+from agchk.scanners.startup_complexity import scan_startup_complexity
 from agchk.scanners.tool_enforcement import scan_tool_enforcement
 
 ScannerFunc = Callable[[Path, AuditConfig], List[dict]]
@@ -37,6 +42,36 @@ SCANNER_REGISTRY = [
         name="Hardcoded Secrets",
         func=_adapt(scan_secrets),
         audited_layers=("persistence",),
+    ),
+    ScannerSpec(
+        slug="internal_orchestration",
+        name="Internal Orchestration Sprawl",
+        func=_adapt(scan_internal_orchestration),
+        audited_layers=("tool_selection", "fallback_loops"),
+    ),
+    ScannerSpec(
+        slug="memory_freshness",
+        name="Memory Freshness Confusion",
+        func=_adapt(scan_memory_freshness),
+        audited_layers=("session_history", "long_term_memory"),
+    ),
+    ScannerSpec(
+        slug="skill_duplication",
+        name="Skill Duplication",
+        func=_adapt(scan_skill_duplication),
+        audited_layers=("active_recall", "persistence"),
+    ),
+    ScannerSpec(
+        slug="startup_complexity",
+        name="Startup Surface Sprawl",
+        func=_adapt(scan_startup_complexity),
+        audited_layers=("platform_rendering", "persistence"),
+    ),
+    ScannerSpec(
+        slug="runtime_complexity",
+        name="Runtime Surface Sprawl",
+        func=_adapt(scan_runtime_complexity),
+        audited_layers=("platform_rendering", "persistence"),
     ),
     ScannerSpec(
         slug="tool_enforcement",
@@ -84,9 +119,31 @@ SCANNER_REGISTRY = [
 
 
 def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
-    if not config.enabled_scanners:
-        return SCANNER_REGISTRY
-    return [spec for spec in SCANNER_REGISTRY if spec.slug in config.enabled_scanners]
+    if config.enabled_scanners:
+        enabled = [spec for spec in SCANNER_REGISTRY if spec.slug in config.enabled_scanners]
+    else:
+        enabled = list(SCANNER_REGISTRY)
+
+    if config.profile.key == "personal_development":
+        personal_priority = [
+            "internal_orchestration",
+            "memory_freshness",
+            "skill_duplication",
+            "startup_complexity",
+            "runtime_complexity",
+            "memory_patterns",
+            "hidden_llm",
+            "tool_enforcement",
+            "output_pipeline",
+            "code_execution",
+            "observability",
+            "secrets",
+            "excessive_agency",
+        ]
+        order = {slug: index for index, slug in enumerate(personal_priority)}
+        enabled.sort(key=lambda spec: order.get(spec.slug, len(order)))
+
+    return enabled
 
 
 __all__ = [
@@ -96,9 +153,14 @@ __all__ = [
     "scan_code_execution",
     "scan_excessive_agency",
     "scan_hidden_llm_calls",
+    "scan_internal_orchestration",
+    "scan_memory_freshness",
     "scan_memory_patterns",
     "scan_observability",
     "scan_output_pipeline",
+    "scan_runtime_complexity",
     "scan_secrets",
+    "scan_skill_duplication",
+    "scan_startup_complexity",
     "scan_tool_enforcement",
 ]

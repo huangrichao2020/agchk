@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agchk.audit import run_audit
+from agchk.config import AuditConfig
 from agchk.schema import validate_report
 
 
@@ -12,7 +13,11 @@ def test_run_audit_produces_schema_valid_report(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    results = run_audit(str(tmp_path), verbose=False)
+    results = run_audit(
+        str(tmp_path),
+        config=AuditConfig.from_profile("enterprise"),
+        verbose=False,
+    )
 
     assert validate_report(results) == []
     assert results["schema_version"] == "agchk.report.v1"

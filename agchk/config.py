@@ -40,6 +40,28 @@ PROFILE_ALIASES = {
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 FAIL_THRESHOLD_ORDER = {"none": 4, **SEVERITY_ORDER}
+ENTERPRISE_HEALTH_BY_SEVERITY = {
+    "critical": "critical",
+    "high": "high_risk",
+    "medium": "unstable",
+    "low": "acceptable",
+    "none": "strong",
+}
+PERSONAL_HEALTH_BY_SEVERITY = {
+    "critical": "critical",
+    "high": "unstable",
+    "medium": "acceptable",
+    "low": "acceptable",
+    "none": "strong",
+}
+PERSONAL_SEVERITY_OVERRIDES = {
+    "code_execution": {"critical": "medium", "high": "low"},
+    "llm_routing": {"high": "medium"},
+    "memory_management": {"medium": "low"},
+    "observability": {"medium": "low"},
+    "tool_enforcement": {"high": "medium"},
+    "output_pipeline": {"medium": "low"},
+}
 
 
 @dataclass(frozen=True)
@@ -73,6 +95,64 @@ def resolve_profile(profile_name: str | None) -> AuditProfile:
         valid = ", ".join(sorted(PROFILE_ALIASES))
         raise ValueError(f"Unknown audit profile '{profile_name}'. Expected one of: {valid}")
     return PROFILE_PRESETS[normalized]
+
+
+def normalize_finding_for_profile(finding: dict, config: AuditConfig) -> dict:
+    """Adjust finding severity and guidance based on the selected profile."""
+
+    normalized = dict(finding)
+    if config.profile.key != "personal_development":
+        return normalized
+
+    source_layer = normalized.get("source_layer")
+    severity = normalized.get("severity", "low")
+    severity_override = PERSONAL_SEVERITY_OVERRIDES.get(source_layer, {}).get(severity)
+    if severity_override:
+        normalized["severity"] = severity_override
+
+    if source_layer == "code_execution":
+        normalized["recommended_fix"] = (
+            "Do not feed untrusted input into exec/eval/shell execution. "
+            "For personal or local prototyping, you can keep controlled execution paths "
+            "when the input is trusted and the blast radius is small, but prefer safer parsers "
+            "such as ast.literal_eval or json.loads when they fit the job."
+        )
+    elif source_layer == "observability":
+        normalized["recommended_fix"] = (
+            "For personal development, lightweight logging is usually enough at first. "
+            "Add full tracing or cost telemetry once the project becomes collaborative, user-facing, "
+            "or production-bound."
+        )
+    elif source_layer == "memory_management":
+        normalized["recommended_fix"] = (
+            "For personal prototypes, this is usually a polish issue rather than an immediate blocker. "
+            "Once the workflow stabilizes, add explicit retention, truncation, or TTL limits."
+        )
+    elif source_layer == "tool_enforcement":
+        normalized["recommended_fix"] = (
+            "For personal development, prompt-only guidance may be acceptable early on. "
+            "Before sharing or productionizing the project, add code-level validation for required tools."
+        )
+    elif source_layer == "llm_routing":
+        normalized["recommended_fix"] = (
+            "This may be acceptable in a personal prototype if the extra call is intentional and well understood. "
+            "If the project grows or is shared with others, document the secondary path and add stronger guardrails."
+        )
+    elif source_layer == "output_pipeline":
+        normalized["recommended_fix"] = (
+            "For personal development, small output shaping layers are often acceptable. "
+            "If responses become user-facing or safety-sensitive, log the raw and transformed outputs explicitly."
+        )
+
+    return normalized
+
+
+def health_mapping_for_profile(config: AuditConfig) -> dict[str, str]:
+    """Return the health verdict mapping appropriate for the selected profile."""
+
+    if config.profile.key == "personal_development":
+        return PERSONAL_HEALTH_BY_SEVERITY
+    return ENTERPRISE_HEALTH_BY_SEVERITY
 
 
 def should_fail_for_threshold(results: dict, threshold: str) -> bool:
