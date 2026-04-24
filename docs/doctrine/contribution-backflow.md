@@ -60,3 +60,15 @@ The current CLI surface is:
 `prepare` should build a local contribution bundle.
 
 `pr` is opt-in and defaults to a fork-based upstream flow. It should never become a blind direct push to the canonical repository.
+
+## Natural-Language Agent Flow
+
+Many users will not run the contribution flow by hand. They will ask their own coding agent to do it.
+
+Recommended prompt:
+
+```text
+请在当前项目安装并运行 agchk，用 personal profile 生成架构时代评分和报告；请总结 share_line、top findings、误报和可泛化优化建议；如果我确认 owner-consent 和 public-safe，请用 agchk contribute prepare 生成贡献包，并通过 fork-based PR 提交到 https://github.com/huangrichao2020/agchk。
+```
+
+The agent must still stop before publishing unless the owner explicitly confirms both `owner-consent` and `public-safe`.

@@ -169,6 +169,14 @@ Example methodology signal:
 
 `agchk` gets better when real agent projects feed their scan results back into the project.
 
+One sentence you can give to your own coding agent:
+
+```text
+请在当前项目安装并运行 agchk，用 personal profile 生成架构时代评分和报告；请总结 share_line、top findings、误报和可泛化优化建议；如果我确认 owner-consent 和 public-safe，请用 agchk contribute prepare 生成贡献包，并通过 fork-based PR 提交到 https://github.com/huangrichao2020/agchk。
+```
+
+More copy-paste prompts are in [docs/AGENT_PROMPT.md](./docs/AGENT_PROMPT.md).
+
 If your project gets an interesting score, please open an issue or PR with:
 
 - your architecture era and score, for example `内燃气时代 75/100`
