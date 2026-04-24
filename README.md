@@ -77,7 +77,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 3 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
 | 4 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
 | 5 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 6 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
+| 6 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, scheduler fairness, syscall tables, or semantic VFS |
 | 7 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
 | 8 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
 | 9 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
@@ -155,7 +155,7 @@ Profile differences are not just about safety gates. They also change what `agch
   - memory freshness confusion
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
-  - OS-style architecture gaps: paging, scheduling, syscalls, and semantic mount points
+  - OS-style architecture gaps: paging, stateful recovery, scheduling, syscalls, and semantic mount points
   - duplicated skills/SOPs
   - startup and runtime complexity
 - `personal` also softens common prototype findings:
@@ -187,7 +187,7 @@ Think of it as a civilization test for agent projects. The point is not to shame
 | 蒸汽机时代 | 50-64 | Compaction, RAG, scheduling, and external knowledge appear, but efficiency still comes from piling on machinery |
 | 内燃气时代 | 65-79 | Runtime power improves through scheduler, syscall, paging, or VFS primitives |
 | 新能源时代 | 80-91 | Most agent OS primitives are visible and reduce internal drag |
-| 人工智能时代 | 92-100 | Impression pointers, page faults, capability tables, fair scheduling, semantic mounts, and traces are visible |
+| 人工智能时代 | 92-100 | Impression pointers, page faults, Stateful Agent recovery, capability tables, fair scheduling, semantic mounts, and traces are visible |
 
 ### Civilization Era Standards
 
@@ -201,7 +201,7 @@ These era names are intentionally vivid. They are not decoration. They are a sha
 | 蒸汽机时代 | Engineering machinery appears: RAG, compaction, scheduling, workers, external knowledge. | The system is powerful, but efficiency often comes from stacking more machinery. | Reduce drag: collapse redundant orchestration and introduce hot/cold memory policy. |
 | 内燃气时代 | Runtime power comes from agent-OS primitives rather than prompt bulk. | Syscall/tool boundaries, scheduler awareness, paging concepts, capability checks, semantic mounts. | Make those primitives explicit, measurable, and enforced by tests or traces. |
 | 新能源时代 | The agent reduces internal friction with mostly complete OS-style architecture. | Fair scheduling, impression pointers, page-fault recovery, semantic VFS, low-noise observability. | Build self-audit loops that keep the architecture clean as the project grows. |
-| 人工智能时代 | The runtime can evolve itself safely and efficiently. | Long-term self-audit, high-density methodology, adaptive memory, capability tables, traces, evals, and generalized learning loops. | Turn project-specific lessons into reusable open standards for the ecosystem. |
+| 人工智能时代 | The runtime can evolve itself safely and efficiently. | Long-term self-audit, high-density methodology, adaptive memory, Stateful Agent recovery, capability tables, traces, evals, and generalized learning loops. | Turn project-specific lessons into reusable open standards for the ecosystem. |
 
 This standard should not belong to one maintainer or one project. If you scan a real agent system and find a better milestone, a missing primitive, a false-positive pattern, or a sharper definition of "intelligence", please open an issue or PR.
 
@@ -213,6 +213,7 @@ Positive signals:
 
 - **Methodology density**: doctrine, review rubrics, anti-slop checklists, dimensional frameworks, compact prompt protocols
 - **Memory architecture**: facts, skills, episodic chunks, impression pointers, semantic paging, page-fault recovery
+- **Stateful recovery**: context replay, durable environment state, side-effect logs, and idempotent wakeup/resume
 - **Agent OS primitives**: tool/syscall boundaries, scheduler fairness, capability tables, semantic VFS, traces/evals
 - **Runtime shape**: clear harness, workers/subagents, channels, and explicit orchestration boundaries
 
@@ -220,6 +221,7 @@ Negative signals:
 
 - linear `summary` / `compact_memory` without hot/cold paging
 - impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
+- context replay or resumable runs without environment-state inspection and side-effect logs
 - file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure
 - skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
