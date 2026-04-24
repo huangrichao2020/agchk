@@ -7,7 +7,7 @@ name = "agchk"
 version = "0.2.0"
 description = "Audit the architecture and health of any AI agent system or LLM-integrated project"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "MIT"
 requires-python = ">=3.10"
 keywords = ["agent", "llm", "audit", "health-check", "ai", "security"]
 classifiers = [

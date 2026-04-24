@@ -9,6 +9,15 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/huangrichao2020/agchk/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/huangrichao2020/agchk/ci.yml?branch=main&label=CI&style=flat-square"></a>
+  <a href="https://pypi.org/project/agchk/"><img alt="PyPI" src="https://img.shields.io/pypi/v/agchk?style=flat-square"></a>
+  <a href="https://pypi.org/project/agchk/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/agchk?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/huangrichao2020/agchk?style=flat-square"></a>
+  <img alt="Agent Architecture" src="https://img.shields.io/badge/agent-architecture-orange?style=flat-square">
+  <img alt="Architecture Era Scoring" src="https://img.shields.io/badge/era-scoring-ff6b00?style=flat-square">
+</p>
+
+<p align="center">
   <a href="https://pypi.org/project/agchk/">PyPI</a>
   ·
   <a href="./docs/doctrine/README.md">Doctrine</a>
