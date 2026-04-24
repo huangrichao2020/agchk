@@ -16,6 +16,7 @@ from agchk.config import (
 )
 from agchk.maturity import score_maturity
 from agchk.scanners import ScannerSpec, get_enabled_scanners
+from agchk.self_review import normalize_self_review
 
 SEVERITY_BUCKETS = ("critical", "high", "medium", "low")
 MODEL_HINTS = ("openai", "anthropic", "gemini", "ollama", "bedrock", "llama")
@@ -152,6 +153,7 @@ def run_audit(
     *,
     config: Optional[AuditConfig] = None,
     scanners: Optional[list[ScannerSpec]] = None,
+    self_review: Optional[dict[str, Any]] = None,
     verbose: bool = True,
 ) -> dict[str, Any]:
     """Run all enabled scans against the target directory."""
@@ -222,6 +224,8 @@ def run_audit(
         "conflict_map": [],
         "ordered_fix_plan": _build_fix_plan(findings),
     }
+    if self_review:
+        results["target_self_review"] = normalize_self_review(self_review)
 
     if verbose:
         print(f"\n{'─' * 50}\n✅ Audit complete. Found {total_findings} issues in {duration:.1f}s:")

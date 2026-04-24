@@ -18,6 +18,7 @@ from agchk.contribute import (
 from agchk.report import generate_report
 from agchk.sarif import generate_sarif, save_sarif
 from agchk.schema import validate_report
+from agchk.self_review import load_self_review
 
 KNOWN_COMMANDS = {"audit", "report", "validate", "contribute"}
 
@@ -43,6 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("-o", "--output", default="audit_results.json", help="Output JSON file")
     audit_parser.add_argument("-r", "--report", default="audit_report.md", help="Output markdown report")
     audit_parser.add_argument("--sarif", help="Optional SARIF output path for GitHub code scanning")
+    audit_parser.add_argument(
+        "--self-review",
+        help="Optional target-agent self-review JSON generated before agchk static scanning",
+    )
     audit_parser.add_argument(
         "--profile",
         default="personal",
@@ -114,7 +119,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
     """Run audit against target directory."""
 
     config = AuditConfig.from_profile(args.profile, fail_on=args.fail_on)
-    results = run_audit(args.target, config=config, verbose=not args.quiet)
+    self_review = load_self_review(args.self_review) if args.self_review else None
+    results = run_audit(args.target, config=config, self_review=self_review, verbose=not args.quiet)
     save_results(results, args.output)
     generate_report(results, args.report)
 

@@ -47,3 +47,27 @@ def test_run_audit_scope_ignores_dependency_entrypoints(tmp_path: Path) -> None:
     )
 
     assert results["scope"]["entrypoints"] == [str(tmp_path / "app.py")]
+
+
+def test_run_audit_can_include_target_agent_self_review(tmp_path: Path) -> None:
+    (tmp_path / "agent.py").write_text("print('agent')\n", encoding="utf-8")
+
+    results = run_audit(
+        str(tmp_path),
+        config=AuditConfig.from_profile("personal"),
+        self_review={
+            "agent_name": "Hermes",
+            "summary": "I parse my own source tree and know the router owns tool dispatch.",
+            "claims": [{"title": "Router ownership is explicit", "evidence": "src/router.py"}],
+            "risks": ["Completion closure is still manual"],
+            "false_positive_notes": ["Provider files are intentional"],
+            "improvement_plan": [
+                {"title": "Add impression cards", "recommendation": "Close file/index/card/pointer loop"}
+            ],
+        },
+        verbose=False,
+    )
+
+    assert validate_report(results) == []
+    assert results["target_self_review"]["agent_name"] == "Hermes"
+    assert results["target_self_review"]["claims"][0]["evidence"] == "src/router.py"

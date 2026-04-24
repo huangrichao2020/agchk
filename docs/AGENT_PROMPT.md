@@ -20,16 +20,17 @@ Install and run agchk on this project with the personal profile, generate the ar
 You are helping me self-scan this agent or LLM-integrated project with agchk.
 
 1. Install agchk if needed.
-2. Run: agchk . --profile personal
-3. Read audit_results.json and audit_report.md.
-4. Tell me the architecture era score, share_line, top 3 findings, likely false positives, and the most useful upstream improvement idea.
-5. Do not publish anything yet.
-6. If I explicitly confirm both owner-consent and public-safe, run:
+2. First produce a target-agent self-review JSON using the method in `docs/doctrine/target-agent-self-review.md`.
+3. Run: agchk . --profile personal --self-review self_review.json
+4. Read audit_results.json and audit_report.md.
+5. Tell me the architecture era score, share_line, top 3 findings, likely false positives, target self-review disagreements, and the most useful upstream improvement idea.
+6. Do not publish anything yet.
+7. If I explicitly confirm both owner-consent and public-safe, run:
    agchk contribute prepare audit_results.json
-7. Review the generated bundle for private data.
-8. If still public-safe, open a fork-based draft PR to:
+8. Review the generated bundle for private data.
+9. If still public-safe, open a fork-based draft PR to:
    https://github.com/huangrichao2020/agchk
-9. The PR should explain why the lesson generalizes beyond my project.
+10. The PR should explain why the lesson generalizes beyond my project.
 ```
 
 ## Required Consent

@@ -78,6 +78,37 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
             lines.append(f"- `{evidence['kind']}` {evidence['location']} — {evidence['summary']}")
         lines.append("")
 
+    if results.get("target_self_review"):
+        self_review = results["target_self_review"]
+        lines.extend(
+            [
+                "## Target Agent Self-Review",
+                "",
+                f"**Agent**: `{self_review.get('agent_name', 'target-agent')}`",
+                f"**Methodology**: `{self_review.get('methodology_version', 'target-agent-self-review.v1')}`",
+                f"**Source**: `{self_review.get('source', 'inline')}`",
+                "",
+                self_review.get("summary", "No self-review summary provided."),
+                "",
+            ]
+        )
+        for title, key in (
+            ("Self-Claimed Architecture Strengths", "claims"),
+            ("Self-Identified Risks", "risks"),
+            ("Likely agchk False Positives", "false_positive_notes"),
+            ("Target Agent Improvement Plan", "improvement_plan"),
+        ):
+            if self_review.get(key):
+                lines.append(f"**{title}**:")
+                for item in self_review[key]:
+                    line = f"- {item['title']}"
+                    if item.get("evidence"):
+                        line += f" Evidence: `{item['evidence']}`."
+                    if item.get("recommendation"):
+                        line += f" Recommendation: {item['recommendation']}"
+                    lines.append(line)
+                lines.append("")
+
     for index, finding in enumerate(results.get("findings", []), start=1):
         severity = finding.get("severity", "low")
         lines.extend(

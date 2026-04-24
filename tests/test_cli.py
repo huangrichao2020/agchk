@@ -89,6 +89,55 @@ def test_cli_accepts_package_module_entrypoint(tmp_path: Path) -> None:
     assert json_output.exists()
 
 
+def test_cli_accepts_target_agent_self_review(tmp_path: Path) -> None:
+    project = _write_project(
+        tmp_path / "project",
+        "print('hello agent')\n",
+    )
+    self_review = tmp_path / "self_review.json"
+    self_review.write_text(
+        json.dumps(
+            {
+                "agent_name": "LocalAgent",
+                "summary": "I inspected my own workspace before agchk ran.",
+                "claims": ["The provider abstraction is intentional."],
+                "risks": ["Completion closure can stop too early."],
+                "false_positive_notes": ["Provider implementation is not hidden LLM usage."],
+                "improvement_plan": ["Add anchor and pointer registration."],
+            }
+        ),
+        encoding="utf-8",
+    )
+    json_output = tmp_path / "audit.json"
+    report_output = tmp_path / "audit.md"
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "agchk",
+            str(project),
+            "--self-review",
+            str(self_review),
+            "-o",
+            str(json_output),
+            "-r",
+            str(report_output),
+            "--quiet",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=_cli_env(),
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    data = json.loads(json_output.read_text(encoding="utf-8"))
+    assert data["target_self_review"]["agent_name"] == "LocalAgent"
+    assert str(self_review) in data["target_self_review"]["source"]
+    assert "Target Agent Self-Review" in report_output.read_text(encoding="utf-8")
+
+
 def test_cli_can_fail_ci_on_severity_threshold(tmp_path: Path) -> None:
     project = _write_project(
         tmp_path / "project",

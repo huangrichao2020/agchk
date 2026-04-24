@@ -15,6 +15,7 @@ Start here:
 - [Agent As Operating System](./agent-os.md)
 - [Completion Closure](./completion-closure.md)
 - [Impression Memory](./impression-memory.md)
+- [Target Agent Self-Review](./target-agent-self-review.md)
 - [Architecture Era Score](./maturity-score.md)
 - [Orchestration](./orchestration.md)
 - [Contribution Backflow](./contribution-backflow.md)
