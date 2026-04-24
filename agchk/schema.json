@@ -148,6 +148,7 @@
               "long_term_memory",
               "distillation",
               "active_recall",
+              "completion_closure",
               "tool_selection",
               "tool_execution",
               "tool_interpretation",

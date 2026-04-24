@@ -13,6 +13,7 @@ Start here:
 - [Mission](./mission.md)
 - [Architecture](./architecture.md)
 - [Agent As Operating System](./agent-os.md)
+- [Completion Closure](./completion-closure.md)
 - [Impression Memory](./impression-memory.md)
 - [Architecture Era Score](./maturity-score.md)
 - [Orchestration](./orchestration.md)

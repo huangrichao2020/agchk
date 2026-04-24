@@ -8,6 +8,7 @@ from typing import Callable, List
 
 from agchk.config import AuditConfig
 from agchk.scanners.code_execution import scan_code_execution
+from agchk.scanners.completion_closure import scan_completion_closure
 from agchk.scanners.excessive_agency import scan_excessive_agency
 from agchk.scanners.hidden_llm import scan_hidden_llm_calls
 from agchk.scanners.impression_memory import scan_impression_memory
@@ -51,6 +52,12 @@ SCANNER_REGISTRY = [
         name="Internal Orchestration Sprawl",
         func=_adapt(scan_internal_orchestration),
         audited_layers=("tool_selection", "fallback_loops"),
+    ),
+    ScannerSpec(
+        slug="completion_closure",
+        name="Completion Closure Gap",
+        func=_adapt(scan_completion_closure),
+        audited_layers=("completion_closure", "active_recall"),
     ),
     ScannerSpec(
         slug="memory_freshness",
@@ -148,6 +155,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
     if config.profile.key == "personal_development":
         personal_priority = [
             "internal_orchestration",
+            "completion_closure",
             "memory_freshness",
             "impression_memory",
             "role_play_orchestration",
@@ -175,6 +183,7 @@ __all__ = [
     "SCANNER_REGISTRY",
     "get_enabled_scanners",
     "scan_code_execution",
+    "scan_completion_closure",
     "scan_excessive_agency",
     "scan_hidden_llm_calls",
     "scan_impression_memory",

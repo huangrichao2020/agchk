@@ -43,16 +43,17 @@ These checks are the default emphasis for solo builders and local prototypes:
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
-| 2 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 3 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
-| 4 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 5 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
-| 6 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
-| 7 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
-| 8 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
-| 9 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
-| 10 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
-| 11 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
+| 2 | Completion Closure Gap | medium/high | File/index work that stops before card, anchor, pointer, and acceptance |
+| 3 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
+| 4 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
+| 5 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
+| 6 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
+| 7 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
+| 8 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
+| 9 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
+| 10 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
+| 11 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
+| 12 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
 
 ### Additional safety and production checks
 
@@ -60,11 +61,11 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
-| 12 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
-| 13 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
-| 14 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
-| 15 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
-| 16 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
+| 13 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
+| 14 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
+| 15 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
+| 16 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 17 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -101,6 +102,7 @@ Profile differences are not just about safety gates. They also change what `agch
 
 - `personal` defaults to internal architecture review:
   - orchestration sprawl
+  - completion closure gaps
   - memory freshness confusion
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
@@ -147,6 +149,7 @@ Negative signals:
 
 - linear `summary` / `compact_memory` without hot/cold paging
 - impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
+- file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure
 - skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
 - role-play org charts such as PM -> architect -> coder -> QA without proving information flow
@@ -393,6 +396,7 @@ Default fix order (code-first, not prompt-first):
 9. **Prefer fork-and-merge reasoning over org-chart handoffs** — subagents should widen search or isolate context, not cosplay departments
 10. **Name the agent OS primitives** — context is memory, tools are syscalls, orchestrators are kernels, RAG is mounted storage
 11. **Add impression pointers between facts and skills** — concept cues should carry page-table pointers, not just shorter summaries
+12. **Close the completion loop** — file creation -> index update -> impression card -> anchor mapping -> pointer registration -> acceptance
 
 ## Anti-Patterns to Avoid
 
@@ -404,6 +408,7 @@ Default fix order (code-first, not prompt-first):
 - ❌ Modeling multi-agent systems as PM → architect → coder → QA handoff chains without proving the information flow works
 - ❌ Compressing context without a page-fault path back to the exact old detail
 - ❌ Treating every memory as either a verified fact or a full procedure, with no impression pointer layer
+- ❌ Calling work complete after file creation and index update, before the result can be found and reused
 
 ## Project Structure
 
@@ -411,7 +416,7 @@ Default fix order (code-first, not prompt-first):
 agchk/                          ← 唯一源码库 (single source of truth)
 ├── .github/                    ← PR templates, governance workflow, code owners
 ├── agchk/
-│   ├── scanners/               ← 16 个反模式扫描器
+│   ├── scanners/               ← 17 个反模式扫描器
 │   ├── audit.py                ← 主编排器
 │   ├── contribute.py           ← 自扫描贡献包与 fork PR 流程
 │   ├── report.py               ← 报告生成
