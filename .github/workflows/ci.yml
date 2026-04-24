@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -31,7 +31,7 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run pytest tests -q
       - run: uv run agchk --version
-      - run: uv run python -m agchk.cli . --quiet --sarif audit.sarif.json -o audit_results.json -r audit_report.md
+      - run: uv run python -m agchk . --quiet --sarif audit.sarif.json -o audit_results.json -r audit_report.md
       - run: test -f audit_results.json && test -f audit_report.md && test -f audit.sarif.json
 
   build:
