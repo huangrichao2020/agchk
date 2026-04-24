@@ -4,14 +4,16 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
+from agchk.scanners.path_filters import should_skip_path
+
 # Precompiled patterns
-# NOTE: "compile(" is intentionally removed — Python's re.compile() and
-# JavaScript's RegExp compilation are normal, safe patterns. The Python
-# built-in compile() is rarely used for user input. If you truly need to
-# scan for compile(), use a narrower pattern like r"\bcompile\s*\(\s*f["
+# NOTE: Built-in `compile(...)` can still be risky, but `re.compile(...)`
+# and other dotted variants are routine safe usage. Keep the pattern narrow
+# so we only match direct builtin-style calls.
 DANGEROUS_CALLS = {
     "exec(": re.compile(r"\bexec\s*\("),
     "eval(": re.compile(r"\beval\s*\("),
+    "compile(": re.compile(r"(?<!\.)\bcompile\s*\("),
     "os.system(": re.compile(r"\bos\.system\s*\("),
     "new Function(": re.compile(r"\bnew\s+Function\s*\("),
 }
@@ -30,7 +32,7 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "bu
 
 
 def _should_skip(path: Path) -> bool:
-    return any(part in SKIP_DIRS for part in path.parts)
+    return should_skip_path(path, SKIP_DIRS)
 
 
 def _scan_file(fp: Path) -> List[Dict[str, Any]]:

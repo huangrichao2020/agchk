@@ -11,6 +11,17 @@
       "type": "string",
       "const": "agchk.report.v1"
     },
+    "scan_metadata": {
+      "type": "object",
+      "required": ["profile", "scan_timestamp", "scan_duration_seconds", "scanner_count"],
+      "additionalProperties": false,
+      "properties": {
+        "profile": { "type": "string", "minLength": 1 },
+        "scan_timestamp": { "type": "string", "minLength": 1 },
+        "scan_duration_seconds": { "type": "number", "minimum": 0 },
+        "scanner_count": { "type": "integer", "minimum": 1 }
+      }
+    },
     "executive_verdict": {
       "type": "object",
       "required": ["overall_health", "primary_failure_mode", "most_urgent_fix"],
@@ -31,6 +42,17 @@
           "minLength": 1,
           "description": "The single most urgent action required"
         }
+      }
+    },
+    "severity_summary": {
+      "type": "object",
+      "required": ["critical", "high", "medium", "low"],
+      "additionalProperties": false,
+      "properties": {
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 }
       }
     },
     "scope": {
@@ -129,7 +151,16 @@
           },
           "fix_type": {
             "type": "string",
-            "enum": ["code_gate", "prompt_removal", "prompt_tightening", "state_cleanup", "architecture_change"]
+            "enum": [
+              "code_change",
+              "add_integration",
+              "code_gate",
+              "prompt_removal",
+              "prompt_tightening",
+              "state_cleanup",
+              "architecture_change",
+              "configuration_change"
+            ]
           },
           "recommended_fix": { "type": "string", "minLength": 1 }
         }

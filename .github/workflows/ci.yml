@@ -12,8 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv run ruff check agchk/
-      - run: uv run ruff format --check agchk/
+        with:
+          python-version: "3.13"
+      - run: uv sync --extra dev
+      - run: uv run ruff check agchk/ tests/
+      - run: uv run ruff format --check agchk/ tests/
 
   test:
     runs-on: ubuntu-latest
@@ -25,8 +28,11 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv run python -c "from agchk import run_audit, generate_report; print('agchk OK')"
+      - run: uv sync --extra dev
+      - run: uv run pytest tests -q
       - run: uv run agchk --version
+      - run: uv run python -m agchk.cli . --quiet --sarif audit.sarif.json -o audit_results.json -r audit_report.md
+      - run: test -f audit_results.json && test -f audit_report.md && test -f audit.sarif.json
 
   build:
     runs-on: ubuntu-latest
@@ -34,8 +40,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv pip install build
-      - run: uv run python -m build
+        with:
+          python-version: "3.13"
+      - run: uv sync --extra dev
+      - run: uv run --with build python -m build
       - uses: actions/upload-artifact@v4
         with:
           name: dist

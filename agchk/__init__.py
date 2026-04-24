@@ -9,9 +9,19 @@ Usage:
     print(generate_report(results))
 """
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 
 from agchk.audit import run_audit, save_results
+from agchk.contribute import prepare_contribution_bundle, publish_bundle_to_upstream
 from agchk.report import generate_report
+from agchk.sarif import generate_sarif, save_sarif
 
-__all__ = ["run_audit", "generate_report", "save_results"]
+__all__ = [
+    "run_audit",
+    "generate_report",
+    "generate_sarif",
+    "prepare_contribution_bundle",
+    "publish_bundle_to_upstream",
+    "save_results",
+    "save_sarif",
+]

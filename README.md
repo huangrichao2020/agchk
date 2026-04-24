@@ -4,14 +4,20 @@ Audit the architecture and health of any AI agent system or LLM-integrated proje
 
 **The base model rarely fails. The wrapper architecture corrupts good answers into bad behavior.**
 
+`agchk` is also being built as a sustainable 100-year open source project for agent architecture doctrine, self-audit methods, and reusable review workflows.
+
 ```bash
 pip install agchk
 agchk /path/to/your/agent/project
 ```
 
+Now with profile-aware scanning for:
+- `personal` development
+- `enterprise` production
+
 ## What It Does
 
-`agchk` scans any Python/TypeScript/JavaScript codebase for 7 categories of agent architecture failures:
+`agchk` scans any Python/TypeScript/JavaScript codebase for 8 categories of agent architecture failures:
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
@@ -22,6 +28,7 @@ agchk /path/to/your/agent/project
 | 5 | Memory Pattern Issues | medium | Unbounded context growth, missing TTL, no retention policy |
 | 6 | Output Pipeline Mutation | medium | Response transformation corrupting correct answers |
 | 7 | Missing Observability | medium | No tracing, logging, or cost tracking |
+| 8 | Excessive Agency | critical/high | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -32,20 +39,47 @@ pip install agchk
 # Audit any agent project
 agchk /path/to/your/langchain/project
 
+# Enterprise-production audit with machine-readable outputs
+agchk /path/to/your/agent \
+  --profile enterprise \
+  --sarif audit.sarif.json \
+  --fail-on high
+
 # Generate human-readable report
-agchk --report audit_results.json
+agchk report audit_results.json
 ```
+
+## Profiles
+
+`agchk` now ships with two human-friendly strictness modes:
+
+| Profile | Intended Use | Agency Rule |
+|---------|--------------|-------------|
+| `personal` | Solo dev, local prototyping, early experiments | Approval/sandbox/allowlist controls are optional |
+| `enterprise` | Production agents, team-owned internal tools, customer-facing systems | Approval, sandbox, allowlist must cover at least **2 of 3** control categories |
+
+This is especially important for shell, browser, network, and file-modifying agents:
+
+- Personal development can move fast without being flooded by production-only findings.
+- Enterprise production gets a stronger opinionated check for high-agency systems.
 
 ## Python API
 
 ```python
-from agchk import run_audit, generate_report
+from agchk import run_audit, generate_report, generate_sarif
+from agchk.config import AuditConfig
 
 # Run full audit
-results = run_audit("/path/to/your/agent/project")
+results = run_audit(
+    "/path/to/your/agent/project",
+    config=AuditConfig.from_profile("enterprise"),
+)
 
 # Generate markdown report
 markdown = generate_report(results)
+
+# Generate SARIF for GitHub code scanning
+sarif = generate_sarif(results)
 
 # Save to file
 generate_report(results, output_file="audit_report.md")
@@ -58,7 +92,7 @@ errors = validate_report(results)
 ## Programmatic Scanner Access
 
 ```python
-from agchk.scanners import scan_secrets, scan_code_execution
+from agchk.scanners import scan_secrets, scan_code_execution, scan_excessive_agency
 from pathlib import Path
 
 findings = scan_secrets(Path("/path/to/project"))
@@ -91,6 +125,99 @@ for f in findings:
 
 📋 Results: audit_results.json
 📄 Report: audit_report.md
+🛡️  SARIF: audit.sarif.json
+```
+
+## GitHub Code Scanning
+
+`agchk` can now emit SARIF 2.1.0 so findings can flow into GitHub code scanning alerts.
+
+```bash
+agchk /path/to/your/repo --profile enterprise --sarif audit.sarif.json
+```
+
+Then upload `audit.sarif.json` in GitHub Actions with `github/codeql-action/upload-sarif`.
+
+This makes `agchk` usable as:
+
+- a local architecture audit
+- a CI gate via `--fail-on`
+- a GitHub code scanning signal for AI-specific risks
+
+## Mission
+
+`agchk` is not only a scanner package. It is intended to become long-lived public infrastructure for:
+
+- naming agent design problems precisely
+- turning self-scan results into reusable open source method
+- keeping doctrine, contracts, scanners, and governance evolving together
+
+The guiding idea is simple:
+
+- doctrine is the primary asset
+- code is a lubricant that makes doctrine runnable
+- real-world agent failures should flow back into the project as generalized open source improvements
+
+## Contribution Backflow
+
+The preferred upstream path is fork-based:
+
+`self-scan -> local review -> owner consent -> public-safe bundle -> fork PR -> upstream generalization`
+
+This keeps contributions open, reviewable, and safer for projects whose own agents scan themselves.
+
+Start here:
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [Doctrine Index](./docs/doctrine/README.md)
+- [GitHub Repo Setup](./docs/governance/github-repo-setup.md)
+- [Contribution Bundles](./contributions/README.md)
+
+## Contribution CLI
+
+`agchk` now includes a contribution flow that converts a self-scan into a fork-based upstream PR.
+
+### 1. Prepare a contribution bundle
+
+Use an existing audit JSON:
+
+```bash
+agchk contribute prepare audit_results.json
+```
+
+Or scan a target directory directly:
+
+```bash
+agchk contribute prepare /path/to/agent --profile enterprise
+```
+
+This creates a local bundle under `.agchk/contributions/...` containing:
+
+- `bundle.json`
+- `SUMMARY.md`
+- `PULL_REQUEST_BODY.md`
+
+### 2. Open a fork-based upstream PR
+
+After the agent owner agrees and the content is confirmed public-safe:
+
+```bash
+agchk contribute pr .agchk/contributions/<bundle-slug> \
+  --owner-consent \
+  --public-safe
+```
+
+By default this opens a **draft** PR against `huangrichao2020/agchk`.
+
+You can override selected fields:
+
+```bash
+agchk contribute pr .agchk/contributions/<bundle-slug> \
+  --owner-consent \
+  --public-safe \
+  --title "[self-scan] tighten provider-aware hidden_llm routing" \
+  --layer scanner \
+  --why-generalizes "Provider modules are common across agent runtimes."
 ```
 
 ## The 12-Layer Stack
@@ -123,6 +250,7 @@ Default fix order (code-first, not prompt-first):
 5. **Tighten distillation triggers** — don't compress what shouldn't be compressed
 6. **Reduce rendering mutation** — pass-through, don't transform
 7. **Convert to typed JSON envelopes** — structured internal flow, not freeform prose
+8. **Match controls to deployment reality** — prototype fast, but require stronger controls in enterprise production
 
 ## Anti-Patterns to Avoid
 
@@ -136,13 +264,19 @@ Default fix order (code-first, not prompt-first):
 
 ```
 agchk/                          ← 唯一源码库 (single source of truth)
+├── .github/                    ← PR templates, governance workflow, code owners
 ├── agchk/
-│   ├── scanners/               ← 7 个反模式扫描器
+│   ├── scanners/               ← 8 个反模式扫描器
 │   ├── audit.py                ← 主编排器
+│   ├── contribute.py           ← 自扫描贡献包与 fork PR 流程
 │   ├── report.py               ← 报告生成
 │   ├── schema.py               ← JSON Schema 验证
 │   ├── cli.py                  ← 命令行入口
 │   └── schema.json             ← 正式报告 Schema
+├── contributions/              ← 上游 self-scan 贡献包落点
+├── docs/
+│   ├── doctrine/               ← 方法论、分层架构、贡献回流设计
+│   └── governance/             ← GitHub 项目治理与 PR 流程
 ├── scripts/
 │   └── gen-skill.py            ← 一键生成 oh-my-agent-check
 └── output/

@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
+from agchk.scanners.path_filters import should_skip_path
+
 # Precompiled patterns
 MEMORY_ADMISSION_RE = re.compile(
     r"(?:memory.*admit|long.?term.*update|persist.*memory|save.*to.*memory|"
@@ -30,7 +32,7 @@ LOOKAHEAD_LINES = 5
 
 
 def _should_skip(path: Path) -> bool:
-    return any(part in SKIP_DIRS for part in path.parts)
+    return should_skip_path(path, SKIP_DIRS)
 
 
 def _check_limit_nearby(lines: List[str], growth_lineno: int, window: int) -> bool:
@@ -58,32 +60,14 @@ def scan_memory_patterns(target: Path) -> List[Dict[str, Any]]:
         except (OSError, PermissionError):
             continue
 
-        has_admission = False
         has_growth = False
         has_limit = False
 
         for lineno, line in enumerate(lines, start=1):
-            if MEMORY_ADMISSION_RE.search(line):
-                has_admission = True
             if MEMORY_GROWTH_RE.search(line):
                 has_growth = True
             if MEMORY_LIMIT_RE.search(line):
                 has_limit = True
-
-        if has_admission:
-            findings.append({
-                "severity": "low",
-                "title": "Memory admission pattern detected",
-                "symptom": f"Memory admission/storage pattern found in {fp.name}.",
-                "user_impact": "Data persisted in agent memory may accumulate sensitive information across sessions.",
-                "source_layer": "memory_management",
-                "mechanism": f"Regex match for memory admission pattern.",
-                "root_cause": "Agent writes data to persistent memory or long-term storage.",
-                "evidence_refs": [str(fp)],
-                "confidence": 0.7,
-                "fix_type": "code_change",
-                "recommended_fix": "Ensure memory admission includes PII filtering, data classification, and user consent checks before storage.",
-            })
 
         if has_growth and not has_limit:
             findings.append({

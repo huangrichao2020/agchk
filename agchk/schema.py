@@ -1,20 +1,22 @@
 """JSON Schema and validation for audit reports."""
+
+from __future__ import annotations
+
 import json
 from importlib.resources import files
-from typing import Dict, Any
+from typing import Any, Dict
+
+from jsonschema import Draft202012Validator
 
 REPORT_SCHEMA = json.loads(files("agchk").joinpath("schema.json").read_text())
 
 
-def validate_report(report: Dict[str, Any]) -> list:
+def validate_report(report: Dict[str, Any]) -> list[str]:
+    """Validate a report using the packaged JSON Schema."""
+
+    validator = Draft202012Validator(REPORT_SCHEMA)
     errors = []
-    for field in ["schema_version", "overall_health", "findings"]:
-        if field not in report:
-            errors.append(f"Missing required field: {field}")
-    for i, finding in enumerate(report.get("findings", [])):
-        for req in ["severity", "title", "source_layer", "mechanism", "recommended_fix"]:
-            if req not in finding:
-                errors.append(f"Finding {i}: missing '{req}'")
-        if finding.get("severity") not in ("critical", "high", "medium", "low"):
-            errors.append(f"Finding {i}: invalid severity")
+    for error in sorted(validator.iter_errors(report), key=lambda item: list(item.path)):
+        path = ".".join(str(part) for part in error.path) or "<root>"
+        errors.append(f"{path}: {error.message}")
     return errors

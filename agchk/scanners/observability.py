@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
+from agchk.scanners.path_filters import should_skip_path
+
 # Precompiled patterns
 OBSERVABILITY_RE = re.compile(
     r"(?:langsmith|langfuse|opentelemetry|arize|phoenix|"
@@ -20,7 +22,7 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "bu
 
 
 def _should_skip(path: Path) -> bool:
-    return any(part in SKIP_DIRS for part in path.parts)
+    return should_skip_path(path, SKIP_DIRS)
 
 
 def scan_observability(target: Path) -> List[Dict[str, Any]]:
