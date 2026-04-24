@@ -5,6 +5,7 @@ from pathlib import Path
 from agchk.scanners.code_execution import scan_code_execution
 from agchk.scanners.hidden_llm import scan_hidden_llm_calls
 from agchk.scanners.memory_patterns import scan_memory_patterns
+from agchk.scanners.secrets import scan_secrets
 
 
 def _titles(findings: list[dict]) -> list[str]:
@@ -36,6 +37,26 @@ def test_builtin_compile_remains_flagged(tmp_path: Path) -> None:
     findings = scan_code_execution(tmp_path)
 
     assert "Unsafe code execution: compile(" in _titles(findings)
+
+
+def test_object_exec_methods_are_not_flagged_as_builtin_exec(tmp_path: Path) -> None:
+    (tmp_path / "db.py").write_text(
+        "\n".join(
+            [
+                "def query(session, statement):",
+                "    return session.exec(statement).all()",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "sandbox.py").write_text(
+        "result = await sandbox.exec('python3', 'setup_db.py', timeout=30)\n",
+        encoding="utf-8",
+    )
+
+    findings = scan_code_execution(tmp_path)
+
+    assert "Unsafe code execution: exec(" not in _titles(findings)
 
 
 def test_generated_chunk_asset_is_skipped_for_code_execution(tmp_path: Path) -> None:
@@ -86,6 +107,17 @@ def test_provider_implementation_is_not_treated_as_hidden_llm(tmp_path: Path) ->
                 "    return provider.generate(prompt)",
             ]
         ),
+        encoding="utf-8",
+    )
+
+    findings = scan_hidden_llm_calls(tmp_path)
+
+    assert findings == []
+
+
+def test_create_index_is_not_treated_as_hidden_llm_messages_create(tmp_path: Path) -> None:
+    (tmp_path / "mongodb_session.py").write_text(
+        "await self._messages.create_index([('session_id', 1), ('seq', 1)])\n",
         encoding="utf-8",
     )
 
@@ -158,3 +190,58 @@ def test_unbounded_memory_growth_is_still_flagged(tmp_path: Path) -> None:
     findings = scan_memory_patterns(tmp_path)
 
     assert "Memory growth without apparent limit" in _titles(findings)
+
+
+def test_fake_and_public_doc_keys_are_not_reported_as_real_secrets(tmp_path: Path) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "docusaurus.config.js").write_text(
+        "\n".join(
+            [
+                "algolia: {",
+                "  // public key, safe to commit",
+                '  apiKey: "adbd7686dceb1cd510d5ce20d04bf74c",',
+                '  indexName: "docs",',
+                "}",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "README.md").write_text(
+        'export DATABRICKS_TOKEN="dapi1234567890abcdef"\n',
+        encoding="utf-8",
+    )
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "test_transactions.py").write_text(
+        '"openai_api_key": "sk-12345678901234567890"\n',
+        encoding="utf-8",
+    )
+
+    findings = scan_secrets(tmp_path)
+
+    assert findings == []
+
+
+def test_recorded_cassettes_are_not_reported_as_real_secrets(tmp_path: Path) -> None:
+    cassette_dir = tmp_path / "tests" / "models" / "cassettes" / "test_google"
+    cassette_dir.mkdir(parents=True)
+    (cassette_dir / "recording.yaml").write_text(
+        "thoughtSignature: EtkBCtYBAXLI2nw30WDVpjR1pyPO7RX8irBHXj_Gr3vxDSk-rgwZCdVoqguEYP\n",
+        encoding="utf-8",
+    )
+
+    findings = scan_secrets(tmp_path)
+
+    assert findings == []
+
+
+def test_real_looking_secret_is_still_reported(tmp_path: Path) -> None:
+    (tmp_path / "settings.py").write_text(
+        'OPENAI_API_KEY = "sk-liveproductiontokenabcdef123456"\n',
+        encoding="utf-8",
+    )
+
+    findings = scan_secrets(tmp_path)
+
+    assert "Hardcoded secret or API key detected" in _titles(findings)

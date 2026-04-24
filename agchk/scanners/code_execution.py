@@ -11,8 +11,8 @@ from agchk.scanners.path_filters import should_skip_path
 # and other dotted variants are routine safe usage. Keep the pattern narrow
 # so we only match direct builtin-style calls.
 DANGEROUS_CALLS = {
-    "exec(": re.compile(r"\bexec\s*\("),
-    "eval(": re.compile(r"\beval\s*\("),
+    "exec(": re.compile(r"(?<!\.)\bexec\s*\("),
+    "eval(": re.compile(r"(?<!\.)\beval\s*\("),
     "compile(": re.compile(r"(?<!\.)\bcompile\s*\("),
     "os.system(": re.compile(r"\bos\.system\s*\("),
     "new Function(": re.compile(r"\bnew\s+Function\s*\("),
