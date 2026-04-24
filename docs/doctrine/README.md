@@ -12,4 +12,5 @@ Start here:
 
 - [Mission](./mission.md)
 - [Architecture](./architecture.md)
+- [Orchestration](./orchestration.md)
 - [Contribution Backflow](./contribution-backflow.md)

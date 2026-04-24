@@ -15,6 +15,7 @@ from agchk.scanners.memory_freshness import scan_memory_freshness
 from agchk.scanners.memory_patterns import scan_memory_patterns
 from agchk.scanners.observability import scan_observability
 from agchk.scanners.output_pipeline import scan_output_pipeline
+from agchk.scanners.role_play_orchestration import scan_role_play_orchestration
 from agchk.scanners.runtime_complexity import scan_runtime_complexity
 from agchk.scanners.secrets import scan_secrets
 from agchk.scanners.skill_duplication import scan_skill_duplication
@@ -54,6 +55,12 @@ SCANNER_REGISTRY = [
         name="Memory Freshness Confusion",
         func=_adapt(scan_memory_freshness),
         audited_layers=("session_history", "long_term_memory"),
+    ),
+    ScannerSpec(
+        slug="role_play_orchestration",
+        name="Role-Play Handoff Orchestration",
+        func=_adapt(scan_role_play_orchestration),
+        audited_layers=("tool_selection", "fallback_loops"),
     ),
     ScannerSpec(
         slug="skill_duplication",
@@ -128,6 +135,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
         personal_priority = [
             "internal_orchestration",
             "memory_freshness",
+            "role_play_orchestration",
             "skill_duplication",
             "startup_complexity",
             "runtime_complexity",
@@ -158,6 +166,7 @@ __all__ = [
     "scan_memory_patterns",
     "scan_observability",
     "scan_output_pipeline",
+    "scan_role_play_orchestration",
     "scan_runtime_complexity",
     "scan_secrets",
     "scan_skill_duplication",

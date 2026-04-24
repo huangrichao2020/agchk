@@ -33,12 +33,13 @@ These checks are the default emphasis for solo builders and local prototypes:
 |---|---------|----------|-----------------|
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
 | 2 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 3 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
-| 4 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
-| 5 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
-| 6 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
-| 7 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
-| 8 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
+| 3 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
+| 4 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
+| 5 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
+| 6 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
+| 7 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
+| 8 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
+| 9 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
 
 ### Additional safety and production checks
 
@@ -46,11 +47,11 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
-| 9 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
-| 10 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
-| 11 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
-| 12 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
-| 13 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
+| 10 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
+| 11 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
+| 12 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
+| 13 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 14 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -88,6 +89,7 @@ Profile differences are not just about safety gates. They also change what `agch
 - `personal` defaults to internal architecture review:
   - orchestration sprawl
   - memory freshness confusion
+  - role-play handoff chains
   - duplicated skills/SOPs
   - startup and runtime complexity
 - `personal` also softens common prototype findings:
@@ -289,6 +291,7 @@ Default fix order (code-first, not prompt-first):
 6. **Reduce rendering mutation** — pass-through, don't transform
 7. **Convert to typed JSON envelopes** — structured internal flow, not freeform prose
 8. **Match controls to deployment reality** — prototype fast, but require stronger controls in enterprise production
+9. **Prefer fork-and-merge reasoning over org-chart handoffs** — subagents should widen search or isolate context, not cosplay departments
 
 ## Anti-Patterns to Avoid
 
@@ -297,6 +300,7 @@ Default fix order (code-first, not prompt-first):
 - ❌ Letting a clean current state erase a dirty historical incident
 - ❌ Treating markdown prose as a trustworthy internal protocol
 - ❌ Accepting "must use tool" in prompt text when code never enforces it
+- ❌ Modeling multi-agent systems as PM → architect → coder → QA handoff chains without proving the information flow works
 
 ## Project Structure
 
@@ -304,7 +308,7 @@ Default fix order (code-first, not prompt-first):
 agchk/                          ← 唯一源码库 (single source of truth)
 ├── .github/                    ← PR templates, governance workflow, code owners
 ├── agchk/
-│   ├── scanners/               ← 8 个反模式扫描器
+│   ├── scanners/               ← 14 个反模式扫描器
 │   ├── audit.py                ← 主编排器
 │   ├── contribute.py           ← 自扫描贡献包与 fork PR 流程
 │   ├── report.py               ← 报告生成
