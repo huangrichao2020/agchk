@@ -279,6 +279,8 @@ agchk contribute prepare audit_results.json
 
 Then open a public-safe issue or fork PR to `huangrichao2020/agchk`.
 
+Need a model to copy? See [Contribution Examples](./docs/examples/contribution-examples.md), including a live maintainer example issue and a PR body template.
+
 We especially welcome contributions that generalize a real project lesson into:
 
 - a clearer doctrine page
