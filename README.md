@@ -6,6 +6,8 @@
 
 <p align="center">
   <strong>Audit the architecture and health of any AI agent system or LLM-integrated project.</strong>
+  <br>
+  <sub>Agent 届的神医华佗，包治百病 · The Hua Tuo of agents: diagnosing and healing every architecture disease.</sub>
 </p>
 
 <p align="center">
