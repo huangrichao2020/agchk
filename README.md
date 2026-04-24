@@ -218,8 +218,16 @@ More copy-paste prompts are in [docs/AGENT_PROMPT.md](./docs/AGENT_PROMPT.md).
 
 Want your agent to optimize itself after the audit? Give it this one-line prescription:
 
+Chinese:
+
 ```text
 根据 agchk 的审计报告，你给我狠狠查一下自己有哪些内耗的、打架的、拖后腿的流程、编排、调度和逻辑，务必建立一个长期的自我审计机制，我希望看到你改完后速度能够起飞。
+```
+
+English:
+
+```text
+Based on the agchk audit report, inspect yourself hard for any wasteful, conflicting, or drag-inducing workflows, orchestration, scheduling, and logic. Build a long-term self-audit mechanism, and I want to see your speed take off after the fixes.
 ```
 
 If your project gets an interesting score, please open an issue or PR with:
