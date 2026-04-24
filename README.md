@@ -334,6 +334,70 @@ for f in findings:
 🛡️  SARIF: audit.sarif.json
 ```
 
+### Standard Agent Summary Example
+
+When an agent or LLM coding tool summarizes an `agchk` audit for you, the first screen should include the era score, the share line, and the highest-leverage fixes.
+
+Chinese:
+
+```md
+# agchk 审计报告摘要
+
+文明时代：内燃气时代（75/100）
+share_line：这个 Agent 项目处于 内燃气时代（75/100）：具备较强 runtime 动力系统，开始有 syscall、scheduler、paging 或 VFS 意识。
+总体健康度：unstable
+扫描模式：personal_development
+
+## 核心判断
+
+这个项目已经不是原始 prompt 拼装，而是有明显 agent OS 雏形：工具边界、调度、记忆、压缩和外部知识都已经出现。但目前最大问题是内部流程开始变重，多个编排、记忆和启动路径互相叠加，速度和可解释性被拖住了。
+
+## Top Findings
+
+1. Internal Orchestration Sprawl：规划、路由、调度、重试层过多，容易形成内耗。
+2. Completion Closure Gap：部分流程停在“文件/索引已创建”，没有闭环到卡片、锚点、指针和验收。
+3. Memory Freshness Confusion：摘要、归档、长期记忆和临时上下文边界不够清楚。
+
+## 可能误报
+
+- tests/ fixtures 中的假 token 和 shell 示例应降权，不应当直接按生产密钥或真实执行风险处理。
+- provider 模式如果是显式注册的模型适配层，不应被当成隐藏 LLM 调用。
+
+## 下一步优化药方
+
+先收敛启动和调度入口，再补齐“文件创建 -> 索引更新 -> 印象卡片 -> 锚点映射 -> 指针注册 -> 完成”的闭环验收。目标不是多加安全门，而是减少内耗，让 agent 的速度和稳定性起飞。
+```
+
+English:
+
+```md
+# agchk Audit Summary
+
+Architecture Era: Combustion Age / 内燃气时代 (75/100)
+share_line: This agent project is in the 内燃气时代 (75/100): it has a strong runtime engine and visible syscall, scheduler, paging, or VFS awareness.
+Overall Health: unstable
+Profile: personal_development
+
+## Core Judgment
+
+This project is no longer raw prompt stuffing. It already shows the shape of an agent OS: tool boundaries, scheduling, memory, compaction, and external knowledge are present. The main issue is internal drag: orchestration, memory surfaces, and startup paths are stacking up and making the system slower and harder to reason about.
+
+## Top Findings
+
+1. Internal Orchestration Sprawl: too many planning, routing, scheduling, and retry layers create coordination overhead.
+2. Completion Closure Gap: some workflows stop after file or index creation instead of closing the loop through cards, anchors, pointers, and acceptance.
+3. Memory Freshness Confusion: summaries, archives, long-term memory, and hot context need clearer freshness boundaries.
+
+## Likely False Positives
+
+- Fake tokens and shell examples inside test fixtures should be downgraded instead of treated like production secrets or real execution risks.
+- Explicit provider adapters should not be treated as hidden LLM calls when they are part of the declared model layer.
+
+## Next Optimization Prescription
+
+First collapse startup and scheduling entry points, then enforce the closure loop: file creation -> index update -> impression card -> anchor mapping -> pointer registration -> done. The goal is not to add more gates. The goal is to reduce internal drag so the agent becomes faster, clearer, and easier to evolve.
+```
+
 ## GitHub Code Scanning
 
 `agchk` can now emit SARIF 2.1.0 so findings can flow into GitHub code scanning alerts.
