@@ -70,6 +70,20 @@ All pull requests should explain:
 
 For self-scan contributions, the PR title should start with `[self-scan]`.
 
+## Contributor Recognition
+
+`agchk` uses [All Contributors](https://all-contributors.github.io/) to recognize more than code.
+
+Maintainers can add contributors after useful issues, PRs, reviews, tests, examples, docs, or era-standard discussions with comments like:
+
+```text
+@all-contributors please add @username for ideas
+@all-contributors please add @username for doc
+@all-contributors please add @username for code, test
+```
+
+This matters because many of the most important `agchk` contributions will be methodology, false-positive reports, self-scan lessons, and civilization-era scoring improvements.
+
 ## Review Standard
 
 Upstream maintainers will review for:
