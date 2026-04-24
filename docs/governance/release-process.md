@@ -35,6 +35,30 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
+## PR Requirements For Good Release Notes
+
+Release notes are only as good as the merged PRs. Before merging, maintainers should check that each PR has:
+
+- a title that reads well in `What's Changed`
+- a clear `Why This Generalizes` section
+- public-safe evidence
+- validation commands
+- useful labels for `.github/release.yml` categories
+- contributor credit handled through All Contributors when the contribution is non-code
+
+For example, a release-friendly PR summary should say:
+
+```md
+## Release Notes
+
+Category: Agent Intelligence Standards
+Credit: @username for ideas, docs
+
+This PR sharpens the 青铜时代 -> 铁器时代 boundary by requiring explicit methodology, memory freshness, and tool ownership evidence.
+```
+
+If the PR only says "update docs", the release will be weak. If it says what standard moved forward and who contributed the insight, the release becomes part of the public history of agent intelligence evaluation.
+
 ## What Automation Does
 
 Pushing a `v*` tag runs the normal CI pipeline:
