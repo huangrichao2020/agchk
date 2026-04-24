@@ -92,7 +92,11 @@
               "answer_shaping",
               "platform_rendering",
               "fallback_loops",
-              "persistence"
+              "persistence",
+              "os_memory",
+              "os_scheduler",
+              "os_syscall",
+              "os_vfs"
             ]
           },
           "minItems": 1

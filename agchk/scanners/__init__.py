@@ -14,6 +14,7 @@ from agchk.scanners.internal_orchestration import scan_internal_orchestration
 from agchk.scanners.memory_freshness import scan_memory_freshness
 from agchk.scanners.memory_patterns import scan_memory_patterns
 from agchk.scanners.observability import scan_observability
+from agchk.scanners.os_architecture import scan_os_architecture
 from agchk.scanners.output_pipeline import scan_output_pipeline
 from agchk.scanners.role_play_orchestration import scan_role_play_orchestration
 from agchk.scanners.runtime_complexity import scan_runtime_complexity
@@ -61,6 +62,12 @@ SCANNER_REGISTRY = [
         name="Role-Play Handoff Orchestration",
         func=_adapt(scan_role_play_orchestration),
         audited_layers=("tool_selection", "fallback_loops"),
+    ),
+    ScannerSpec(
+        slug="os_architecture",
+        name="Agent OS Architecture",
+        func=_adapt(scan_os_architecture),
+        audited_layers=("os_memory", "os_scheduler", "os_syscall", "os_vfs"),
     ),
     ScannerSpec(
         slug="skill_duplication",
@@ -136,6 +143,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
             "internal_orchestration",
             "memory_freshness",
             "role_play_orchestration",
+            "os_architecture",
             "skill_duplication",
             "startup_complexity",
             "runtime_complexity",
@@ -165,6 +173,7 @@ __all__ = [
     "scan_memory_freshness",
     "scan_memory_patterns",
     "scan_observability",
+    "scan_os_architecture",
     "scan_output_pipeline",
     "scan_role_play_orchestration",
     "scan_runtime_complexity",
