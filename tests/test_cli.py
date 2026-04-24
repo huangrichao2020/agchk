@@ -58,6 +58,11 @@ def test_cli_accepts_direct_target_path_and_writes_outputs(tmp_path: Path) -> No
 
     data = json.loads(json_output.read_text(encoding="utf-8"))
     assert data["scan_metadata"]["profile"] == "enterprise_production"
+    assert data["maturity_score"]["era_name"]
+
+    markdown = report_output.read_text(encoding="utf-8")
+    assert "**Architecture Era**" in markdown
+    assert "## Architecture Era Score" in markdown
 
 
 def test_cli_accepts_package_module_entrypoint(tmp_path: Path) -> None:

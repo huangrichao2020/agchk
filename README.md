@@ -225,7 +225,7 @@ Example methodology signal:
 One sentence you can give to your own coding agent:
 
 ```text
-请先按 agchk 的 target-agent-self-review 方法论审计你自己的源码和工作区，生成 self_review.json；然后运行 agchk . --profile personal --self-review self_review.json，生成架构时代评分和报告；请总结 share_line、top findings、误报、自检与静态扫描冲突点和可泛化优化建议；如果我确认 owner-consent 和 public-safe，请用 agchk contribute prepare 生成贡献包，并通过 fork-based PR 提交到 https://github.com/huangrichao2020/agchk。
+请先按 agchk 的 target-agent-self-review 方法论审计你自己的源码和工作区，生成 self_review.json；然后运行 agchk . --profile personal --self-review self_review.json，生成架构时代评分和报告；最终回复第一屏必须显示 maturity_score.era_name、maturity_score.score/100 和 maturity_score.share_line；请总结 top findings、误报、自检与静态扫描冲突点和可泛化优化建议；如果我确认 owner-consent 和 public-safe，请用 agchk contribute prepare 生成贡献包，并通过 fork-based PR 提交到 https://github.com/huangrichao2020/agchk。
 ```
 
 More copy-paste prompts are in [docs/AGENT_PROMPT.md](./docs/AGENT_PROMPT.md).
