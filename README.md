@@ -4,6 +4,17 @@ Audit the architecture and health of any AI agent system or LLM-integrated proje
 
 **The base model rarely fails. The wrapper architecture corrupts good answers into bad behavior.**
 
+`agchk` tells you which civilization era your agent project is living in:
+
+`石器时代 -> 青铜时代 -> 铁器时代 -> 蒸汽机时代 -> 内燃气时代 -> 新能源时代 -> 人工智能时代`
+
+It is not a leaderboard for vanity. It is a shared language for asking:
+
+- Is this project still stuffing raw maps into context?
+- Does it have high-density methodology, or only loose prompts and tools?
+- Are memory, tools, scheduling, RAG, and skills becoming an agent OS?
+- What concrete milestone would move it to the next era?
+
 `agchk` is also being built as a sustainable 100-year open source project for agent architecture doctrine, self-audit methods, and reusable review workflows.
 
 ```bash
@@ -109,7 +120,9 @@ In short:
 
 ## Architecture Era Score
 
-Every report now includes a social architecture score so projects can compare their agent runtime maturity without reading every finding first.
+Every report includes a social architecture score so projects can compare agent runtime maturity without reading every finding first.
+
+Think of it as a civilization test for agent projects. The point is not to shame a prototype for being early. The point is to make the next upgrade obvious.
 
 | Era | Score | Meaning |
 |-----|-------|---------|
@@ -120,6 +133,23 @@ Every report now includes a social architecture score so projects can compare th
 | 内燃气时代 | 65-79 | Runtime power improves through scheduler, syscall, paging, or VFS primitives |
 | 新能源时代 | 80-91 | Most agent OS primitives are visible and reduce internal drag |
 | 人工智能时代 | 92-100 | Impression pointers, page faults, capability tables, fair scheduling, semantic mounts, and traces are visible |
+
+### What The Score Looks At
+
+Positive signals:
+
+- **Methodology density**: doctrine, review rubrics, anti-slop checklists, dimensional frameworks, compact prompt protocols
+- **Memory architecture**: facts, skills, episodic chunks, impression pointers, semantic paging, page-fault recovery
+- **Agent OS primitives**: tool/syscall boundaries, scheduler fairness, capability tables, semantic VFS, traces/evals
+- **Runtime shape**: clear harness, workers/subagents, channels, and explicit orchestration boundaries
+
+Negative signals:
+
+- linear `summary` / `compact_memory` without hot/cold paging
+- impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
+- workers and tool calls without priority, budget, cancellation, or backpressure
+- skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
+- role-play org charts such as PM -> architect -> coder -> QA without proving information flow
 
 Example share line:
 
@@ -134,6 +164,35 @@ Example methodology signal:
 ```text
 [主体] + [动作] + [场景] + [风格] + [构图] + [光线] + [细节]
 ```
+
+## Share Your Score
+
+`agchk` gets better when real agent projects feed their scan results back into the project.
+
+If your project gets an interesting score, please open an issue or PR with:
+
+- your architecture era and score, for example `内燃气时代 75/100`
+- the `share_line` from the report
+- the top 3 findings you agree with
+- any false positives or missing dimensions
+- the optimization milestone you think should move a project to the next era
+
+Best path:
+
+```bash
+agchk /path/to/your/agent --profile personal
+agchk contribute prepare audit_results.json
+```
+
+Then open a public-safe issue or fork PR to `huangrichao2020/agchk`.
+
+We especially welcome contributions that generalize a real project lesson into:
+
+- a clearer doctrine page
+- a better scanner signal
+- a new scoring milestone
+- a false-positive regression test
+- a more useful era description
 
 ## Python API
 
@@ -177,23 +236,23 @@ for f in findings:
 ```
 🔍 Agent Architecture Audit
    Target: /Users/me/projects/my-agent
-   Started: 2026-04-24 14:32:01
+   Started: 2026-04-25 14:32:01
+   Profile: Personal Development
 
-  Scanning: Hardcoded Secrets...
-  Scanning: Tool Enforcement Gap...
-  Scanning: Hidden LLM Calls...
-  Scanning: Unrestricted Code Execution...
-  Scanning: Memory Pattern Issues...
-  Scanning: Output Pipeline Mutation...
-  Scanning: Missing Observability...
+  Scanning: Internal Orchestration Sprawl...
+  Scanning: Memory Freshness Confusion...
+  Scanning: Impression Pointer Memory...
+  Scanning: Agent OS Architecture...
+  Scanning: Startup Surface Sprawl...
 
 ──────────────────────────────────────────
-✅ Audit complete. Found 5 issues in 0.3s:
-   CRITICAL: 1
-   HIGH:     2
+✅ Audit complete. Found 7 issues in 0.8s:
+   CRITICAL: 0
+   HIGH:     3
    MEDIUM:   2
-   LOW:      0
-   Overall:  critical_risk
+   LOW:      2
+   Overall:  unstable
+   Era: 内燃气时代 (75/100)
 
 📋 Results: audit_results.json
 📄 Report: audit_report.md
