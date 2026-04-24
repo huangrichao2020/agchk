@@ -1,6 +1,22 @@
-# agchk
+<p align="center">
+  <img src="./assets/readme/agchk-readme-banner.png" alt="agchk — Agent Architecture Health Check" width="100%">
+</p>
 
-Audit the architecture and health of any AI agent system or LLM-integrated project.
+<h1 align="center">agchk</h1>
+
+<p align="center">
+  <strong>Audit the architecture and health of any AI agent system or LLM-integrated project.</strong>
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/agchk/">PyPI</a>
+  ·
+  <a href="./docs/doctrine/README.md">Doctrine</a>
+  ·
+  <a href="./docs/AGENT_PROMPT.md">Agent Prompt</a>
+  ·
+  <a href="./CONTRIBUTING.md">Contribute</a>
+</p>
 
 **The base model rarely fails. The wrapper architecture corrupts good answers into bad behavior.**
 
@@ -121,6 +137,10 @@ In short:
 - `enterprise` asks: "What could leak, break, loop forever, or become dangerous in production?"
 
 ## Architecture Era Score
+
+<p align="center">
+  <img src="./assets/readme/agchk-orange-book-cover.png" alt="agchk orange book cover — agent architecture intelligence audit" width="520">
+</p>
 
 Every report includes a social architecture score so projects can compare agent runtime maturity without reading every finding first.
 
