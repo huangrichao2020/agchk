@@ -111,6 +111,43 @@ def _validate_contribution_docs(errors: list[str]) -> None:
             _require(section in body, f"{template_path} is missing {section}", errors)
 
 
+def _validate_release_config(errors: list[str]) -> None:
+    workflow = _read(".github/workflows/ci.yml")
+    release_config = _read(".github/release.yml")
+    readme = _read("README.md")
+
+    for required in (
+        'tags:',
+        '"v*"',
+        "softprops/action-gh-release",
+        "generate_release_notes: true",
+        "pypa/gh-action-pypi-publish",
+        "contents: write",
+        "id-token: write",
+    ):
+        _require(required in workflow, f".github/workflows/ci.yml must include release setting: {required}", errors)
+
+    for required in (
+        "Agent Intelligence Standards",
+        "Scanner Signals",
+        "Contribution Flow and Governance",
+        "CI, Release, and Packaging",
+        "Other Changes",
+    ):
+        _require(required in release_config, f".github/release.yml must include category: {required}", errors)
+
+    _require(
+        "./docs/governance/release-process.md" in readme,
+        "README.md must link to docs/governance/release-process.md",
+        errors,
+    )
+    _require(
+        (ROOT / "docs/governance/release-process.md").exists(),
+        "docs/governance/release-process.md is missing",
+        errors,
+    )
+
+
 def _validate_schema_json(errors: list[str]) -> None:
     _validate_json_file("agchk/schema.json", errors)
 
@@ -137,6 +174,7 @@ def main() -> int:
     _validate_schema_json(errors)
     _validate_all_contributors(errors)
     _validate_contribution_docs(errors)
+    _validate_release_config(errors)
     _validate_no_conflict_markers(errors)
 
     if errors:

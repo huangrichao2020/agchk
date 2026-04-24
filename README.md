@@ -472,6 +472,7 @@ Start here:
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [Doctrine Index](./docs/doctrine/README.md)
 - [GitHub Repo Setup](./docs/governance/github-repo-setup.md)
+- [Release Process](./docs/governance/release-process.md)
 - [Contribution Bundles](./contributions/README.md)
 
 ## Contribution CLI
