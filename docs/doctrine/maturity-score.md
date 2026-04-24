@@ -4,6 +4,25 @@
 
 The score is not a security grade. It is a runtime maturity signal: how far the project has evolved from raw prompt stuffing toward an agent operating system.
 
+## Methodology Gate
+
+Methodology is the foundation of information density.
+
+Skills and MCP tools can execute work, but methodology lets an agent carry a high-density concept in very few tokens. A good methodology is closer to a compressed operating principle than to a long instruction file.
+
+Example:
+
+```text
+[主体] + [动作] + [场景] + [风格] + [构图] + [光线] + [细节]
+```
+
+That seven-dimension frame is more valuable than a pile of loose image-prompt tips. It gives the agent a compact way to ask the right questions before generating output.
+
+Scoring rule:
+
+- If methodology is missing, the project is capped at 青铜时代, even if it has many tools, skills, or runtime pieces.
+- If methodology is present, the project can enter 青铜时代 and above, then OS primitives decide how far it goes.
+
 ## Era Ladder
 
 | Era | Score Range | Meaning |
@@ -20,6 +39,7 @@ The score is not a security grade. It is a runtime maturity signal: how far the 
 
 The score rewards concrete runtime primitives:
 
+- methodology layer
 - agent runtime or harness
 - tool/syscall boundary
 - fact memory
@@ -39,6 +59,7 @@ The score rewards concrete runtime primitives:
 
 Findings subtract points. The largest deductions come from architecture gaps that create internal drag:
 
+- methodology layer is missing, which caps the era at 青铜时代
 - context memory lacks paging policy
 - impression memory or impression pointers are missing
 - scheduler lacks fairness controls

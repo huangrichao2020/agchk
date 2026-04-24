@@ -65,6 +65,7 @@
         "era_name",
         "era_description",
         "share_line",
+        "methodology_gate",
         "strengths",
         "next_milestones",
         "evidence_refs"
@@ -92,6 +93,16 @@
         },
         "era_description": { "type": "string", "minLength": 1 },
         "share_line": { "type": "string", "minLength": 1 },
+        "methodology_gate": {
+          "type": "object",
+          "required": ["detected", "cap_applied", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "detected": { "type": "boolean" },
+            "cap_applied": { "type": "boolean" },
+            "note": { "type": "string", "minLength": 1 }
+          }
+        },
         "strengths": {
           "type": "array",
           "items": { "type": "string" }

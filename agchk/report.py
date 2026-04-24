@@ -56,6 +56,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
                 f"- Score: **{maturity.get('score', 'N/A')}/100**",
                 f"- Raw points: `{maturity.get('raw_points', 'N/A')}`",
                 f"- Finding penalty: `{maturity.get('penalty', 'N/A')}`",
+                f"- Methodology gate: {maturity.get('methodology_gate', {}).get('note', 'Unknown')}",
                 f"- Meaning: {maturity.get('era_description', 'Unknown')}",
                 "",
             ]

@@ -34,6 +34,13 @@ ERA_BANDS = (
 )
 
 SIGNAL_PATTERNS = {
+    "methodology": re.compile(
+        r"\b(?:methodology|doctrine|principles|rubric|checklist|anti[-_ ]?slop|information density|"
+        r"prompt framework|review framework|design framework|quality framework|reference protocol)\b|"
+        r"(?:方法论|方法框架|评审框架|检查清单|信息密度|反\s*slop|七维框架|"
+        r"主体.{0,24}动作.{0,24}场景|风格.{0,24}构图.{0,24}光线|构图.{0,24}光线.{0,24}细节)",
+        re.IGNORECASE,
+    ),
     "agent_runtime": re.compile(r"\b(?:agent|react loop|agent loop|harness|orchestrator|swarm|subagent)\b|智能体", re.IGNORECASE),
     "tool_syscalls": re.compile(r"\b(?:tool_call|tool use|function calling|function_call|execute_shell|subprocess|syscall)\b", re.IGNORECASE),
     "fact_memory": re.compile(r"\b(?:facts?|preference|profile|entity|metadata)\b|(?:事实|偏好|画像)", re.IGNORECASE),
@@ -55,6 +62,7 @@ SIGNAL_PATTERNS = {
 }
 
 SIGNAL_POINTS = {
+    "methodology": 12,
     "agent_runtime": 5,
     "tool_syscalls": 8,
     "fact_memory": 6,
@@ -72,6 +80,7 @@ SIGNAL_POINTS = {
 }
 
 SIGNAL_LABELS = {
+    "methodology": "methodology layer",
     "agent_runtime": "agent runtime",
     "tool_syscalls": "tool/syscall boundary",
     "fact_memory": "fact memory",
@@ -89,6 +98,7 @@ SIGNAL_LABELS = {
 }
 
 MILESTONES = {
+    "methodology": "先沉淀高信息密度方法论：维度框架、检查清单、反 slop 规则和示例，而不是只堆 skill/MCP。",
     "paging": "把线性 summary/compact 升级为 page table、LRU/hot-cold 和 swap-in。",
     "page_fault": "给被压缩或归档的细节加 page fault/deep-dive 恢复路径。",
     "impression_pointer": "把 impression cue 升级成 topic_anchor + semantic_hash + pointer_ref。",
@@ -171,12 +181,28 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
     raw_points = sum(SIGNAL_POINTS[key] for key in detected)
     penalty = _finding_penalty(findings)
     score = max(0, min(100, raw_points - penalty))
+    has_methodology = "methodology" in detected
+    methodology_cap_applied = False
+    if has_methodology:
+        score = max(score, 20)
+    else:
+        methodology_cap_applied = score > 34
+        score = min(score, 34)
     era = _era_for_score(score)
 
     strengths = [SIGNAL_LABELS[key] for key in SIGNAL_POINTS if key in detected]
     missing_milestones = [
         MILESTONES[key]
-        for key in ("paging", "page_fault", "impression_pointer", "fairness", "capability_table", "semantic_vfs", "observability")
+        for key in (
+            "methodology",
+            "paging",
+            "page_fault",
+            "impression_pointer",
+            "fairness",
+            "capability_table",
+            "semantic_vfs",
+            "observability",
+        )
         if key not in detected
     ]
 
@@ -200,6 +226,15 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
         "era_name": era.name,
         "era_description": era.description,
         "share_line": f"这个 Agent 项目处于 {era.name}（{score}/100）：{era.description}",
+        "methodology_gate": {
+            "detected": has_methodology,
+            "cap_applied": methodology_cap_applied,
+            "note": (
+                "已发现方法论层，项目具备进入青铜以上时代的地基。"
+                if has_methodology
+                else "未发现清晰方法论层，时代评分封顶在青铜时代。"
+            ),
+        },
         "strengths": strengths,
         "next_milestones": missing_milestones[:5],
         "evidence_refs": evidence_refs,

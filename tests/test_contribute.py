@@ -43,6 +43,11 @@ def _sample_audit_report(target_name: str = "/tmp/example-agent") -> dict:
             "era_name": "铁器时代",
             "era_description": "具备较清晰的工具、记忆和技能分层，开始可维护。",
             "share_line": "这个 Agent 项目处于 铁器时代（42/100）：具备较清晰的工具、记忆和技能分层，开始可维护。",
+            "methodology_gate": {
+                "detected": True,
+                "cap_applied": False,
+                "note": "已发现方法论层，项目具备进入青铜以上时代的地基。",
+            },
             "strengths": ["agent runtime", "tool/syscall boundary"],
             "next_milestones": ["把线性 summary/compact 升级为 page table、LRU/hot-cold 和 swap-in。"],
             "evidence_refs": [f"{target_name}/main.py:1"],

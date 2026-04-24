@@ -127,6 +127,14 @@ Example share line:
 
 The score is evidence-based. Positive primitives add points, while findings such as missing paging policy, missing impression pointers, missing scheduler fairness, or missing semantic VFS subtract points.
 
+Methodology is a gate, not just a bonus. A project without clear methodology concepts is capped at `青铜时代`, even if it has many skills, MCP tools, or runtime pieces. A project with high-information-density methodology such as dimensional frameworks, review rubrics, anti-slop checklists, and compact prompt protocols can enter `青铜时代` and above.
+
+Example methodology signal:
+
+```text
+[主体] + [动作] + [场景] + [风格] + [构图] + [光线] + [细节]
+```
+
 ## Python API
 
 ```python
