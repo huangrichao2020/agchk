@@ -18,6 +18,15 @@ jobs:
       - run: uv run ruff check agchk/ tests/
       - run: uv run ruff format --check agchk/ tests/
 
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python .github/scripts/validate_repo_hygiene.py
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -36,7 +45,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [lint, hygiene, test]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5

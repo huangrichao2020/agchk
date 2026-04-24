@@ -16,13 +16,22 @@ Explain how this change strengthens `agchk` as durable doctrine, contract, scann
 - [ ] Contribution Flow
 - [ ] Governance
 
-## Change Summary
+## Owner Consent
 
-Describe the problem and the intended improvement.
+- [x] This PR is not based on a self-scan contribution.
 
-## Why This Matters Long-Term
+## Public Safety
 
-Explain how this keeps `agchk` layered, extensible, and easier to evolve over time.
+- [x] No secrets, credentials, proprietary code dumps, customer data, or internal-only materials are included.
+- [x] Examples and evidence have been minimized and generalized for public release.
+
+## Why This Generalizes
+
+Explain why this is not only a one-project fix and how it should improve `agchk` for future agent systems.
+
+## Evidence
+
+Summarize the relevant report finding, false positive, design issue, or method improvement that motivated this PR.
 
 ## Validation
 
