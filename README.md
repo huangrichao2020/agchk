@@ -186,6 +186,24 @@ Think of it as a civilization test for agent projects. The point is not to shame
 | 新能源时代 | 80-91 | Most agent OS primitives are visible and reduce internal drag |
 | 人工智能时代 | 92-100 | Impression pointers, page faults, capability tables, fair scheduling, semantic mounts, and traces are visible |
 
+### Civilization Era Standards
+
+These era names are intentionally vivid. They are not decoration. They are a shared evaluation language for agent intelligence: how much of the project is still raw prompt labor, and how much has become durable runtime intelligence.
+
+| Era | Standard | Typical Evidence | Upgrade Target |
+|-----|----------|------------------|----------------|
+| 石器时代 | The agent mostly relies on linear prompts, manual summaries, and direct tool calls. | Big prompts, scattered scripts, little memory structure, no clear methodology. | Add one clear methodology layer and one canonical execution path. |
+| 青铜时代 | The project has basic tools, facts, skills, or docs, but the boundaries are rough. | Skills exist, but overlap; memory exists, but freshness is unclear; prompts carry too much operational burden. | Separate facts, skills, methodology, and runtime responsibilities. |
+| 铁器时代 | Memory, tools, and skills are becoming maintainable subsystems. | Clear tool wrappers, reusable skills, basic observability, less duplicated SOP logic. | Add closure checks, ownership boundaries, and repeatable review loops. |
+| 蒸汽机时代 | Engineering machinery appears: RAG, compaction, scheduling, workers, external knowledge. | The system is powerful, but efficiency often comes from stacking more machinery. | Reduce drag: collapse redundant orchestration and introduce hot/cold memory policy. |
+| 内燃气时代 | Runtime power comes from agent-OS primitives rather than prompt bulk. | Syscall/tool boundaries, scheduler awareness, paging concepts, capability checks, semantic mounts. | Make those primitives explicit, measurable, and enforced by tests or traces. |
+| 新能源时代 | The agent reduces internal friction with mostly complete OS-style architecture. | Fair scheduling, impression pointers, page-fault recovery, semantic VFS, low-noise observability. | Build self-audit loops that keep the architecture clean as the project grows. |
+| 人工智能时代 | The runtime can evolve itself safely and efficiently. | Long-term self-audit, high-density methodology, adaptive memory, capability tables, traces, evals, and generalized learning loops. | Turn project-specific lessons into reusable open standards for the ecosystem. |
+
+This standard should not belong to one maintainer or one project. If you scan a real agent system and find a better milestone, a missing primitive, a false-positive pattern, or a sharper definition of "intelligence", please open an issue or PR.
+
+Our ambition is simple and a little unreasonable: make `agchk` a real industry standard for evaluating agent intelligence, not by declaring authority, but by absorbing lessons from every serious agent project that uses it.
+
 ### What The Score Looks At
 
 Positive signals:
