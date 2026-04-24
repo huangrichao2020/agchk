@@ -96,6 +96,20 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 
 ## Quick Start
 
+One sentence you can give to your own agent or LLM coding tool:
+
+Chinese:
+
+```text
+请你安装 https://github.com/huangrichao2020/agchk ，然后按里面的正式流程审计一下自己。
+```
+
+English:
+
+```text
+Please install https://github.com/huangrichao2020/agchk, then audit yourself by following its official workflow.
+```
+
 ```bash
 # Install
 pip install agchk
