@@ -60,7 +60,7 @@ SCANNER_REGISTRY = [
     ),
     ScannerSpec(
         slug="impression_memory",
-        name="Impression Memory Layer",
+        name="Impression Pointer Memory",
         func=_adapt(scan_impression_memory),
         audited_layers=("impression_memory", "active_recall"),
     ),

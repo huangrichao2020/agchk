@@ -33,7 +33,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 |---|---------|----------|-----------------|
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
 | 2 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 3 | Impression Memory Layer | medium | Fact memory and skills without associative concept cues |
+| 3 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
 | 4 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
 | 5 | Agent OS Architecture | medium/high | Missing paging, scheduler fairness, syscall tables, or semantic VFS |
 | 6 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
@@ -91,7 +91,7 @@ Profile differences are not just about safety gates. They also change what `agch
 - `personal` defaults to internal architecture review:
   - orchestration sprawl
   - memory freshness confusion
-  - missing impression chunks between facts and skills
+  - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
   - OS-style architecture gaps: paging, scheduling, syscalls, and semantic mount points
   - duplicated skills/SOPs
@@ -297,7 +297,7 @@ Default fix order (code-first, not prompt-first):
 8. **Match controls to deployment reality** — prototype fast, but require stronger controls in enterprise production
 9. **Prefer fork-and-merge reasoning over org-chart handoffs** — subagents should widen search or isolate context, not cosplay departments
 10. **Name the agent OS primitives** — context is memory, tools are syscalls, orchestrators are kernels, RAG is mounted storage
-11. **Add impression chunks between facts and skills** — concept cues make agents remember routes, not just maps
+11. **Add impression pointers between facts and skills** — concept cues should carry page-table pointers, not just shorter summaries
 
 ## Anti-Patterns to Avoid
 
@@ -308,7 +308,7 @@ Default fix order (code-first, not prompt-first):
 - ❌ Accepting "must use tool" in prompt text when code never enforces it
 - ❌ Modeling multi-agent systems as PM → architect → coder → QA handoff chains without proving the information flow works
 - ❌ Compressing context without a page-fault path back to the exact old detail
-- ❌ Treating every memory as either a verified fact or a full procedure, with no associative middle layer
+- ❌ Treating every memory as either a verified fact or a full procedure, with no impression pointer layer
 
 ## Project Structure
 

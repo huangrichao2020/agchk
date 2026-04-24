@@ -1,4 +1,4 @@
-"""Scan for missing impression chunks between facts and skills."""
+"""Scan for impression pointers between facts, skills, and raw memory."""
 
 from __future__ import annotations
 
@@ -30,6 +30,17 @@ IMPRESSION_RE = re.compile(
     r"semantic hint|route hint|memory impression|impression chunk)\b|(?:印象|联想|概念路标|路标|线索|语义提示|大概知道)",
     re.IGNORECASE,
 )
+POINTER_RE = re.compile(
+    r"\b(?:pointer_ref|pointer_type|vector_id|file_path|skill_id|semantic_hash|semantic anchor|"
+    r"topic_anchor|page table|page entry|page fault|swap in|swap-in|activation_level|in_mind|subconscious|"
+    r"forgotten|retrieval pointer)\b|(?:语义锚点|页表|页表项|缺页|换入|激活层级|潜意识|遗忘)",
+    re.IGNORECASE,
+)
+POINTER_CONTEXT_RE = re.compile(
+    r"(?:impression|memory|page[_ -]?table|page[_ -]?fault|semantic[_ -]?hash|topic[_ -]?anchor|"
+    r"pointer[_ -]?(?:ref|type)|vector_id|activation_level|印象|记忆|页表|缺页|语义锚点)",
+    re.IGNORECASE,
+)
 
 
 def _should_skip(path: Path) -> bool:
@@ -49,6 +60,7 @@ def _collect_refs(target: Path) -> dict[str, list[str]]:
         "skill": [],
         "episodic": [],
         "impression": [],
+        "pointer": [],
     }
     files = [target] if target.is_file() else sorted(target.rglob("*"))
     for fp in files:
@@ -65,6 +77,8 @@ def _collect_refs(target: Path) -> dict[str, list[str]]:
             refs["episodic"].append(path_ref)
         if IMPRESSION_RE.search(path_text):
             refs["impression"].append(path_ref)
+        if POINTER_RE.search(path_text) and POINTER_CONTEXT_RE.search(path_text):
+            refs["pointer"].append(path_ref)
 
         try:
             lines = fp.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -81,13 +95,15 @@ def _collect_refs(target: Path) -> dict[str, list[str]]:
                 refs["episodic"].append(ref)
             if IMPRESSION_RE.search(line):
                 refs["impression"].append(ref)
+            if POINTER_RE.search(line) and (POINTER_CONTEXT_RE.search(line) or POINTER_CONTEXT_RE.search(path_text)):
+                refs["pointer"].append(ref)
     return refs
 
 
 def _evidence(refs: dict[str, list[str]]) -> list[str]:
     evidence_refs: list[str] = []
     seen: set[str] = set()
-    for key in ("fact", "skill", "episodic", "impression"):
+    for key in ("fact", "skill", "episodic", "impression", "pointer"):
         for ref in refs[key][:4]:
             if ref not in seen:
                 evidence_refs.append(ref)
@@ -100,36 +116,77 @@ def scan_impression_memory(target: Path) -> List[Dict[str, Any]]:
     has_memory_system = len(refs["fact"]) >= 2 or len(refs["episodic"]) >= 3
     has_skill_system = len(refs["skill"]) >= 2
     has_impressions = len(refs["impression"]) >= 2
+    has_impression_pointers = len(refs["pointer"]) >= 2
 
-    if not has_memory_system or not has_skill_system or has_impressions:
+    if not has_memory_system or not has_skill_system:
         return []
 
-    return [
-        {
-            "severity": "medium",
-            "title": "Impression memory layer missing",
-            "symptom": (
-                f"Found fact/episodic memory signals ({len(refs['fact']) + len(refs['episodic'])}) and "
-                f"skill/procedure signals ({len(refs['skill'])}), but only {len(refs['impression'])} impression signals."
-            ),
-            "user_impact": (
-                "Agents with only factual memory and procedural skills can recall exact notes or run known workflows, "
-                "but they lack lightweight conceptual cues for fast association. They may over-search, over-load context, "
-                "or miss the simple route that a human would remember as an impression."
-            ),
-            "source_layer": "impression_memory",
-            "mechanism": "Repository scan for fact memory, episodic chunks, procedural skills, and associative impression vocabulary.",
-            "root_cause": (
-                "The memory architecture appears to separate facts and skills, but does not expose an associative "
-                "impression layer for concept-level recall."
-            ),
-            "evidence_refs": _evidence(refs),
-            "confidence": 0.67,
-            "fix_type": "architecture_change",
-            "recommended_fix": (
-                "Add impression chunks: short associative records that connect concepts, routes, preferences, and "
-                "situational cues without pretending to be exact facts or full procedures. Use them as retrieval hints, "
-                "not as authoritative truth."
-            ),
-        }
-    ]
+    findings: List[Dict[str, Any]] = []
+    if not has_impressions:
+        findings.append(
+            {
+                "severity": "medium",
+                "title": "Impression memory layer missing",
+                "symptom": (
+                    f"Found fact/episodic memory signals ({len(refs['fact']) + len(refs['episodic'])}) and "
+                    f"skill/procedure signals ({len(refs['skill'])}), but only "
+                    f"{len(refs['impression'])} impression signals."
+                ),
+                "user_impact": (
+                    "Agents with only factual memory and procedural skills can recall exact notes or run known workflows, "
+                    "but they lack lightweight conceptual cues for fast association. They may over-search, "
+                    "over-load context, or miss the simple route that a human would remember as an impression."
+                ),
+                "source_layer": "impression_memory",
+                "mechanism": (
+                    "Repository scan for fact memory, episodic chunks, procedural skills, and associative impression "
+                    "vocabulary."
+                ),
+                "root_cause": (
+                    "The memory architecture appears to separate facts and skills, but does not expose an associative "
+                    "impression layer for concept-level recall."
+                ),
+                "evidence_refs": _evidence(refs),
+                "confidence": 0.67,
+                "fix_type": "architecture_change",
+                "recommended_fix": (
+                    "Add impression chunks: short associative records that connect concepts, routes, preferences, and "
+                    "situational cues without pretending to be exact facts or full procedures. Use them as retrieval "
+                    "hints, not as authoritative truth."
+                ),
+            }
+        )
+        return findings
+
+    if not has_impression_pointers:
+        findings.append(
+            {
+                "severity": "medium",
+                "title": "Impression pointers missing",
+                "symptom": (
+                    f"Found {len(refs['impression'])} impression/cue signals, but only "
+                    f"{len(refs['pointer'])} pointer, page-table, or page-fault signals."
+                ),
+                "user_impact": (
+                    "Impression text saves some tokens, but without a pointer it cannot reliably fault in the raw "
+                    "memory, file, vector entry, or skill when the user asks for details. The agent gets a slogan, "
+                    "not an address."
+                ),
+                "source_layer": "impression_memory",
+                "mechanism": "Repository scan for impression/cue vocabulary versus semantic anchors, pointer refs, and page-fault terms.",
+                "root_cause": (
+                    "The memory architecture appears to store associative hints, but does not model them as page-table "
+                    "entries pointing back to authoritative detail."
+                ),
+                "evidence_refs": _evidence(refs),
+                "confidence": 0.66,
+                "fix_type": "architecture_change",
+                "recommended_fix": (
+                    "Upgrade impressions into ImpressionPage entries: keep a topic_anchor and small cue in prompt, "
+                    "plus semantic_hash, pointer_type, pointer_ref, activation_level, last_accessed, and status. "
+                    "Use pointer_ref for deep-dive retrieval when the impression is not enough."
+                ),
+            }
+        )
+
+    return findings
