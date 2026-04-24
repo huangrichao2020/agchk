@@ -107,6 +107,26 @@ In short:
 - `personal` asks: "Where is this project wasting attention, introducing internal drag, or becoming hard to reason about?"
 - `enterprise` asks: "What could leak, break, loop forever, or become dangerous in production?"
 
+## Architecture Era Score
+
+Every report now includes a social architecture score so projects can compare their agent runtime maturity without reading every finding first.
+
+| Era | Score | Meaning |
+|-----|-------|---------|
+| 石器时代 | 0-19 | Linear prompt stuffing, manual summaries, little visible runtime structure |
+| 青铜时代 | 20-34 | Basic facts, skills, or tools exist, but boundaries remain rough |
+| 铁器时代 | 35-49 | Memory, tools, and skills are becoming maintainable subsystems |
+| 蒸汽机时代 | 50-64 | Compaction, RAG, scheduling, and external knowledge appear, but efficiency still comes from piling on machinery |
+| 内燃气时代 | 65-79 | Runtime power improves through scheduler, syscall, paging, or VFS primitives |
+| 新能源时代 | 80-91 | Most agent OS primitives are visible and reduce internal drag |
+| 人工智能时代 | 92-100 | Impression pointers, page faults, capability tables, fair scheduling, semantic mounts, and traces are visible |
+
+Example share line:
+
+> 这个 Agent 项目处于 蒸汽机时代（58/100）：出现调度、分页、压缩、外部知识等工程化能力，但效率仍靠堆结构。
+
+The score is evidence-based. Positive primitives add points, while findings such as missing paging policy, missing impression pointers, missing scheduler fairness, or missing semantic VFS subtract points.
+
 ## Python API
 
 ```python

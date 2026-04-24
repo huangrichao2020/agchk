@@ -14,6 +14,7 @@ from agchk.config import (
     health_mapping_for_profile,
     normalize_finding_for_profile,
 )
+from agchk.maturity import score_maturity
 from agchk.scanners import ScannerSpec, get_enabled_scanners
 
 SEVERITY_BUCKETS = ("critical", "high", "medium", "low")
@@ -27,6 +28,7 @@ CHANNEL_HINTS = {
     "telegram": ("telegram",),
 }
 ENTRYPOINT_NAMES = ("main.py", "app.py", "server.py", "index.js", "main.ts", "server.ts", "cli.py")
+SCOPE_SKIP_DIRS = {".git", ".github", ".venv", "venv", "node_modules", "dist", "build", "__pycache__", "coverage"}
 
 
 def _read_text(path: Path) -> str:
@@ -36,6 +38,11 @@ def _read_text(path: Path) -> str:
         return ""
 
 
+def _skip_scope_path(path: Path) -> bool:
+    lowered_parts = {part.lower() for part in path.parts}
+    return any(part in lowered_parts for part in SCOPE_SKIP_DIRS)
+
+
 def _infer_entrypoints(target: Path) -> list[str]:
     if target.is_file():
         return [str(target)]
@@ -43,6 +50,8 @@ def _infer_entrypoints(target: Path) -> list[str]:
     candidates = []
     for name in ENTRYPOINT_NAMES:
         for match in sorted(target.rglob(name)):
+            if _skip_scope_path(match):
+                continue
             candidates.append(str(match))
             if len(candidates) == 5:
                 return candidates
@@ -54,7 +63,9 @@ def _infer_channels(target: Path) -> list[str]:
         contents = [_read_text(target)]
     else:
         files = sorted(
-            fp for fp in target.rglob("*") if fp.is_file() and fp.suffix in {".py", ".js", ".ts", ".tsx", ".md"}
+            fp
+            for fp in target.rglob("*")
+            if fp.is_file() and not _skip_scope_path(fp) and fp.suffix in {".py", ".js", ".ts", ".tsx", ".md"}
         )[:50]
         contents = [_read_text(fp) for fp in files]
 
@@ -72,7 +83,9 @@ def _infer_model_stack(target: Path) -> list[str]:
         contents = [_read_text(target)]
     else:
         files = sorted(
-            fp for fp in target.rglob("*") if fp.is_file() and fp.suffix in {".py", ".js", ".ts", ".tsx", ".md", ".toml"}
+            fp
+            for fp in target.rglob("*")
+            if fp.is_file() and not _skip_scope_path(fp) and fp.suffix in {".py", ".js", ".ts", ".tsx", ".md", ".toml"}
         )[:80]
         contents = [_read_text(fp) for fp in files]
 
@@ -207,6 +220,7 @@ def run_audit(
             "layers_to_audit": audited_layers or ["tool_execution"],
         },
         "severity_summary": severity_summary,
+        "maturity_score": score_maturity(target, findings),
         "evidence_pack": _build_evidence_pack(target, findings),
         "findings": findings,
         "conflict_map": [],
@@ -218,6 +232,8 @@ def run_audit(
         for severity in SEVERITY_BUCKETS:
             print(f"   {severity.upper()}: {severity_summary[severity]}")
         print(f"   Overall: {results['executive_verdict']['overall_health']}")
+        maturity = results["maturity_score"]
+        print(f"   Era: {maturity['era_name']} ({maturity['score']}/100)")
 
     return results
 

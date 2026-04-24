@@ -104,6 +104,7 @@ def _build_bundle(results: dict[str, Any], *, source: str) -> dict[str, Any]:
     slug = _build_slug(results)
     target_name = results["scope"]["target_name"]
     primary_mode = results["executive_verdict"]["primary_failure_mode"]
+    maturity = results.get("maturity_score", {})
     upstream_path = f"contributions/self-scan/{slug}"
     short_target = Path(target_name).name or "agent-project"
 
@@ -116,6 +117,8 @@ def _build_bundle(results: dict[str, Any], *, source: str) -> dict[str, Any]:
             "target_name": target_name,
             "profile": results["scan_metadata"]["profile"],
             "overall_health": results["executive_verdict"]["overall_health"],
+            "architecture_era": maturity.get("era_name", "Unknown"),
+            "architecture_score": maturity.get("score", 0),
         },
         "suggested": {
             "slug": slug,
@@ -137,7 +140,8 @@ def _build_bundle(results: dict[str, Any], *, source: str) -> dict[str, Any]:
             ),
             "evidence_summary": (
                 f"Primary failure mode: {primary_mode}. Overall health: "
-                f"{results['executive_verdict']['overall_health']}."
+                f"{results['executive_verdict']['overall_health']}. Architecture era: "
+                f"{maturity.get('era_name', 'Unknown')} ({maturity.get('score', 'N/A')}/100)."
             ),
             "validation": (
                 "The source project was scanned with agchk and the resulting structured report "
@@ -149,6 +153,7 @@ def _build_bundle(results: dict[str, Any], *, source: str) -> dict[str, Any]:
         "audit_snapshot": {
             "primary_failure_mode": primary_mode,
             "most_urgent_fix": results["executive_verdict"]["most_urgent_fix"],
+            "maturity_score": maturity,
             "severity_summary": results["severity_summary"],
             "top_findings": _summarize_findings(results),
         },
@@ -164,6 +169,7 @@ def render_bundle_summary(bundle: dict[str, Any]) -> str:
         f"**Target**: `{bundle['source']['target_name']}`",
         f"**Profile**: `{bundle['source']['profile']}`",
         f"**Overall Health**: `{bundle['source']['overall_health']}`",
+        f"**Architecture Era**: `{bundle['source']['architecture_era']}` ({bundle['source']['architecture_score']}/100)",
         f"**Suggested Upstream Repo**: `{bundle['suggested']['upstream_repo']}`",
         f"**Suggested Branch**: `{bundle['suggested']['branch']}`",
         "",

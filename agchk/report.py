@@ -14,6 +14,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
     scope = results.get("scope", {})
     metadata = results.get("scan_metadata", {})
     summary = results.get("severity_summary", {})
+    maturity = results.get("maturity_score", {})
 
     lines = [
         "# Agent Architecture Audit Report",
@@ -23,6 +24,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
         f"**Date**: {metadata.get('scan_timestamp', 'Unknown')}",
         f"**Duration**: {metadata.get('scan_duration_seconds', 'N/A')}s",
         f"**Overall Health**: **{verdict.get('overall_health', 'Unknown')}**",
+        f"**Architecture Era**: **{maturity.get('era_name', 'Unknown')}** ({maturity.get('score', 'N/A')}/100)",
         f"**Primary Failure Mode**: {verdict.get('primary_failure_mode', 'Unknown')}",
         f"**Most Urgent Fix**: {verdict.get('most_urgent_fix', 'Unknown')}",
         "",
@@ -35,6 +37,8 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
         "",
         "## Summary",
         "",
+        f"> {maturity.get('share_line', 'No maturity score available.')}",
+        "",
         "| Severity | Count |",
         "|----------|-------|",
     ]
@@ -42,6 +46,30 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
     for severity in ("critical", "high", "medium", "low"):
         lines.append(f"| {SEVERITY_EMOJI.get(severity, '')} {severity.upper()} | {summary.get(severity, 0)} |")
     lines.extend(["", f"**Total findings**: {sum(summary.values())}", ""])
+
+    if maturity:
+        lines.extend(
+            [
+                "## Architecture Era Score",
+                "",
+                f"- Era: **{maturity.get('era_name', 'Unknown')}**",
+                f"- Score: **{maturity.get('score', 'N/A')}/100**",
+                f"- Raw points: `{maturity.get('raw_points', 'N/A')}`",
+                f"- Finding penalty: `{maturity.get('penalty', 'N/A')}`",
+                f"- Meaning: {maturity.get('era_description', 'Unknown')}",
+                "",
+            ]
+        )
+        if maturity.get("strengths"):
+            lines.append("**Strengths**:")
+            for strength in maturity["strengths"]:
+                lines.append(f"- {strength}")
+            lines.append("")
+        if maturity.get("next_milestones"):
+            lines.append("**Next Milestones**:")
+            for milestone in maturity["next_milestones"]:
+                lines.append(f"- {milestone}")
+            lines.append("")
 
     if results.get("evidence_pack"):
         lines.extend(["## Evidence Pack", ""])

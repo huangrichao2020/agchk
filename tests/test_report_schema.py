@@ -32,3 +32,18 @@ def test_run_audit_produces_schema_valid_report(tmp_path: Path) -> None:
     assert results["scope"]["layers_to_audit"]
     assert results["severity_summary"]["critical"] >= 1
     assert results["evidence_pack"]
+
+
+def test_run_audit_scope_ignores_dependency_entrypoints(tmp_path: Path) -> None:
+    site_package = tmp_path / ".venv" / "lib" / "python3.12" / "site-packages" / "dependency"
+    site_package.mkdir(parents=True)
+    (site_package / "main.py").write_text("print('dependency')\n", encoding="utf-8")
+    (tmp_path / "app.py").write_text("print('project')\n", encoding="utf-8")
+
+    results = run_audit(
+        str(tmp_path),
+        config=AuditConfig.from_profile("personal"),
+        verbose=False,
+    )
+
+    assert results["scope"]["entrypoints"] == [str(tmp_path / "app.py")]
