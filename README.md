@@ -15,6 +15,9 @@
   <a href="https://pypi.org/project/agchk/"><img alt="PyPI" src="https://img.shields.io/pypi/v/agchk?style=flat-square"></a>
   <a href="https://pypi.org/project/agchk/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/agchk?style=flat-square"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/huangrichao2020/agchk?style=flat-square"></a>
+  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+  <a href="#contributors"><img alt="All Contributors" src="https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square"></a>
+  <!-- ALL-CONTRIBUTORS-BADGE:END -->
   <img alt="Agent Architecture" src="https://img.shields.io/badge/agent-architecture-orange?style=flat-square">
   <img alt="Architecture Era Scoring" src="https://img.shields.io/badge/era-scoring-ff6b00?style=flat-square">
 </p>
@@ -279,6 +282,16 @@ agchk contribute prepare audit_results.json
 
 Then open a public-safe issue or fork PR to `huangrichao2020/agchk`.
 
+Need a model to copy? See [Contribution Examples](./docs/examples/contribution-examples.md), including a live maintainer example issue and a PR body template.
+
+We use [All Contributors](https://all-contributors.github.io/) to recognize every kind of useful contribution, not only code. If someone contributes an era-standard idea, a false-positive report, a scanner fix, a test case, or a docs improvement, maintainers can add them with comments like:
+
+```text
+@all-contributors please add @username for ideas
+@all-contributors please add @username for doc
+@all-contributors please add @username for code, test
+```
+
 We especially welcome contributions that generalize a real project lesson into:
 
 - a clearer doctrine page
@@ -459,6 +472,7 @@ Start here:
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [Doctrine Index](./docs/doctrine/README.md)
 - [GitHub Repo Setup](./docs/governance/github-repo-setup.md)
+- [Release Process](./docs/governance/release-process.md)
 - [Contribution Bundles](./contributions/README.md)
 
 ## Contribution CLI
@@ -581,6 +595,37 @@ agchk/                          ← 唯一源码库 (single source of truth)
          ├── references/
          └── README.md
 ```
+
+## Contributors
+
+Thanks goes to these wonderful people. `agchk` recognizes code, docs, ideas, tests, reviews, examples, and real-world self-scan lessons.
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/huangrichao2020">
+          <img src="https://avatars.githubusercontent.com/u/72842645?v=4?s=100" width="100px;" alt="Huang richao"/>
+          <br />
+          <sub><b>Huang richao</b></sub>
+        </a>
+        <br />
+        <a href="https://github.com/huangrichao2020/agchk/commits?author=huangrichao2020" title="Code">💻</a>
+        <a href="https://github.com/huangrichao2020/agchk/commits?author=huangrichao2020" title="Documentation">📖</a>
+        <a href="#ideas-huangrichao2020" title="Ideas, Planning, & Feedback">🤔</a>
+        <a href="#maintenance-huangrichao2020" title="Maintenance">🚧</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## Related
 

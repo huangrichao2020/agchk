@@ -7,9 +7,9 @@ from typing import Any, Dict, List
 from agchk.scanners.path_filters import should_skip_path
 
 API_LLM_RE = re.compile(
-    r"(?:chat\.create|messages\.create|completions\.create|llm\.invoke|"
+    r"(?:chat(?:\.completions)?\.create|messages\.create|completions\.create|llm\.invoke|"
     r"openai\.chat|anthropic\.messages|vertexai\.predict|"
-    r"bedrock.*invoke|model\.generate|completion\.create)",
+    r"bedrock.*invoke|model\.generate|completion\.create)\s*\(",
     re.IGNORECASE,
 )
 

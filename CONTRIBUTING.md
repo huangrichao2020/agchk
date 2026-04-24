@@ -70,6 +70,32 @@ All pull requests should explain:
 
 For self-scan contributions, the PR title should start with `[self-scan]`.
 
+## Release-Friendly PR Notes
+
+Merged PRs become the raw material for GitHub Release notes. Please make your PR readable as a future changelog entry:
+
+- Use a clear title, for example `docs: refine civilization era standards` or `fix(scanner): reduce provider false positives`.
+- Explain the user-visible change in `## What Changed` or `## Evidence`.
+- Explain why the lesson generalizes beyond one project.
+- Mention the contribution type that should be credited, such as `ideas`, `doc`, `code`, `test`, `review`, or `example`.
+- Ask maintainers to add labels that match the release categories, such as `era-scoring`, `methodology`, `scanner`, `false-positive`, `governance`, `contributors`, `docs`, `ci`, `release`, or `packaging`.
+
+If the PR came from a real self-scan, keep the release note public-safe: describe the generalized pattern, not the private project.
+
+## Contributor Recognition
+
+`agchk` uses [All Contributors](https://all-contributors.github.io/) to recognize more than code.
+
+Maintainers can add contributors after useful issues, PRs, reviews, tests, examples, docs, or era-standard discussions with comments like:
+
+```text
+@all-contributors please add @username for ideas
+@all-contributors please add @username for doc
+@all-contributors please add @username for code, test
+```
+
+This matters because many of the most important `agchk` contributions will be methodology, false-positive reports, self-scan lessons, and civilization-era scoring improvements.
+
 ## Review Standard
 
 Upstream maintainers will review for:
