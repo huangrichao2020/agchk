@@ -77,7 +77,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 3 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
 | 4 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
 | 5 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 6 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, scheduler fairness, syscall tables, or semantic VFS |
+| 6 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
 | 7 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
 | 8 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
 | 9 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
@@ -155,7 +155,7 @@ Profile differences are not just about safety gates. They also change what `agch
   - memory freshness confusion
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
-  - OS-style architecture gaps: paging, stateful recovery, scheduling, syscalls, and semantic mount points
+  - OS-style architecture gaps: paging, stateful recovery, LLM CLI worker pools, scheduling, syscalls, and semantic mount points
   - duplicated skills/SOPs
   - startup and runtime complexity
 - `personal` also softens common prototype findings:
@@ -214,6 +214,7 @@ Positive signals:
 - **Methodology density**: doctrine, review rubrics, anti-slop checklists, dimensional frameworks, compact prompt protocols
 - **Memory architecture**: facts, skills, episodic chunks, impression pointers, semantic paging, page-fault recovery
 - **Stateful recovery**: context replay, durable environment state, side-effect logs, and idempotent wakeup/resume
+- **CLI worker delegation**: Task JSON handoff to Qwen/Codex/Claude-style CLI workers with stdout/stderr/exit-code capture
 - **Agent OS primitives**: tool/syscall boundaries, scheduler fairness, capability tables, semantic VFS, traces/evals
 - **Runtime shape**: clear harness, workers/subagents, channels, and explicit orchestration boundaries
 
@@ -222,6 +223,7 @@ Negative signals:
 - linear `summary` / `compact_memory` without hot/cold paging
 - impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
 - context replay or resumable runs without environment-state inspection and side-effect logs
+- external LLM CLI workers without Task JSON, captured stdout/stderr/exit code, timeout, or concurrency control
 - file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure
 - skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
