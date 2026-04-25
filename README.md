@@ -214,7 +214,7 @@ Positive signals:
 - **Methodology density**: doctrine, review rubrics, anti-slop checklists, dimensional frameworks, compact prompt protocols
 - **Memory architecture**: facts, skills, episodic chunks, impression pointers, semantic paging, page-fault recovery
 - **Stateful recovery**: context replay, durable environment state, side-effect logs, and idempotent wakeup/resume
-- **CLI worker delegation**: Task JSON handoff to Qwen/Codex/Claude-style CLI workers with stdout/stderr/exit-code capture
+- **CLI worker delegation**: Task JSON handoff, natural-language stdin prompts, and stdout/stderr/exit-code capture for Qwen/Codex/Claude-style CLI workers
 - **Agent OS primitives**: tool/syscall boundaries, scheduler fairness, capability tables, semantic VFS, traces/evals
 - **Runtime shape**: clear harness, workers/subagents, channels, and explicit orchestration boundaries
 
@@ -223,7 +223,7 @@ Negative signals:
 - linear `summary` / `compact_memory` without hot/cold paging
 - impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
 - context replay or resumable runs without environment-state inspection and side-effect logs
-- external LLM CLI workers without Task JSON, captured stdout/stderr/exit code, timeout, or concurrency control
+- external LLM CLI workers without Task JSON, natural-language prompt handoff, captured stdout/stderr/exit code, timeout, or concurrency control
 - file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure
 - skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
