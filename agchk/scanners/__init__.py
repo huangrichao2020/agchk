@@ -9,6 +9,7 @@ from typing import Callable, List
 from agchk.config import AuditConfig
 from agchk.scanners.code_execution import scan_code_execution
 from agchk.scanners.completion_closure import scan_completion_closure
+from agchk.scanners.bug_inference import scan_bug_inference
 from agchk.scanners.capability_policy import scan_capability_policy
 from agchk.scanners.daemon_lifecycle import scan_daemon_lifecycle
 from agchk.scanners.excessive_agency import scan_excessive_agency
@@ -68,6 +69,12 @@ SCANNER_REGISTRY = [
         name="Completion Closure Gap",
         func=_adapt(scan_completion_closure),
         audited_layers=("completion_closure", "active_recall"),
+    ),
+    ScannerSpec(
+        slug="bug_inference",
+        name="Static Bug Inference",
+        func=_adapt(scan_bug_inference),
+        audited_layers=("runtime_bug_inference", "platform_rendering", "tool_execution"),
     ),
     ScannerSpec(
         slug="memory_freshness",
@@ -226,6 +233,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
         personal_priority = [
             "internal_orchestration",
             "completion_closure",
+            "bug_inference",
             "memory_freshness",
             "memory_lifecycle",
             "memory_retrieval_i18n",
@@ -262,6 +270,7 @@ __all__ = [
     "ScannerSpec",
     "SCANNER_REGISTRY",
     "get_enabled_scanners",
+    "scan_bug_inference",
     "scan_code_execution",
     "scan_completion_closure",
     "scan_capability_policy",

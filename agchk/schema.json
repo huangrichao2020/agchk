@@ -178,6 +178,7 @@
               "plugin_execution",
               "remote_tools",
               "pipeline_middleware",
+              "runtime_bug_inference",
               "self_evolution"
             ]
           },
