@@ -85,16 +85,10 @@ def iter_source_files(
     count = 0
     for dirpath, dirnames, filenames in os.walk(target):
         # Prune skipped directories in-place to prevent os.walk from descending.
-        dirnames[:] = [
-            d
-            for d in dirnames
-            if d.lower() not in skip_lower and not d.endswith(".egg-info")
-        ]
+        dirnames[:] = [d for d in dirnames if d.lower() not in skip_lower and not d.endswith(".egg-info")]
 
         for fname in filenames:
-            if exts and not fname.lower().endswith(
-                tuple(ext.lower() for ext in exts)
-            ):
+            if exts and not fname.lower().endswith(tuple(ext.lower() for ext in exts)):
                 continue
 
             fp = Path(dirpath) / fname

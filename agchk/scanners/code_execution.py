@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agchk.scanners.path_filters import iter_source_files,  should_skip_path
+from agchk.scanners.path_filters import iter_source_files, should_skip_path
 
 # Precompiled patterns
 # NOTE: Built-in `compile(...)` can still be risky, but `re.compile(...)`

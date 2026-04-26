@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agchk.scanners.path_filters import iter_source_files,  should_skip_path
+from agchk.scanners.path_filters import iter_source_files, should_skip_path
 
 SCAN_EXTENSIONS = {
     ".py",
