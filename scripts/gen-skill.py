@@ -10,7 +10,6 @@ then writes a complete oh-my-agent-check Skill package to output/oh-my-agent-che
 
 import json
 import re
-import sys
 from pathlib import Path
 
 AGCHK_ROOT = Path(__file__).parent.parent
@@ -30,12 +29,14 @@ def read_scanner_patterns():
         desc = m.group(1).strip() if m else ""
         # Extract patterns
         pat_lines = re.findall(r're\.compile\((r?["\'](.+?)["\'])', content)
-        patterns.append({
-            "module": fp.stem.replace("_", " ").title(),
-            "file": fp.name,
-            "description": desc.split("\n")[0],
-            "regex_count": len(pat_lines),
-        })
+        patterns.append(
+            {
+                "module": fp.stem.replace("_", " ").title(),
+                "file": fp.name,
+                "description": desc.split("\n")[0],
+                "regex_count": len(pat_lines),
+            }
+        )
     return patterns
 
 
@@ -62,7 +63,7 @@ def generate_code_patterns_md():
         severity = sev_match.group(1) if sev_match else "medium"
 
         section += f"**Default severity**: `{severity}`\n\n"
-        section += f"**Regex patterns**:\n\n"
+        section += "**Regex patterns**:\n\n"
 
         for pat in name_pat:
             section += f"- `{pat}`\n"
@@ -92,12 +93,11 @@ Or run individual grep scans manually:
 
 def generate_skill_md():
     """Generate SKILL.md from agchk's README + schema + scanners."""
-    readme = (AGCHK_ROOT / "README.md").read_text()
     schema = json.loads((AGCHK_ROOT / "agchk" / "schema.json").read_text())
 
     skill = f"""---
 name: agent-architecture-audit
-description: Audit the architecture and health of any AI agent system or LLM-integrated project. Uses the agchk Python library ({schema.get('properties', {}).get('schema_version', {}).get('const', 'unknown')}) for structured reports with severity-ranked findings and code-first fix plans.
+description: Audit the architecture and health of any AI agent system or LLM-integrated project. Uses the agchk Python library ({schema.get("properties", {}).get("schema_version", {}).get("const", "unknown")}) for structured reports with severity-ranked findings and code-first fix plans.
 origin: https://github.com/huangrichao2020/agchk
 ---
 

@@ -48,6 +48,11 @@ def _sample_audit_report(target_name: str = "/tmp/example-agent") -> dict:
                 "cap_applied": False,
                 "note": "已发现方法论层，项目具备进入青铜以上时代的地基。",
             },
+            "self_evolution_gate": {
+                "detected": False,
+                "cap_applied": False,
+                "note": "未发现完整自我进化闭环，时代评分封顶在内燃气时代。",
+            },
             "strengths": ["agent runtime", "tool/syscall boundary"],
             "next_milestones": ["把线性 summary/compact 升级为 page table、LRU/hot-cold 和 swap-in。"],
             "evidence_refs": [f"{target_name}/main.py:1"],

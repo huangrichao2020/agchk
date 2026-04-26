@@ -23,12 +23,17 @@ from agchk.scanners.memory_retrieval_i18n import scan_memory_retrieval_i18n
 from agchk.scanners.observability import scan_observability
 from agchk.scanners.os_architecture import scan_os_architecture
 from agchk.scanners.output_pipeline import scan_output_pipeline
+from agchk.scanners.pipeline_middleware_integrity import scan_pipeline_middleware_integrity
+from agchk.scanners.plugin_execution_policy import scan_plugin_execution_policy
+from agchk.scanners.rag_pipeline_governance import scan_rag_pipeline_governance
 from agchk.scanners.role_play_orchestration import scan_role_play_orchestration
 from agchk.scanners.runtime_complexity import scan_runtime_complexity
 from agchk.scanners.secrets import scan_secrets
+from agchk.scanners.self_evolution_capability import scan_self_evolution_capability
 from agchk.scanners.skill_duplication import scan_skill_duplication
 from agchk.scanners.startup_complexity import scan_startup_complexity
 from agchk.scanners.tool_enforcement import scan_tool_enforcement
+from agchk.scanners.tool_server_boundary import scan_tool_server_boundary
 
 ScannerFunc = Callable[[Path, AuditConfig], List[dict]]
 
@@ -83,6 +88,18 @@ SCANNER_REGISTRY = [
         audited_layers=("long_term_memory", "active_recall"),
     ),
     ScannerSpec(
+        slug="rag_pipeline_governance",
+        name="RAG Pipeline Governance",
+        func=_adapt(scan_rag_pipeline_governance),
+        audited_layers=("long_term_memory", "active_recall", "knowledge_retrieval"),
+    ),
+    ScannerSpec(
+        slug="self_evolution_capability",
+        name="Self-Evolution Capability",
+        func=_adapt(scan_self_evolution_capability),
+        audited_layers=("self_evolution", "active_recall", "persistence"),
+    ),
+    ScannerSpec(
         slug="impression_memory",
         name="Impression Pointer Memory",
         func=_adapt(scan_impression_memory),
@@ -117,6 +134,24 @@ SCANNER_REGISTRY = [
         name="Capability Permission Policy",
         func=_adapt(scan_capability_policy),
         audited_layers=("tool_selection", "tool_execution", "os_syscall"),
+    ),
+    ScannerSpec(
+        slug="plugin_execution_policy",
+        name="Plugin Execution Policy",
+        func=_adapt(scan_plugin_execution_policy),
+        audited_layers=("tool_selection", "tool_execution", "plugin_execution"),
+    ),
+    ScannerSpec(
+        slug="tool_server_boundary",
+        name="Remote Tool Server Boundary",
+        func=_adapt(scan_tool_server_boundary),
+        audited_layers=("tool_selection", "tool_execution", "remote_tools"),
+    ),
+    ScannerSpec(
+        slug="pipeline_middleware_integrity",
+        name="Pipeline Middleware Integrity",
+        func=_adapt(scan_pipeline_middleware_integrity),
+        audited_layers=("answer_shaping", "tool_execution", "pipeline_middleware"),
     ),
     ScannerSpec(
         slug="skill_duplication",
@@ -194,12 +229,17 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
             "memory_freshness",
             "memory_lifecycle",
             "memory_retrieval_i18n",
+            "rag_pipeline_governance",
+            "self_evolution_capability",
             "impression_memory",
             "role_play_orchestration",
             "os_architecture",
             "loop_safety",
             "daemon_lifecycle",
             "capability_policy",
+            "plugin_execution_policy",
+            "tool_server_boundary",
+            "pipeline_middleware_integrity",
             "skill_duplication",
             "startup_complexity",
             "runtime_complexity",
@@ -238,10 +278,15 @@ __all__ = [
     "scan_observability",
     "scan_os_architecture",
     "scan_output_pipeline",
+    "scan_pipeline_middleware_integrity",
+    "scan_plugin_execution_policy",
+    "scan_rag_pipeline_governance",
     "scan_role_play_orchestration",
     "scan_runtime_complexity",
     "scan_secrets",
+    "scan_self_evolution_capability",
     "scan_skill_duplication",
     "scan_startup_complexity",
     "scan_tool_enforcement",
+    "scan_tool_server_boundary",
 ]

@@ -100,12 +100,68 @@ SIGNAL_PATTERNS = {
         r"multilingual[_ -]?retrieval|reindex|rebuild[_ -]?index)\b|(?:中文检索|中文分词|多语言检索)",
         re.IGNORECASE,
     ),
+    "rag_governance": re.compile(
+        r"\b(?:rag|retrieval[_ -]?augmented|knowledge[_ -]?base|vector[_ -]?(?:store|db)|embedding|"
+        r"chunk[_ -]?(?:size|overlap)|rerank|hybrid[_ -]?search|bm25|top[_ -]?k|retrieval[_ -]?budget)\b",
+        re.IGNORECASE,
+    ),
+    "external_signal": re.compile(
+        r"\b(?:external[_ -]?signal|signal[_ -]?(?:intake|screening)|upstream|reference[_ -]?project|"
+        r"competitor|benchmark|issue|pull request|pr|release note|production log|user feedback|github trend)\b|"
+        r"(?:外部信号|信号筛选|热门项目|用户反馈|线上日志|上游项目)",
+        re.IGNORECASE,
+    ),
+    "dissection_learning": re.compile(
+        r"\b(?:source[_ -]?reading|read[_ -]?source|code archaeology|architecture review|directory tree|"
+        r"entrypoint|main loop|core class|adr|design doc|decision record|boundary analysis)\b|"
+        r"(?:解剖学习|读源码|目录结构|主入口|核心类|设计决策|边界分析)",
+        re.IGNORECASE,
+    ),
+    "pattern_extraction": re.compile(
+        r"\b(?:pattern[_ -]?extraction|extract(?:ed)? pattern|design pattern|reusable pattern|generalize|"
+        r"generalization|not copy|not copied|not a code copy|anti[_ -]?copy)\b|"
+        r"(?:提取模式|设计模式|举一反三|不是照搬|不照搬|不是代码副本)",
+        re.IGNORECASE,
+    ),
+    "constraint_adaptation": re.compile(
+        r"\b(?:constraint[_ -]?adapt(?:ation)?|fit constraints|local constraints|zero heavy dependencies|"
+        r"no heavy dependenc(?:y|ies)|lightweight|2gb ram|bounded resource|integrate with existing)\b|"
+        r"(?:约束适配|本地约束|零重型依赖|轻量|2GB|融入已有)",
+        re.IGNORECASE,
+    ),
+    "safe_landing": re.compile(
+        r"\b(?:small[_ -]?step|minimal implementation|independent module|isolated module|try/except|"
+        r"fail[_ -]?soft|non[_ -]?intrusive|feature flag|rollback|bounded change)\b|"
+        r"(?:小步落地|最小实现|独立模块|不侵入|可回滚|失败不影响)",
+        re.IGNORECASE,
+    ),
+    "verification_closure": re.compile(
+        r"\b(?:verification[_ -]?loop|validation loop|eval|regression test|smoke test|acceptance|"
+        r"self[_ -]?test|test passed|post[_ -]?change review|retro|lesson learned)\b|"
+        r"(?:验证闭环|回归测试|烟测|验收|复盘|教训)",
+        re.IGNORECASE,
+    ),
     "semantic_vfs": re.compile(
         r"\b(?:vfs|virtual file|mount point|resource path|semantic fs|/knowledge|/skills|/memory)\b", re.IGNORECASE
     ),
     "daemon_lifecycle": re.compile(
         r"\b(?:graceful[_ -]?restart|safe[_ -]?restart|drain|active[_ -]?(?:agents|jobs|runs)|"
         r"restart[_ -]?barrier|checkpoint|resume|post[_ -]?restart|gateway[_ -]?state|old pid|new pid)\b",
+        re.IGNORECASE,
+    ),
+    "plugin_sandbox": re.compile(
+        r"\b(?:plugin|function|pipe|valves|exec\s*\(|dynamic[_ -]?import|sandbox|allowed[_ -]?packages|"
+        r"package[_ -]?allowlist|plugin[_ -]?permission|plugin[_ -]?scope)\b",
+        re.IGNORECASE,
+    ),
+    "remote_tool_boundary": re.compile(
+        r"\b(?:mcp|model[_ -]?context[_ -]?protocol|openapi|swagger|tool[_ -]?server|remote[_ -]?tool|"
+        r"trusted[_ -]?servers|schema[_ -]?version|schema[_ -]?validation|allowed[_ -]?servers)\b",
+        re.IGNORECASE,
+    ),
+    "middleware_observability": re.compile(
+        r"\b(?:pipeline|middleware|filter|inbound|outbound|raw[_ -]?message|transformed[_ -]?message|"
+        r"audit[_ -]?log|filter[_ -]?order|fail[_ -]?(?:open|closed))\b",
         re.IGNORECASE,
     ),
     "observability": re.compile(
@@ -146,6 +202,15 @@ SIGNAL_PATTERNS = {
     ),
 }
 
+EVOLUTION_SIGNAL_KEYS = (
+    "external_signal",
+    "dissection_learning",
+    "pattern_extraction",
+    "constraint_adaptation",
+    "safe_landing",
+    "verification_closure",
+)
+
 SIGNAL_POINTS = {
     "methodology": 12,
     "agent_runtime": 5,
@@ -164,8 +229,18 @@ SIGNAL_POINTS = {
     "permission_policy": 9,
     "memory_lifecycle": 10,
     "memory_retrieval_i18n": 7,
+    "rag_governance": 8,
+    "external_signal": 4,
+    "dissection_learning": 5,
+    "pattern_extraction": 5,
+    "constraint_adaptation": 5,
+    "safe_landing": 5,
+    "verification_closure": 6,
     "semantic_vfs": 8,
     "daemon_lifecycle": 7,
+    "plugin_sandbox": 8,
+    "remote_tool_boundary": 8,
+    "middleware_observability": 7,
     "observability": 7,
     "stateful_recovery": 10,
     "environment_state": 8,
@@ -192,8 +267,18 @@ SIGNAL_LABELS = {
     "permission_policy": "permission policy",
     "memory_lifecycle": "memory lifecycle governance",
     "memory_retrieval_i18n": "multilingual memory retrieval",
+    "rag_governance": "RAG governance",
+    "external_signal": "external signal intake",
+    "dissection_learning": "source-level learning",
+    "pattern_extraction": "pattern extraction",
+    "constraint_adaptation": "constraint adaptation",
+    "safe_landing": "small-step landing",
+    "verification_closure": "verification closure",
     "semantic_vfs": "semantic VFS",
     "daemon_lifecycle": "daemon lifecycle safety",
+    "plugin_sandbox": "plugin sandbox policy",
+    "remote_tool_boundary": "remote tool boundary",
+    "middleware_observability": "middleware observability",
     "observability": "traces/evals",
     "stateful_recovery": "stateful recovery",
     "environment_state": "environment-as-state",
@@ -213,8 +298,19 @@ MILESTONES = {
     "permission_policy": "把高权限工具纳入 blocklist、allowlist、needs-approval 和 read/write scope 的分层权限模型。",
     "memory_lifecycle": "给长期记忆增加类型、检索预算、冲突合并、active/durable 生命周期、衰减和证据指针。",
     "memory_retrieval_i18n": "给 FTS/SQLite 记忆检索增加 CJK-safe tokenizer、fallback、reindex 和多语言回归测试。",
+    "rag_governance": "给 RAG 增加 chunk、retrieval budget、rerank、ingestion 状态和 full-context 预算约束。",
+    "self_evolution_loop": "建立自我进化闭环：外部信号、源码解剖、模式提取、约束适配、小步落地和验证复盘。",
+    "external_signal": "建立外部信号筛选，只学习能解决当前未解决问题的项目、issue、PR、benchmark 或线上反馈。",
+    "dissection_learning": "把学习对象读到源码层：目录结构、入口、主循环、核心类、ADR/DESIGN 和模块边界。",
+    "pattern_extraction": "把学到的内容提炼成可复用设计模式，而不是复制代码或追逐新技术名词。",
+    "constraint_adaptation": "每个模式先过本地约束：资源预算、零重型依赖、已有架构、权限边界和维护成本。",
+    "safe_landing": "先做独立最小实现，用 try/except、feature flag 或 fail-soft 边界保护主循环。",
+    "verification_closure": "每轮进化必须留下测试、eval、smoke、验收或复盘证据，证明它真的变好。",
     "semantic_vfs": "把 skills、RAG、docs、GitHub、notes 挂到统一 semantic VFS 地址空间。",
     "daemon_lifecycle": "给常驻 agent 增加 active-work 检查、graceful drain、checkpoint/resume 和 post-restart health 验证。",
+    "plugin_sandbox": "给可执行插件增加 sandbox、依赖 pin/allowlist、权限 scope 和用户/管理员信任边界。",
+    "remote_tool_boundary": "给 MCP/OpenAPI 远程工具增加 server allowlist、auth、schema pinning、timeout 和高权限审批。",
+    "middleware_observability": "给请求/响应 pipeline 增加顺序声明、raw/transformed 审计、失败策略和冲突测试。",
     "observability": "保留 traces/evals，让 agent 的进化可以被复盘和比较。",
     "stateful_recovery": "把自动续接做成 Stateful Agent 契约：context replay + environment state + side-effect log + idempotent recovery。",
     "environment_state": "把 filesystem/server/workspace 状态纳入可验证状态模型，恢复时先读取现场再决定下一步。",
@@ -235,10 +331,23 @@ FINDING_PENALTIES = {
     "Memory system lacks lifecycle governance": 10,
     "Memory FTS lacks CJK-safe retrieval path": 9,
     "Memory retrieval lacks multilingual regression tests": 5,
+    "RAG pipeline lacks retrieval governance": 9,
+    "RAG full-context mode lacks context budget": 6,
+    "Agent lacks self-evolution capability": 12,
+    "Evolution process lacks constraint adaptation": 7,
+    "Evolution loop lacks verification closure": 10,
     "Knowledge surfaces lack semantic VFS": 7,
     "Daemon restart lacks active-work drain protocol": 9,
     "Permission policy is not enforced on all dispatch paths": 9,
     "Loop detector does not observe all tool-call paths": 9,
+    "Executable plugin system lacks sandbox policy": 10,
+    "Plugin dependency installation lacks supply-chain policy": 8,
+    "Remote tool server lacks trust-boundary policy": 9,
+    "Remote tool schema is not pinned or versioned": 6,
+    "High-agency remote tools lack approval boundary": 10,
+    "LLM pipeline mutates messages without audit trail": 8,
+    "LLM pipeline order is implicit": 5,
+    "LLM pipeline lacks filter failure policy": 5,
     "Stateful Agent recovery contract incomplete": 8,
     "LLM CLI worker contract incomplete": 7,
     "Internal orchestration sprawl detected": 6,
@@ -314,13 +423,21 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
     else:
         methodology_cap_applied = score > 34
         score = min(score, 34)
+    has_self_evolution = all(key in detected for key in EVOLUTION_SIGNAL_KEYS)
+    self_evolution_cap_applied = False
+    if not has_self_evolution:
+        self_evolution_cap_applied = score > 65
+        score = min(score, 65)
     era = _era_for_score(score)
 
     strengths = [SIGNAL_LABELS[key] for key in SIGNAL_POINTS if key in detected]
+    if has_self_evolution:
+        strengths.append("self-evolution loop")
     missing_milestones = [
         MILESTONES[key]
         for key in (
             "methodology",
+            "self_evolution_loop",
             "paging",
             "page_fault",
             "stateful_recovery",
@@ -330,15 +447,26 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
             "impression_pointer",
             "memory_lifecycle",
             "memory_retrieval_i18n",
+            "rag_governance",
             "loop_safety",
             "fairness",
             "capability_table",
             "permission_policy",
             "daemon_lifecycle",
+            "plugin_sandbox",
+            "remote_tool_boundary",
+            "middleware_observability",
             "semantic_vfs",
             "observability",
+            "external_signal",
+            "dissection_learning",
+            "pattern_extraction",
+            "constraint_adaptation",
+            "safe_landing",
+            "verification_closure",
         )
-        if key not in detected
+        if (key != "self_evolution_loop" and key not in detected)
+        or (key == "self_evolution_loop" and not has_self_evolution)
     ]
 
     evidence_refs: list[str] = []
@@ -368,6 +496,15 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
                 "已发现方法论层，项目具备进入青铜以上时代的地基。"
                 if has_methodology
                 else "未发现清晰方法论层，时代评分封顶在青铜时代。"
+            ),
+        },
+        "self_evolution_gate": {
+            "detected": has_self_evolution,
+            "cap_applied": self_evolution_cap_applied,
+            "note": (
+                "已发现完整自我进化闭环，项目具备持续吸收外部信号并验证改造的能力。"
+                if has_self_evolution
+                else "未发现完整自我进化闭环，时代评分封顶在内燃气时代。"
             ),
         },
         "strengths": strengths,

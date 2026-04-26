@@ -66,6 +66,7 @@
         "era_description",
         "share_line",
         "methodology_gate",
+        "self_evolution_gate",
         "strengths",
         "next_milestones",
         "evidence_refs"
@@ -94,6 +95,16 @@
         "era_description": { "type": "string", "minLength": 1 },
         "share_line": { "type": "string", "minLength": 1 },
         "methodology_gate": {
+          "type": "object",
+          "required": ["detected", "cap_applied", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "detected": { "type": "boolean" },
+            "cap_applied": { "type": "boolean" },
+            "note": { "type": "string", "minLength": 1 }
+          }
+        },
+        "self_evolution_gate": {
           "type": "object",
           "required": ["detected", "cap_applied", "note"],
           "additionalProperties": false,
@@ -162,7 +173,12 @@
               "os_syscall",
               "os_vfs",
               "stateful_recovery",
-              "llm_cli_workers"
+              "llm_cli_workers",
+              "knowledge_retrieval",
+              "plugin_execution",
+              "remote_tools",
+              "pipeline_middleware",
+              "self_evolution"
             ]
           },
           "minItems": 1
