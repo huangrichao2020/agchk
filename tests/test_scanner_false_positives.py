@@ -59,6 +59,61 @@ def test_object_exec_methods_are_not_flagged_as_builtin_exec(tmp_path: Path) -> 
     assert "Unsafe code execution: exec(" not in _titles(findings)
 
 
+def test_python_comments_and_strings_are_not_flagged_as_code_execution(tmp_path: Path) -> None:
+    (tmp_path / "docs.py").write_text(
+        "\n".join(
+            [
+                "# Mention exec(user_code) in a migration note.",
+                "HELP = 'Never call eval(user_input) from production code.'",
+                'WARNING = "subprocess.run(command, shell=True) is risky"',
+                "def explain():",
+                "    return 'compile(source, name, mode) belongs in docs only'",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_code_execution(tmp_path)
+
+    assert findings == []
+
+
+def test_python_ast_still_flags_real_code_execution_calls(tmp_path: Path) -> None:
+    (tmp_path / "danger.py").write_text(
+        "\n".join(
+            [
+                "import subprocess",
+                "def run_user_code(command, user_code):",
+                "    exec(user_code)",
+                "    subprocess.run(command, shell=True)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_code_execution(tmp_path)
+
+    assert "Unsafe code execution: exec(" in _titles(findings)
+    assert "Unsafe code execution: subprocess(shell=True)" in _titles(findings)
+
+
+def test_imported_subprocess_shell_true_is_flagged(tmp_path: Path) -> None:
+    (tmp_path / "danger.py").write_text(
+        "\n".join(
+            [
+                "from subprocess import run as shell_run",
+                "def execute(command):",
+                "    shell_run(command, shell=True)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_code_execution(tmp_path)
+
+    assert "Unsafe code execution: subprocess(shell=True)" in _titles(findings)
+
+
 def test_generated_chunk_asset_is_skipped_for_code_execution(tmp_path: Path) -> None:
     asset_dir = tmp_path / "console" / "assets"
     asset_dir.mkdir(parents=True)

@@ -1,5 +1,6 @@
 """Scan for unsafe code execution patterns (exec, eval, shell=True, etc.)."""
 
+import ast
 import re
 from pathlib import Path
 from typing import Any, Dict, List
@@ -35,59 +36,147 @@ def _should_skip(path: Path) -> bool:
     return should_skip_path(path, SKIP_DIRS)
 
 
+def _line_at(lines: list[str], lineno: int) -> str:
+    if 1 <= lineno <= len(lines):
+        return lines[lineno - 1].strip()[:100]
+    return ""
+
+
+def _imported_subprocess_calls(tree: ast.AST) -> set[str]:
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "subprocess":
+            for alias in node.names:
+                if alias.name in {"run", "call", "check_call", "check_output", "Popen"}:
+                    names.add(alias.asname or alias.name)
+    return names
+
+
+def _is_subprocess_call(func: ast.AST, imported_subprocess_calls: set[str]) -> bool:
+    if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+        return func.value.id == "subprocess"
+    if isinstance(func, ast.Name):
+        return func.id in imported_subprocess_calls
+    return False
+
+
+def _has_shell_true(node: ast.Call) -> bool:
+    for keyword in node.keywords:
+        if keyword.arg == "shell" and isinstance(keyword.value, ast.Constant):
+            return keyword.value.value is True
+    return False
+
+
+def _finding(
+    fp: Path, lines: list[str], lineno: int, pattern_name: str, has_sandbox: bool, mechanism: str
+) -> Dict[str, Any]:
+    severity = "critical" if pattern_name in ("exec(", "eval(", "subprocess(shell=True)", "os.system(") else "high"
+
+    return {
+        "severity": severity,
+        "title": f"Unsafe code execution: {pattern_name}",
+        "symptom": f"Found {pattern_name} at {fp.name}:{lineno}: {_line_at(lines, lineno)}",
+        "user_impact": "Arbitrary code execution from untrusted input can lead to full system compromise, data exfiltration, or remote code execution.",
+        "source_layer": "code_execution",
+        "mechanism": mechanism,
+        "root_cause": f"Use of {pattern_name} without proper input sanitization or sandboxing.",
+        "evidence_refs": [f"{fp}:{lineno}"],
+        "confidence": 0.65 if has_sandbox else 0.9,
+        "fix_type": "code_change",
+        "recommended_fix": (
+            "Replace with safe alternatives: use ast.literal_eval instead of eval(), "
+            "subprocess.run with list args instead of shell=True, or execute in an isolated sandbox "
+            "(Docker, gVisor, nsjail) with resource limits and network disabled."
+        ),
+    }
+
+
+def _scan_python_ast(fp: Path, content: str, lines: list[str], has_sandbox: bool) -> List[Dict[str, Any]]:
+    findings: List[Dict[str, Any]] = []
+
+    tree = ast.parse(content, filename=str(fp))
+    imported_subprocess_calls = _imported_subprocess_calls(tree)
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+
+        pattern_name = None
+        if isinstance(node.func, ast.Name) and node.func.id in {"exec", "eval", "compile"}:
+            pattern_name = f"{node.func.id}("
+        elif (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "system"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "os"
+        ):
+            pattern_name = "os.system("
+        elif _is_subprocess_call(node.func, imported_subprocess_calls) and _has_shell_true(node):
+            pattern_name = "subprocess(shell=True)"
+
+        if pattern_name:
+            findings.append(
+                _finding(
+                    fp,
+                    lines,
+                    getattr(node, "lineno", 1),
+                    pattern_name,
+                    has_sandbox,
+                    f"AST call match for dangerous function: {pattern_name}",
+                )
+            )
+
+    return findings
+
+
+def _mask_string_literals(line: str) -> str:
+    return re.sub(r"(['\"])(?:\\.|(?!\1).)*\1", '""', line)
+
+
 def _scan_file(fp: Path) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
 
     try:
-        lines = fp.read_text(encoding="utf-8", errors="ignore").splitlines()
+        full_content = fp.read_text(encoding="utf-8", errors="ignore")
     except (OSError, PermissionError):
         return findings
 
+    lines = full_content.splitlines()
+
     # Check for sandbox/safety patterns across the whole file
-    try:
-        full_content = fp.read_text(encoding="utf-8", errors="ignore")
-    except (OSError, PermissionError):
-        full_content = ""
     has_sandbox = bool(SANDBOX_RE.search(full_content))
 
+    if fp.suffix == ".py":
+        try:
+            return _scan_python_ast(fp, full_content, lines, has_sandbox)
+        except SyntaxError:
+            pass
+
     for lineno, line in enumerate(lines, start=1):
+        scan_line = _mask_string_literals(line.split("#", 1)[0] if fp.suffix == ".py" else line)
         matched_pattern = None
         pattern_name = None
 
         # Check dangerous function calls
         for name, pat in DANGEROUS_CALLS.items():
-            if pat.search(line):
+            if pat.search(scan_line):
                 matched_pattern = pat
                 pattern_name = name
                 break
 
         # Check subprocess shell=True
-        if not matched_pattern and SHELL_TRUE_RE.search(line):
+        if not matched_pattern and SHELL_TRUE_RE.search(scan_line):
             pattern_name = "subprocess(shell=True)"
 
         if pattern_name:
-            severity = (
-                "critical" if pattern_name in ("exec(", "eval(", "subprocess(shell=True)", "os.system(") else "high"
-            )
-
             findings.append(
-                {
-                    "severity": severity,
-                    "title": f"Unsafe code execution: {pattern_name}",
-                    "symptom": f"Found {pattern_name} at {fp.name}:{lineno}: {line.strip()[:100]}",
-                    "user_impact": "Arbitrary code execution from untrusted input can lead to full system compromise, data exfiltration, or remote code execution.",
-                    "source_layer": "code_execution",
-                    "mechanism": f"Regex match for dangerous function: {pattern_name}",
-                    "root_cause": f"Use of {pattern_name} without proper input sanitization or sandboxing.",
-                    "evidence_refs": [f"{fp}:{lineno}"],
-                    "confidence": 0.65 if has_sandbox else 0.9,
-                    "fix_type": "code_change",
-                    "recommended_fix": (
-                        "Replace with safe alternatives: use ast.literal_eval instead of eval(), "
-                        "subprocess.run with list args instead of shell=True, or execute in an isolated sandbox "
-                        "(Docker, gVisor, nsjail) with resource limits and network disabled."
-                    ),
-                }
+                _finding(
+                    fp,
+                    lines,
+                    lineno,
+                    pattern_name,
+                    has_sandbox,
+                    f"Text match outside Python comments/strings for dangerous function: {pattern_name}",
+                )
             )
 
     return findings
