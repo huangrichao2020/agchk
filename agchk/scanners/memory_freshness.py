@@ -34,7 +34,7 @@ def scan_memory_freshness(target: Path) -> List[Dict[str, Any]]:
     memory_files: list[Path] = []
     categories_present: set[str] = set()
 
-    files = list(iter_source_files(target))
+    files = list(iter_source_files(target, extensions=SCAN_EXTENSIONS))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue

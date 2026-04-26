@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agchk.scanners.path_filters import iter_source_files,  should_skip_path
+from agchk.scanners.path_filters import iter_source_files, should_skip_path
 
 SCAN_EXTENSIONS = {".py", ".ts", ".js", ".tsx", ".jsx", ".md", ".txt", ".yaml", ".yml", ".toml", ".json"}
 SKIP_DIRS = {".git", ".github", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "coverage", "locales"}

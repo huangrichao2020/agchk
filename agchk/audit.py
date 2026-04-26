@@ -55,10 +55,7 @@ def _infer_entrypoints(target: Path) -> list[str]:
     entrypoint_set = set(ENTRYPOINT_NAMES)
 
     for dirpath, dirnames, filenames in _os.walk(target):
-        dirnames[:] = [
-            d for d in dirnames
-            if d.lower() not in SCOPE_SKIP_DIRS
-        ]
+        dirnames[:] = [d for d in dirnames if d.lower() not in SCOPE_SKIP_DIRS]
         for fname in filenames:
             if fname in entrypoint_set:
                 fp = Path(dirpath) / fname
@@ -74,10 +71,7 @@ def _infer_channels(target: Path) -> list[str]:
     if target.is_file():
         contents = [_read_text(target)]
     else:
-        files = sorted(
-            fp
-            for fp in iter_source_files(target, extensions={".py", ".js", ".ts", ".tsx", ".md"})
-        )[:50]
+        files = sorted(fp for fp in iter_source_files(target, extensions={".py", ".js", ".ts", ".tsx", ".md"}))[:50]
         contents = [_read_text(fp) for fp in files]
 
     combined = "\n".join(contents).lower()
@@ -92,8 +86,7 @@ def _infer_model_stack(target: Path) -> list[str]:
         contents = [_read_text(target)]
     else:
         files = sorted(
-            fp
-            for fp in iter_source_files(target, extensions={".py", ".js", ".ts", ".tsx", ".md", ".toml"})
+            fp for fp in iter_source_files(target, extensions={".py", ".js", ".ts", ".tsx", ".md", ".toml"})
         )[:80]
         contents = [_read_text(fp) for fp in files]
 

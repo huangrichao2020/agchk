@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from agchk.config import AuditConfig
-from agchk.scanners.path_filters import iter_source_files,  should_skip_path
+from agchk.scanners.path_filters import iter_source_files, should_skip_path
 
 PRIVILEGED_CAPABILITY_RE = re.compile(
     r"(?:subprocess\.run|subprocess\.Popen|os\.system|shell\s*=\s*True|"
