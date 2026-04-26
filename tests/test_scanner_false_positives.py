@@ -237,11 +237,18 @@ def test_recorded_cassettes_are_not_reported_as_real_secrets(tmp_path: Path) -> 
 
 
 def test_real_looking_secret_is_still_reported(tmp_path: Path) -> None:
+    secret = "sk-" + "liveproductiontokenabcdef123456"
     (tmp_path / "settings.py").write_text(
-        'OPENAI_API_KEY = "sk-liveproductiontokenabcdef123456"\n',
+        f'OPENAI_API_KEY = "{secret}"\n',
         encoding="utf-8",
     )
 
     findings = scan_secrets(tmp_path)
 
     assert "Hardcoded secret or API key detected" in _titles(findings)
+
+
+def test_secret_scanner_tests_do_not_embed_real_looking_secret_literals() -> None:
+    findings = scan_secrets(Path(__file__))
+
+    assert findings == []
