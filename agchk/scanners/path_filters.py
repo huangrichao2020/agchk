@@ -22,32 +22,17 @@ DEFAULT_SKIP_DIRS: Set[str] = {
     ".pytest_cache",
     ".tox",
     ".eggs",
-    "*.egg-info",
 }
+
+# Pre-computed lowercase skip dirs for fast O(1) lookup during os.walk.
+_DEFAULT_SKIP_DIRS_LOWER: Set[str] = {s.lower() for s in DEFAULT_SKIP_DIRS}
 
 # Default file extensions to include (source files only).
 DEFAULT_EXTENSIONS: Set[str] = {
-    ".py",
-    ".ts",
-    ".js",
-    ".tsx",
-    ".jsx",
-    ".md",
-    ".toml",
-    ".yaml",
-    ".yml",
-    ".json",
-    ".sh",
-    ".bash",
-    ".zsh",
-    ".cfg",
-    ".ini",
-    ".txt",
-    ".plist",
-    ".service",
+    ".py", ".ts", ".js", ".tsx", ".jsx",
+    ".md", ".toml", ".yaml", ".yml", ".json",
+    ".sh", ".bash", ".cfg", ".ini", ".txt",
 }
-
-_WALK_CACHE: dict[tuple[str, tuple[str, ...]], list[Path]] = {}
 
 
 def iter_source_files(
@@ -77,33 +62,35 @@ def iter_source_files(
         yield target
         return
 
-    skip = DEFAULT_SKIP_DIRS if skip_dirs is None else skip_dirs
-    exts = extensions if extensions is not None else DEFAULT_EXTENSIONS
-    skip_lower = frozenset(item.lower() for item in skip)
-    cache_key = (str(target.resolve()), tuple(sorted(skip_lower)))
+    # Pre-compute lowercase skip set once, not per-directory.
+    if skip_dirs is not None:
+        skip_lower = {s.lower() for s in skip_dirs}
+    else:
+        skip_lower = _DEFAULT_SKIP_DIRS_LOWER
 
-    files = _WALK_CACHE.get(cache_key)
-    if files is None:
-        files = []
-        for dirpath, dirnames, filenames in os.walk(target):
-            # Prune skipped directories in-place to prevent descent.
-            dirnames[:] = [d for d in dirnames if d.lower() not in skip_lower and not d.endswith(".egg-info")]
-
-            for fname in filenames:
-                fp = Path(dirpath) / fname
-                if looks_generated_asset(fp):
-                    continue
-                files.append(fp)
-        _WALK_CACHE[cache_key] = files
+    exts = extensions or DEFAULT_EXTENSIONS
 
     count = 0
-    for fp in files:
-        if exts and fp.suffix not in exts:
-            continue
-        yield fp
-        count += 1
-        if max_files and count >= max_files:
-            return
+    for dirpath, dirnames, filenames in os.walk(target):
+        # Prune skipped directories in-place to prevent os.walk from descending.
+        dirnames[:] = [
+            d for d in dirnames
+            if d.lower() not in skip_lower
+            and not d.endswith(".egg-info")
+        ]
+
+        for fname in filenames:
+            if exts and not fname.lower().endswith(tuple(ext.lower() for ext in exts)):
+                continue
+
+            fp = Path(dirpath) / fname
+            if looks_generated_asset(fp):
+                continue
+
+            yield fp
+            count += 1
+            if max_files and count >= max_files:
+                return
 
 
 GENERATED_ASSET_DIR_HINTS = {

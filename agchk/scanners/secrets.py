@@ -15,33 +15,6 @@ SECRET_PATTERNS = [
 ]
 
 SKIP_LINE_RE = re.compile(r"(?:example|your_|placeholder|xxx|test)", re.IGNORECASE)
-FAKE_SECRET_RE = re.compile(
-    r"(?:"
-    r"sk-(?:123|abc|test|fake|dummy|example|x{4,})[a-z0-9_-]*|"
-    r"dapi(?:123|abc|test|fake|dummy|example)[a-z0-9_-]*|"
-    r"akia(?:0{8,}|1{8,}|6{8,}|test|fake|dummy|example)[a-z0-9_-]*|"
-    r"gAAAAABinvalid[a-z0-9_-]*|"
-    r"(?:1234567890|abcdef){2,}"
-    r")",
-    re.IGNORECASE,
-)
-PUBLIC_CLIENT_KEY_RE = re.compile(
-    r"(?:algolia|docsearch|search).*api[_-]?key|api[_-]?key.*(?:algolia|docsearch|search)|"
-    r"(?:next_public|vite_|public_|publishable)",
-    re.IGNORECASE | re.DOTALL,
-)
-FIXTURE_PATH_HINTS = {
-    "__fixtures__",
-    "__snapshots__",
-    "cassette",
-    "cassettes",
-    "fixture",
-    "fixtures",
-    "recording",
-    "recordings",
-    "snapshots",
-    "vcr_cassettes",
-}
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}
 
@@ -56,37 +29,13 @@ def _is_scan_target(path: Path) -> bool:
     return path.suffix in SCAN_EXTENSIONS
 
 
-def _looks_like_fixture_path(path: Path) -> bool:
-    lowered_parts = {part.lower() for part in path.parts}
-    return bool(lowered_parts & FIXTURE_PATH_HINTS)
-
-
-def _match_text(match: re.Match[str]) -> str:
-    if match.groups():
-        for group in match.groups():
-            if group:
-                return group
-    return match.group(0)
-
-
-def _looks_like_public_or_fake_secret(path: Path, line: str, context: str, match: re.Match[str]) -> bool:
-    matched_text = _match_text(match)
-    if FAKE_SECRET_RE.search(matched_text) or FAKE_SECRET_RE.search(line):
-        return True
-    if PUBLIC_CLIENT_KEY_RE.search(context):
-        return True
-    if _looks_like_fixture_path(path):
-        return True
-    return False
-
-
 def scan_secrets(target: Path) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
 
     if target.is_file():
         files = [target]
     else:
-        files = list(iter_source_files(target, extensions=SCAN_EXTENSIONS))
+        files = list(iter_source_files(target))
 
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or not _is_scan_target(fp):
@@ -104,11 +53,6 @@ def scan_secrets(target: Path) -> List[Dict[str, Any]]:
             for pat in SECRET_PATTERNS:
                 m = pat.search(line)
                 if m:
-                    start = max(0, lineno - 4)
-                    end = min(len(lines), lineno + 3)
-                    context = "\n".join(lines[start:end])
-                    if _looks_like_public_or_fake_secret(fp, line, context, m):
-                        continue
                     findings.append(
                         {
                             "severity": "critical",
