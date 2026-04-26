@@ -18,8 +18,12 @@ DEFAULT_SKIP_DIRS: Set[str] = {
     "build",
     "__pycache__",
     "coverage",
+    "temp",
     ".mypy_cache",
     ".pytest_cache",
+    ".ruff_cache",
+    ".cache",
+    ".omx",
     ".tox",
     ".eggs",
 }
@@ -76,7 +80,7 @@ def iter_source_files(
 
     # Pre-compute lowercase skip set once, not per-directory.
     if skip_dirs is not None:
-        skip_lower = {s.lower() for s in skip_dirs}
+        skip_lower = _DEFAULT_SKIP_DIRS_LOWER | {s.lower() for s in skip_dirs}
     else:
         skip_lower = _DEFAULT_SKIP_DIRS_LOWER
 
@@ -125,7 +129,8 @@ def should_skip_path(path: Path, skip_dirs: set[str]) -> bool:
     """Return True when a path should be ignored by behavior-focused scanners."""
 
     lowered_parts = {part.lower() for part in path.parts}
-    if any(skip_dir.lower() in lowered_parts for skip_dir in skip_dirs):
+    all_skip_dirs = _DEFAULT_SKIP_DIRS_LOWER | {skip_dir.lower() for skip_dir in skip_dirs}
+    if any(skip_dir in lowered_parts for skip_dir in all_skip_dirs):
         return True
     return looks_generated_asset(path)
 
