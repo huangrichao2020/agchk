@@ -9,7 +9,7 @@ Usage:
     print(generate_report(results))
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 from agchk.audit import run_audit, save_results
 from agchk.contribute import prepare_contribution_bundle, publish_bundle_to_upstream
