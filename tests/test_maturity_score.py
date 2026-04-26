@@ -145,6 +145,12 @@ def test_maturity_score_penalizes_architecture_findings(tmp_path: Path) -> None:
 
     assert score["penalty"] > 0
     assert score["score"] < score["raw_points"]
+    assert score["uncapped_penalty"] >= score["penalty"]
+    assert score["pre_penalty_score"] <= score["capped_raw_points"]
+    penalties = {item["title"]: item for item in score["penalty_breakdown"]}
+    assert penalties["Impression pointers missing"]["total_penalty"] == 14
+    assert penalties["Agent scheduler lacks fairness controls"]["total_penalty"] == 13
+    assert score["score_formula"]
 
 
 def test_maturity_score_rewards_runtime_safety_governance(tmp_path: Path) -> None:

@@ -411,6 +411,36 @@ def _era_for_score(score: int) -> EraBand:
     return era
 
 
+SEVERITY_PENALTIES = {"critical": 12, "high": 5, "medium": 2, "low": 0}
+PENALTY_CAP = 70
+
+
+def _finding_penalty_breakdown(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    breakdown: list[dict[str, Any]] = []
+    for finding in findings:
+        title = finding.get("title", "")
+        severity = finding.get("severity", "low")
+        title_penalty = FINDING_PENALTIES.get(title, 0)
+        severity_penalty = SEVERITY_PENALTIES.get(severity, 0)
+        total_penalty = title_penalty + severity_penalty
+        if total_penalty <= 0:
+            continue
+        breakdown.append(
+            {
+                "title": title,
+                "severity": severity,
+                "source_layer": finding.get("source_layer", "unknown"),
+                "title_penalty": title_penalty,
+                "severity_penalty": severity_penalty,
+                "total_penalty": total_penalty,
+                "evidence_refs": list(finding.get("evidence_refs", []))[:3],
+                "recommended_fix": finding.get("recommended_fix", ""),
+            }
+        )
+    breakdown.sort(key=lambda item: (-item["total_penalty"], item["severity"], item["title"]))
+    return breakdown
+
+
 def _finding_penalty(findings: list[dict[str, Any]]) -> int:
     penalty = 0
     severity_penalty = {"critical": 12, "high": 5, "medium": 2, "low": 0}
@@ -418,7 +448,7 @@ def _finding_penalty(findings: list[dict[str, Any]]) -> int:
         title = finding.get("title", "")
         penalty += FINDING_PENALTIES.get(title, 0)
         penalty += severity_penalty.get(finding.get("severity", "low"), 0)
-    return min(penalty, 70)
+    return min(penalty, PENALTY_CAP)
 
 
 def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, Any]:
@@ -427,19 +457,51 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
     signal_refs = _collect_signal_refs(target)
     detected = {key: refs for key, refs in signal_refs.items() if refs}
     raw_points = sum(SIGNAL_POINTS[key] for key in detected)
+    signal_points = [
+        {
+            "key": key,
+            "label": SIGNAL_LABELS[key],
+            "points": SIGNAL_POINTS[key],
+            "evidence_refs": refs[:3],
+        }
+        for key, refs in detected.items()
+    ]
+    signal_points.sort(key=lambda item: (-item["points"], item["label"]))
+    penalty_breakdown = _finding_penalty_breakdown(findings)
+    uncapped_penalty = sum(item["total_penalty"] for item in penalty_breakdown)
     penalty = _finding_penalty(findings)
     base_score = max(0, min(100, raw_points))
+    capped_raw_points = base_score
     has_methodology = "methodology" in detected
     methodology_cap_applied = False
+    score_caps: list[dict[str, Any]] = []
     if has_methodology:
         base_score = max(base_score, 20)
     else:
         methodology_cap_applied = base_score > 34
+        if methodology_cap_applied:
+            score_caps.append(
+                {
+                    "gate": "methodology",
+                    "before": capped_raw_points,
+                    "after": 34,
+                    "reason": "No explicit methodology layer was detected, so the pre-penalty score is capped at bronze-age ceiling.",
+                }
+            )
         base_score = min(base_score, 34)
     has_self_evolution = all(key in detected for key in EVOLUTION_SIGNAL_KEYS)
     self_evolution_cap_applied = False
     if not has_self_evolution:
         self_evolution_cap_applied = base_score > 65
+        if self_evolution_cap_applied:
+            score_caps.append(
+                {
+                    "gate": "self_evolution",
+                    "before": base_score,
+                    "after": 65,
+                    "reason": "The complete self-evolution loop was not detected, so the pre-penalty score is capped at combustion-age ceiling.",
+                }
+            )
         base_score = min(base_score, 65)
     score = max(0, min(100, base_score - penalty))
     era = _era_for_score(score)
@@ -499,11 +561,22 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
     return {
         "score": score,
         "raw_points": raw_points,
+        "capped_raw_points": capped_raw_points,
+        "pre_penalty_score": base_score,
         "penalty": penalty,
+        "uncapped_penalty": uncapped_penalty,
+        "penalty_cap": PENALTY_CAP,
         "era_key": era.key,
         "era_name": era.name,
         "era_description": era.description,
         "share_line": f"这个 Agent 项目处于 {era.name}（{score}/100）：{era.description}",
+        "score_formula": (
+            f"min(100, raw_points={raw_points}) -> capped/gated pre_penalty={base_score}; "
+            f"minus penalty=min({uncapped_penalty}, cap={PENALTY_CAP})={penalty}; final={score}"
+        ),
+        "signal_points": signal_points,
+        "penalty_breakdown": penalty_breakdown,
+        "score_caps": score_caps,
         "methodology_gate": {
             "detected": has_methodology,
             "cap_applied": methodology_cap_applied,

@@ -38,11 +38,37 @@ def _sample_audit_report(target_name: str = "/tmp/example-agent") -> dict:
         "maturity_score": {
             "score": 42,
             "raw_points": 50,
+            "capped_raw_points": 50,
+            "pre_penalty_score": 50,
             "penalty": 8,
+            "uncapped_penalty": 8,
+            "penalty_cap": 70,
             "era_key": "iron_age",
             "era_name": "铁器时代",
             "era_description": "具备较清晰的工具、记忆和技能分层，开始可维护。",
             "share_line": "这个 Agent 项目处于 铁器时代（42/100）：具备较清晰的工具、记忆和技能分层，开始可维护。",
+            "score_formula": "min(100, raw_points=50) -> capped/gated pre_penalty=50; minus penalty=min(8, cap=70)=8; final=42",
+            "signal_points": [
+                {
+                    "key": "agent_runtime",
+                    "label": "agent runtime",
+                    "points": 5,
+                    "evidence_refs": [f"{target_name}/main.py:1"],
+                }
+            ],
+            "penalty_breakdown": [
+                {
+                    "title": "Hidden or secondary LLM call detected",
+                    "severity": "high",
+                    "source_layer": "llm_routing",
+                    "title_penalty": 3,
+                    "severity_penalty": 5,
+                    "total_penalty": 8,
+                    "evidence_refs": [f"{target_name}/repair_pass.py:2"],
+                    "recommended_fix": "Move repair behavior into declared orchestration or make it explicit.",
+                }
+            ],
+            "score_caps": [],
             "methodology_gate": {
                 "detected": True,
                 "cap_applied": False,
