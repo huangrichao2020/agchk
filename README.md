@@ -75,15 +75,20 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
 | 2 | Completion Closure Gap | medium/high | File/index work that stops before card, anchor, pointer, and acceptance |
 | 3 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 4 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
-| 5 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 6 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
-| 7 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
-| 8 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
-| 9 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
-| 10 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
-| 11 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
-| 12 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
+| 4 | Memory Lifecycle Governance | high | Memory systems without typed records, retrieval budgets, conflict resolution, decay, or source pointers |
+| 5 | Memory Retrieval I18N | medium/high | FTS/unicode memory retrieval without CJK-safe tokenization, fallback, or multilingual regression tests |
+| 6 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
+| 7 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
+| 8 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
+| 9 | Loop Safety Budget | medium/high | Agent/tool loops and cron jobs without max iterations, repeated-call detection, timeouts, retry budgets, or backoff |
+| 10 | Daemon Lifecycle Safety | medium/high | Always-on agents without active-work drain, checkpoint/resume, or post-restart verification |
+| 11 | Capability Permission Policy | high/critical | High-agency tools without blocklist, allowlist, approval gates, and path scopes |
+| 12 | Skill Duplication | medium | Repeated SOPs, skills, and runbooks with unclear canonical versions |
+| 13 | Startup Surface Sprawl | high | Too many launchers, wrappers, and boot paths |
+| 14 | Runtime Surface Sprawl | high | One repo mixing too many runtime surfaces and deployment concerns |
+| 15 | Memory Pattern Issues | low/medium | Unbounded context growth and retention drift |
+| 16 | Hidden LLM Calls | medium/high | Secondary model paths that bypass the main loop |
+| 17 | Tool Enforcement Gap | medium/high | Prompt-only tool requirements without code-level validation |
 
 ### Additional safety and production checks
 
@@ -91,11 +96,11 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 
 | # | Scanner | Severity | What It Catches |
 |---|---------|----------|-----------------|
-| 13 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
-| 14 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
-| 15 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
-| 16 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
-| 17 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
+| 18 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
+| 19 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
+| 20 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
+| 21 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 22 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
 
@@ -153,9 +158,14 @@ Profile differences are not just about safety gates. They also change what `agch
   - orchestration sprawl
   - completion closure gaps
   - memory freshness confusion
+  - missing memory lifecycle governance: typed records, retrieval budgets, conflict merge, decay, source pointers
+  - brittle multilingual memory retrieval, especially FTS/unicode CJK lookup without fallback or regression tests
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
   - OS-style architecture gaps: paging, stateful recovery, LLM CLI worker pools, scheduling, syscalls, and semantic mount points
+  - missing loop safety for tool loops, cron jobs, retries, and provider fallback paths
+  - unsafe daemon restart lifecycles for always-on agents
+  - missing capability policy for high-agency tools
   - duplicated skills/SOPs
   - startup and runtime complexity
 - `personal` also softens common prototype findings:
@@ -580,7 +590,7 @@ Default fix order (code-first, not prompt-first):
 agchk/                          ← 唯一源码库 (single source of truth)
 ├── .github/                    ← PR templates, governance workflow, code owners
 ├── agchk/
-│   ├── scanners/               ← 17 个反模式扫描器
+│   ├── scanners/               ← 22 个反模式扫描器
 │   ├── audit.py                ← 主编排器
 │   ├── contribute.py           ← 自扫描贡献包与 fork PR 流程
 │   ├── report.py               ← 报告生成

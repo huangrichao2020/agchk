@@ -37,7 +37,10 @@ def test_maturity_score_rewards_agent_os_primitives(tmp_path: Path) -> None:
                 "page fault and deep dive retrieval",
                 "impression cue with topic_anchor, semantic_hash, pointer_type, pointer_ref, activation_level",
                 "scheduler worker queue with priority, budget, cancellation, backpressure",
+                "loop_detector with max_iterations, retry_budget, circuit_breaker, same_args hash, and ask_to_continue",
                 "syscall table with capabilities and permission matrix",
+                "permission policy uses blocklist, allowlist, needs_approval, read_scope, write_scope, and temp_scope",
+                "memory_type identity preference goal habit decision constraint episode reflection with top_k retrieval_budget confidence overlap dedupe active durable ttl decay",
                 "semantic VFS mount point /knowledge/docs and /skills resource path",
                 "trace spans, eval, reward, telemetry",
             ]
@@ -65,7 +68,10 @@ def test_maturity_score_caps_projects_without_methodology_at_bronze(tmp_path: Pa
                 "page fault and deep dive retrieval",
                 "impression cue with topic_anchor, semantic_hash, pointer_type, pointer_ref, activation_level",
                 "scheduler worker queue with priority, budget, cancellation, backpressure",
+                "loop_detector with max_iterations, retry_budget, circuit_breaker, same_args hash, and ask_to_continue",
                 "syscall table with capabilities and permission matrix",
+                "permission policy uses blocklist, allowlist, needs_approval, read_scope, write_scope, and temp_scope",
+                "memory_type identity preference goal habit decision constraint episode reflection with top_k retrieval_budget confidence overlap dedupe active durable ttl decay",
                 "semantic VFS mount point /knowledge/docs and /skills resource path",
                 "trace spans, eval, reward, telemetry",
             ]
@@ -137,6 +143,27 @@ def test_maturity_score_penalizes_architecture_findings(tmp_path: Path) -> None:
 
     assert score["penalty"] > 0
     assert score["score"] < score["raw_points"]
+
+
+def test_maturity_score_rewards_runtime_safety_governance(tmp_path: Path) -> None:
+    (tmp_path / "runtime_safety.md").write_text(
+        "\n".join(
+            [
+                "methodology: always-on agent runtime safety checklist",
+                "loop_detector enforces max_iterations, retry_budget, circuit_breaker, same_args hash, timeout, and ask_to_continue",
+                "permission policy includes blocklist, allowlist, auto-approved safe commands, needs_approval, read_scope, write_scope, and temp_scope",
+                "memory_type identity preference goal decision constraint episode reflection with top_k retrieval_budget, confidence, overlap, dedupe, active durable ttl decay, and retention",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    score = score_maturity(tmp_path, findings=[])
+
+    assert "loop safety budget" in score["strengths"]
+    assert "permission policy" in score["strengths"]
+    assert "memory lifecycle governance" in score["strengths"]
+    assert any("page table" in milestone for milestone in score["next_milestones"])
 
 
 def test_maturity_score_rewards_stateful_agent_primitives(tmp_path: Path) -> None:

@@ -9,12 +9,17 @@ from typing import Callable, List
 from agchk.config import AuditConfig
 from agchk.scanners.code_execution import scan_code_execution
 from agchk.scanners.completion_closure import scan_completion_closure
+from agchk.scanners.capability_policy import scan_capability_policy
+from agchk.scanners.daemon_lifecycle import scan_daemon_lifecycle
 from agchk.scanners.excessive_agency import scan_excessive_agency
 from agchk.scanners.hidden_llm import scan_hidden_llm_calls
 from agchk.scanners.impression_memory import scan_impression_memory
 from agchk.scanners.internal_orchestration import scan_internal_orchestration
+from agchk.scanners.loop_safety import scan_loop_safety
 from agchk.scanners.memory_freshness import scan_memory_freshness
+from agchk.scanners.memory_lifecycle import scan_memory_lifecycle
 from agchk.scanners.memory_patterns import scan_memory_patterns
+from agchk.scanners.memory_retrieval_i18n import scan_memory_retrieval_i18n
 from agchk.scanners.observability import scan_observability
 from agchk.scanners.os_architecture import scan_os_architecture
 from agchk.scanners.output_pipeline import scan_output_pipeline
@@ -66,6 +71,18 @@ SCANNER_REGISTRY = [
         audited_layers=("session_history", "long_term_memory"),
     ),
     ScannerSpec(
+        slug="memory_lifecycle",
+        name="Memory Lifecycle Governance",
+        func=_adapt(scan_memory_lifecycle),
+        audited_layers=("long_term_memory", "active_recall"),
+    ),
+    ScannerSpec(
+        slug="memory_retrieval_i18n",
+        name="Memory Retrieval I18N",
+        func=_adapt(scan_memory_retrieval_i18n),
+        audited_layers=("long_term_memory", "active_recall"),
+    ),
+    ScannerSpec(
         slug="impression_memory",
         name="Impression Pointer Memory",
         func=_adapt(scan_impression_memory),
@@ -82,6 +99,24 @@ SCANNER_REGISTRY = [
         name="Agent OS Architecture",
         func=_adapt(scan_os_architecture),
         audited_layers=("os_memory", "os_scheduler", "os_syscall", "os_vfs", "stateful_recovery", "llm_cli_workers"),
+    ),
+    ScannerSpec(
+        slug="loop_safety",
+        name="Loop Safety Budget",
+        func=_adapt(scan_loop_safety),
+        audited_layers=("fallback_loops", "tool_execution", "os_scheduler"),
+    ),
+    ScannerSpec(
+        slug="daemon_lifecycle",
+        name="Daemon Lifecycle Safety",
+        func=_adapt(scan_daemon_lifecycle),
+        audited_layers=("persistence", "os_scheduler", "stateful_recovery"),
+    ),
+    ScannerSpec(
+        slug="capability_policy",
+        name="Capability Permission Policy",
+        func=_adapt(scan_capability_policy),
+        audited_layers=("tool_selection", "tool_execution", "os_syscall"),
     ),
     ScannerSpec(
         slug="skill_duplication",
@@ -157,9 +192,14 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
             "internal_orchestration",
             "completion_closure",
             "memory_freshness",
+            "memory_lifecycle",
+            "memory_retrieval_i18n",
             "impression_memory",
             "role_play_orchestration",
             "os_architecture",
+            "loop_safety",
+            "daemon_lifecycle",
+            "capability_policy",
             "skill_duplication",
             "startup_complexity",
             "runtime_complexity",
@@ -184,12 +224,17 @@ __all__ = [
     "get_enabled_scanners",
     "scan_code_execution",
     "scan_completion_closure",
+    "scan_capability_policy",
+    "scan_daemon_lifecycle",
     "scan_excessive_agency",
     "scan_hidden_llm_calls",
     "scan_impression_memory",
     "scan_internal_orchestration",
+    "scan_loop_safety",
     "scan_memory_freshness",
+    "scan_memory_lifecycle",
     "scan_memory_patterns",
+    "scan_memory_retrieval_i18n",
     "scan_observability",
     "scan_os_architecture",
     "scan_output_pipeline",

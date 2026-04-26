@@ -77,11 +77,36 @@ SIGNAL_PATTERNS = {
     "fairness": re.compile(
         r"\b(?:time slice|timeslice|priority|budget|preempt|cancel|cancellation|backpressure|deadline)\b", re.IGNORECASE
     ),
+    "loop_safety": re.compile(
+        r"\b(?:loop[_ -]?detector|repetition[_ -]?detector|max[_ -]?(?:steps|turns|iterations|loops|retries)|"
+        r"retry[_ -]?budget|circuit[_ -]?breaker|same[_ -]?args|args[_ -]?hash|ask[_ -]?to[_ -]?continue)\b",
+        re.IGNORECASE,
+    ),
     "capability_table": re.compile(
         r"\b(?:syscall table|capability|capabilities|cap_[a-z0-9_]+|permission matrix|seccomp)\b", re.IGNORECASE
     ),
+    "permission_policy": re.compile(
+        r"\b(?:blocklist|denylist|allowlist|whitelist|auto[-_ ]?approved|needs[_ -]?approval|"
+        r"read[_ -]?scope|write[_ -]?scope|path[_ -]?scope|temp[_ -]?scope)\b",
+        re.IGNORECASE,
+    ),
+    "memory_lifecycle": re.compile(
+        r"\b(?:memory[_ -]?type|identity|preference|goal|habit|decision|constraint|episode|reflection|"
+        r"confidence|overlap|dedupe|active|durable|ttl|decay|reinforce|retention|top[_ -]?k|retrieval[_ -]?budget)\b",
+        re.IGNORECASE,
+    ),
+    "memory_retrieval_i18n": re.compile(
+        r"\b(?:cjk|unicode61|ngram|bi[-_ ]?gram|tri[-_ ]?gram|custom[_ -]?tokenizer|like[_ -]?fallback|"
+        r"multilingual[_ -]?retrieval|reindex|rebuild[_ -]?index)\b|(?:中文检索|中文分词|多语言检索)",
+        re.IGNORECASE,
+    ),
     "semantic_vfs": re.compile(
         r"\b(?:vfs|virtual file|mount point|resource path|semantic fs|/knowledge|/skills|/memory)\b", re.IGNORECASE
+    ),
+    "daemon_lifecycle": re.compile(
+        r"\b(?:graceful[_ -]?restart|safe[_ -]?restart|drain|active[_ -]?(?:agents|jobs|runs)|"
+        r"restart[_ -]?barrier|checkpoint|resume|post[_ -]?restart|gateway[_ -]?state|old pid|new pid)\b",
+        re.IGNORECASE,
     ),
     "observability": re.compile(
         r"\b(?:trace|tracing|telemetry|span|eval|evaluation|reward|cost tracking)\b", re.IGNORECASE
@@ -134,8 +159,13 @@ SIGNAL_POINTS = {
     "impression_pointer": 12,
     "scheduler": 8,
     "fairness": 8,
+    "loop_safety": 9,
     "capability_table": 8,
+    "permission_policy": 9,
+    "memory_lifecycle": 10,
+    "memory_retrieval_i18n": 7,
     "semantic_vfs": 8,
+    "daemon_lifecycle": 7,
     "observability": 7,
     "stateful_recovery": 10,
     "environment_state": 8,
@@ -157,8 +187,13 @@ SIGNAL_LABELS = {
     "impression_pointer": "impression pointers",
     "scheduler": "scheduler/workers",
     "fairness": "fair scheduling",
+    "loop_safety": "loop safety budget",
     "capability_table": "capability table",
+    "permission_policy": "permission policy",
+    "memory_lifecycle": "memory lifecycle governance",
+    "memory_retrieval_i18n": "multilingual memory retrieval",
     "semantic_vfs": "semantic VFS",
+    "daemon_lifecycle": "daemon lifecycle safety",
     "observability": "traces/evals",
     "stateful_recovery": "stateful recovery",
     "environment_state": "environment-as-state",
@@ -173,8 +208,13 @@ MILESTONES = {
     "page_fault": "给被压缩或归档的细节加 page fault/deep-dive 恢复路径。",
     "impression_pointer": "把 impression cue 升级成 topic_anchor + semantic_hash + pointer_ref。",
     "fairness": "为 worker/tool/subagent 增加 priority、budget、cancel 和 backpressure。",
+    "loop_safety": "给 agent/tool loop 增加 max-iterations、重复工具调用检测、retry budget、timeout 和 ask-to-continue。",
     "capability_table": "把工具边界整理成 syscall/capability table，而不是散落在代码里。",
+    "permission_policy": "把高权限工具纳入 blocklist、allowlist、needs-approval 和 read/write scope 的分层权限模型。",
+    "memory_lifecycle": "给长期记忆增加类型、检索预算、冲突合并、active/durable 生命周期、衰减和证据指针。",
+    "memory_retrieval_i18n": "给 FTS/SQLite 记忆检索增加 CJK-safe tokenizer、fallback、reindex 和多语言回归测试。",
     "semantic_vfs": "把 skills、RAG、docs、GitHub、notes 挂到统一 semantic VFS 地址空间。",
+    "daemon_lifecycle": "给常驻 agent 增加 active-work 检查、graceful drain、checkpoint/resume 和 post-restart health 验证。",
     "observability": "保留 traces/evals，让 agent 的进化可以被复盘和比较。",
     "stateful_recovery": "把自动续接做成 Stateful Agent 契约：context replay + environment state + side-effect log + idempotent recovery。",
     "environment_state": "把 filesystem/server/workspace 状态纳入可验证状态模型，恢复时先读取现场再决定下一步。",
@@ -188,8 +228,17 @@ FINDING_PENALTIES = {
     "Impression memory layer missing": 10,
     "Impression pointers missing": 12,
     "Agent scheduler lacks fairness controls": 8,
+    "Agent/tool loop lacks loop safety budget": 10,
+    "Scheduled agent work lacks stuck-job controls": 7,
     "Tool syscalls lack explicit capability table": 8,
+    "High-agency tools lack layered permission policy": 10,
+    "Memory system lacks lifecycle governance": 10,
+    "Memory FTS lacks CJK-safe retrieval path": 9,
+    "Memory retrieval lacks multilingual regression tests": 5,
     "Knowledge surfaces lack semantic VFS": 7,
+    "Daemon restart lacks active-work drain protocol": 9,
+    "Permission policy is not enforced on all dispatch paths": 9,
+    "Loop detector does not observe all tool-call paths": 9,
     "Stateful Agent recovery contract incomplete": 8,
     "LLM CLI worker contract incomplete": 7,
     "Internal orchestration sprawl detected": 6,
@@ -279,8 +328,13 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
             "llm_cli_workers",
             "task_envelope",
             "impression_pointer",
+            "memory_lifecycle",
+            "memory_retrieval_i18n",
+            "loop_safety",
             "fairness",
             "capability_table",
+            "permission_policy",
+            "daemon_lifecycle",
             "semantic_vfs",
             "observability",
         )
