@@ -17,7 +17,9 @@ DAEMON_RE = re.compile(
     r"detached|pid[_ -]?file|background worker|heartbeat)\b",
     re.IGNORECASE,
 )
-RESTART_RE = re.compile(r"\b(?:restart|reload|replace|respawn|crash|backoff|SIGTERM|SIGKILL|kill\s+-|terminate)\b", re.IGNORECASE)
+RESTART_RE = re.compile(
+    r"\b(?:restart|reload|replace|respawn|crash|backoff|SIGTERM|SIGKILL|kill\s+-|terminate)\b", re.IGNORECASE
+)
 ACTIVE_WORK_RE = re.compile(
     r"\b(?:active[_ -]?(?:agents|runs|jobs|tasks|sessions)|running[_ -]?(?:jobs|tasks|sessions)|"
     r"job[_ -]?queue|task[_ -]?queue|inflight|in[-_ ]?flight|pending[_ -]?jobs|session[_ -]?state)\b",

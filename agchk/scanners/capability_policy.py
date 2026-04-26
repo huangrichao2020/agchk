@@ -25,7 +25,9 @@ POWERFUL_CAPABILITY_RE = re.compile(
     re.IGNORECASE,
 )
 POLICY_PATTERNS = {
-    "blocklist": re.compile(r"\b(?:blocklist|denylist|blacklist|forbidden|blocked_commands|dangerous_commands)\b", re.IGNORECASE),
+    "blocklist": re.compile(
+        r"\b(?:blocklist|denylist|blacklist|forbidden|blocked_commands|dangerous_commands)\b", re.IGNORECASE
+    ),
     "allowlist": re.compile(
         r"\b(?:allowlist|whitelist|auto[-_ ]?approved|safe_commands|allowed_commands|allowed_paths|permitted_paths)\b",
         re.IGNORECASE,
@@ -98,9 +100,7 @@ def _collect_refs(target: Path) -> tuple[list[str], list[str], dict[str, list[st
             if PERMISSION_ENFORCEMENT_RE.search(line):
                 enforcement_refs.append(ref)
 
-        guard_lines = [
-            lineno for lineno, line in enumerate(lines, start=1) if PERMISSION_ENFORCEMENT_RE.search(line)
-        ]
+        guard_lines = [lineno for lineno, line in enumerate(lines, start=1) if PERMISSION_ENFORCEMENT_RE.search(line)]
         for lineno, line in enumerate(lines, start=1):
             if TOOL_DISPATCH_RE.search(line) and not _nearby(lineno, guard_lines):
                 unguarded_dispatch_refs.append(f"{fp}:{lineno}")
@@ -109,7 +109,9 @@ def _collect_refs(target: Path) -> tuple[list[str], list[str], dict[str, list[st
 
 
 def scan_capability_policy(target: Path) -> List[Dict[str, Any]]:
-    agent_refs, capability_refs, policy_refs, dispatch_refs, enforcement_refs, unguarded_dispatch_refs = _collect_refs(target)
+    agent_refs, capability_refs, policy_refs, dispatch_refs, enforcement_refs, unguarded_dispatch_refs = _collect_refs(
+        target
+    )
     findings: List[Dict[str, Any]] = []
 
     present = {name: refs for name, refs in policy_refs.items() if refs}

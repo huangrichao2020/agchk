@@ -90,11 +90,11 @@ def _collect_refs(target: Path) -> dict[str, list[str]]:
             if LOOP_OBSERVER_RE.search(line):
                 refs["loop_observer"].append(f"{fp}:{lineno}")
 
-        observer_lines = [
-            lineno for lineno, line in enumerate(lines, start=1) if LOOP_OBSERVER_RE.search(line)
-        ]
+        observer_lines = [lineno for lineno, line in enumerate(lines, start=1) if LOOP_OBSERVER_RE.search(line)]
         for lineno, line in enumerate(lines, start=1):
-            if TOOL_PATH_RE.search(line) and not any(abs(lineno - guard_lineno) <= 3 for guard_lineno in observer_lines):
+            if TOOL_PATH_RE.search(line) and not any(
+                abs(lineno - guard_lineno) <= 3 for guard_lineno in observer_lines
+            ):
                 refs["unguarded_tool_path"].append(f"{fp}:{lineno}")
     return refs
 
