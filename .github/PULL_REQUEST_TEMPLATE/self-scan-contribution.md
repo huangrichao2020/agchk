@@ -6,6 +6,8 @@ Explain how this self-scan contribution helps `agchk` evolve as a 100-year open 
 
 - [x] Self-scan contribution
 - [ ] Maintainer improvement
+- [ ] Performance or scalability improvement
+- [ ] Release, CI, or packaging improvement
 - [ ] Docs or governance change
 
 ## Layers Changed
@@ -13,6 +15,9 @@ Explain how this self-scan contribution helps `agchk` evolve as a 100-year open 
 - [ ] Doctrine
 - [ ] Contract
 - [ ] Scanner
+- [ ] Scanner Infrastructure
+- [ ] Performance
+- [ ] Release / CI
 - [ ] Contribution Flow
 - [ ] Governance
 
@@ -37,6 +42,10 @@ Describe the source environment at a safe level:
 ## Why This Generalizes
 
 Describe why the problem or fix should matter beyond one codebase.
+
+## Risk / Compatibility
+
+Describe behavior changes, backward compatibility, false-positive/false-negative risk, performance tradeoffs, and rollback path. If there is no user-visible change, say so.
 
 ## Evidence
 

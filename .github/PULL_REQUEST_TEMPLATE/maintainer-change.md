@@ -1,11 +1,13 @@
 ## Mission Alignment
 
-Explain how this change strengthens `agchk` as durable doctrine, contract, scanner, contribution-flow, or governance infrastructure.
+Explain how this change strengthens `agchk` as durable doctrine, contract, scanner, scanner-infrastructure, performance, release, contribution-flow, or governance infrastructure.
 
 ## Contribution Mode
 
 - [ ] Self-scan contribution
 - [x] Maintainer improvement
+- [ ] Performance or scalability improvement
+- [ ] Release, CI, or packaging improvement
 - [ ] Docs or governance change
 
 ## Layers Changed
@@ -13,6 +15,9 @@ Explain how this change strengthens `agchk` as durable doctrine, contract, scann
 - [ ] Doctrine
 - [ ] Contract
 - [ ] Scanner
+- [ ] Scanner Infrastructure
+- [ ] Performance
+- [ ] Release / CI
 - [ ] Contribution Flow
 - [ ] Governance
 
@@ -25,6 +30,10 @@ Explain how this change strengthens `agchk` as durable doctrine, contract, scann
 - [x] No secrets, credentials, proprietary code dumps, customer data, or internal-only materials are included.
 - [x] Examples and evidence have been minimized and generalized for public release.
 
+## Risk / Compatibility
+
+Describe behavior changes, backward compatibility, false-positive/false-negative risk, performance tradeoffs, and rollback path. If there is no user-visible change, say so.
+
 ## Why This Generalizes
 
 Explain why this is not only a one-project fix and how it should improve `agchk` for future agent systems.
@@ -35,4 +44,4 @@ Summarize the relevant report finding, false positive, design issue, or method i
 
 ## Validation
 
-List the commands, tests, or review checks you ran.
+List the commands, tests, benchmarks, release checks, or review checks you ran.
