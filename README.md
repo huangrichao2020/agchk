@@ -104,7 +104,7 @@ These remain available, but are softer in `personal` and stricter in `enterprise
 | 23 | Hardcoded Secrets | critical | API keys, tokens, credentials in source code |
 | 24 | Unrestricted Code Execution | medium/critical | `exec()`, `eval()`, `subprocess(..., shell=True)` and similar execution paths |
 | 25 | Output Pipeline Mutation | low/medium | Response transformation that can change what the user sees |
-| 26 | Missing Observability | low/medium | No tracing, logging, or cost tracking |
+| 26 | Missing Observability | low/medium | No tracing, runtime logs, before/after evidence, or handoff/workbook habit |
 | 27 | Excessive Agency | high/critical | Powerful agent capabilities without enough enterprise controls |
 
 ## Quick Start
