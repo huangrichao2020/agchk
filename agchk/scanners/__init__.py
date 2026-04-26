@@ -33,6 +33,7 @@ from agchk.scanners.secrets import scan_secrets
 from agchk.scanners.self_evolution_capability import scan_self_evolution_capability
 from agchk.scanners.skill_duplication import scan_skill_duplication
 from agchk.scanners.startup_complexity import scan_startup_complexity
+from agchk.scanners.token_usage import scan_token_usage
 from agchk.scanners.tool_enforcement import scan_tool_enforcement
 from agchk.scanners.tool_server_boundary import scan_tool_server_boundary
 
@@ -75,6 +76,12 @@ SCANNER_REGISTRY = [
         name="Static Bug Inference",
         func=_adapt(scan_bug_inference),
         audited_layers=("runtime_bug_inference", "platform_rendering", "tool_execution"),
+    ),
+    ScannerSpec(
+        slug="token_usage",
+        name="Token Usage Budget",
+        func=_adapt(scan_token_usage),
+        audited_layers=("token_usage", "session_history", "long_term_memory", "active_recall"),
     ),
     ScannerSpec(
         slug="memory_freshness",
@@ -234,6 +241,7 @@ def get_enabled_scanners(config: AuditConfig) -> list[ScannerSpec]:
             "internal_orchestration",
             "completion_closure",
             "bug_inference",
+            "token_usage",
             "memory_freshness",
             "memory_lifecycle",
             "memory_retrieval_i18n",
@@ -296,6 +304,7 @@ __all__ = [
     "scan_self_evolution_capability",
     "scan_skill_duplication",
     "scan_startup_complexity",
+    "scan_token_usage",
     "scan_tool_enforcement",
     "scan_tool_server_boundary",
 ]

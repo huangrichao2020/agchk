@@ -105,6 +105,13 @@ SIGNAL_PATTERNS = {
         r"chunk[_ -]?(?:size|overlap)|rerank|hybrid[_ -]?search|bm25|top[_ -]?k|retrieval[_ -]?budget)\b",
         re.IGNORECASE,
     ),
+    "token_efficiency": re.compile(
+        r"(?:<\s*30k|不到\s*30k|30k context|token[_ -]?(?:efficient|budget)|context[_ -]?budget|"
+        r"layered memory|right knowledge|less noise|crystalliz(?:e|es|ing)|skill tree|direct recall|"
+        r"\bL[0-4]\b|top[_ -]?k|retrieval[_ -]?budget|page[_ -]?table|极致省\s*Token|分层记忆|"
+        r"关键信息始终在场|固化为\s*Skill|下次同类任务直接调用)",
+        re.IGNORECASE,
+    ),
     "external_signal": re.compile(
         r"\b(?:external[_ -]?signal|signal[_ -]?(?:intake|screening)|upstream|reference[_ -]?project|"
         r"competitor|benchmark|issue|pull request|pr|release note|production log|user feedback|github trend)\b|"
@@ -230,6 +237,7 @@ SIGNAL_POINTS = {
     "memory_lifecycle": 10,
     "memory_retrieval_i18n": 7,
     "rag_governance": 8,
+    "token_efficiency": 10,
     "external_signal": 4,
     "dissection_learning": 5,
     "pattern_extraction": 5,
@@ -268,6 +276,7 @@ SIGNAL_LABELS = {
     "memory_lifecycle": "memory lifecycle governance",
     "memory_retrieval_i18n": "multilingual memory retrieval",
     "rag_governance": "RAG governance",
+    "token_efficiency": "token-efficient context layer",
     "external_signal": "external signal intake",
     "dissection_learning": "source-level learning",
     "pattern_extraction": "pattern extraction",
@@ -299,6 +308,7 @@ MILESTONES = {
     "memory_lifecycle": "给长期记忆增加类型、检索预算、冲突合并、active/durable 生命周期、衰减和证据指针。",
     "memory_retrieval_i18n": "给 FTS/SQLite 记忆检索增加 CJK-safe tokenizer、fallback、reindex 和多语言回归测试。",
     "rag_governance": "给 RAG 增加 chunk、retrieval budget、rerank、ingestion 状态和 full-context 预算约束。",
+    "token_efficiency": "学习 GenericAgent 的省 token 路线：<30K 热上下文、分层记忆、skill 复用、top-k/page-table 召回和成本指标。",
     "self_evolution_loop": "建立自我进化闭环：外部信号、源码解剖、模式提取、约束适配、小步落地和验证复盘。",
     "external_signal": "建立外部信号筛选，只学习能解决当前未解决问题的项目、issue、PR、benchmark 或线上反馈。",
     "dissection_learning": "把学习对象读到源码层：目录结构、入口、主循环、核心类、ADR/DESIGN 和模块边界。",
@@ -353,6 +363,9 @@ FINDING_PENALTIES = {
     "Internal orchestration sprawl detected": 6,
     "Memory freshness / generation confusion detected": 6,
     "Role-play handoff orchestration detected": 5,
+    "Large context window used as default token budget": 18,
+    "Full-history prompt assembly lacks token budget": 14,
+    "Token-efficient memory/skill reuse strategy missing": 16,
 }
 
 
@@ -405,7 +418,7 @@ def _finding_penalty(findings: list[dict[str, Any]]) -> int:
         title = finding.get("title", "")
         penalty += FINDING_PENALTIES.get(title, 0)
         penalty += severity_penalty.get(finding.get("severity", "low"), 0)
-    return min(penalty, 45)
+    return min(penalty, 70)
 
 
 def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, Any]:
@@ -415,19 +428,20 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
     detected = {key: refs for key, refs in signal_refs.items() if refs}
     raw_points = sum(SIGNAL_POINTS[key] for key in detected)
     penalty = _finding_penalty(findings)
-    score = max(0, min(100, raw_points - penalty))
+    base_score = max(0, min(100, raw_points))
     has_methodology = "methodology" in detected
     methodology_cap_applied = False
     if has_methodology:
-        score = max(score, 20)
+        base_score = max(base_score, 20)
     else:
-        methodology_cap_applied = score > 34
-        score = min(score, 34)
+        methodology_cap_applied = base_score > 34
+        base_score = min(base_score, 34)
     has_self_evolution = all(key in detected for key in EVOLUTION_SIGNAL_KEYS)
     self_evolution_cap_applied = False
     if not has_self_evolution:
-        self_evolution_cap_applied = score > 65
-        score = min(score, 65)
+        self_evolution_cap_applied = base_score > 65
+        base_score = min(base_score, 65)
+    score = max(0, min(100, base_score - penalty))
     era = _era_for_score(score)
 
     strengths = [SIGNAL_LABELS[key] for key in SIGNAL_POINTS if key in detected]
@@ -448,6 +462,7 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
             "memory_lifecycle",
             "memory_retrieval_i18n",
             "rag_governance",
+            "token_efficiency",
             "loop_safety",
             "fairness",
             "capability_table",

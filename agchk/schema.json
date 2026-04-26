@@ -165,6 +165,7 @@
               "tool_interpretation",
               "answer_shaping",
               "platform_rendering",
+              "token_usage",
               "fallback_loops",
               "persistence",
               "impression_memory",
