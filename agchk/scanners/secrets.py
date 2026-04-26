@@ -2,6 +2,7 @@
 
 import re
 from pathlib import Path
+from agchk.scanners.path_filters import iter_source_files
 from typing import Any, Dict, List
 
 # Precompiled patterns
@@ -85,7 +86,7 @@ def scan_secrets(target: Path) -> List[Dict[str, Any]]:
     if target.is_file():
         files = [target]
     else:
-        files = sorted(target.rglob("*"))
+        files = list(iter_source_files(target))
 
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or not _is_scan_target(fp):

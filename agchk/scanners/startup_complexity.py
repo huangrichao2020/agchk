@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from agchk.scanners.path_filters import iter_source_files
 from typing import Any, Dict, List
 
 SCAN_EXTENSIONS = {".py", ".sh", ".bash", ".zsh", ".js", ".ts", ".json", ".yaml", ".yml", ".toml", ".plist", ".service"}
@@ -27,7 +28,7 @@ def scan_startup_complexity(target: Path) -> List[Dict[str, Any]]:
     startup_files: list[Path] = []
     wrapper_sites: list[str] = []
 
-    files = [target] if target.is_file() else sorted(target.rglob("*"))
+    files = list(iter_source_files(target))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue

@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agchk.scanners.path_filters import should_skip_path
+from agchk.scanners.path_filters import iter_source_files,  should_skip_path
 
 SCAN_EXTENSIONS = {".py", ".ts", ".js", ".tsx", ".jsx", ".md", ".yaml", ".yml", ".toml", ".json"}
 SKIP_DIRS = {".git", ".github", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "coverage"}
@@ -51,7 +51,7 @@ def _should_skip(path: Path) -> bool:
 
 def _collect_refs(target: Path) -> dict[str, list[str]]:
     refs = {key: [] for key in ("rag", "chunking", "budget", "fallback", "ingestion")}
-    files = [target] if target.is_file() else sorted(target.rglob("*"))
+    files = list(iter_source_files(target))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue
