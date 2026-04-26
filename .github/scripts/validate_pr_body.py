@@ -12,7 +12,27 @@ REQUIRED_HEADINGS = [
     "## Mission Alignment",
     "## Contribution Mode",
     "## Layers Changed",
+    "## Risk / Compatibility",
     "## Validation",
+]
+
+CONTRIBUTION_MODE_LABELS = [
+    "Self-scan contribution",
+    "Maintainer improvement",
+    "Performance or scalability improvement",
+    "Release, CI, or packaging improvement",
+    "Docs or governance change",
+]
+
+LAYER_LABELS = [
+    "Doctrine",
+    "Contract",
+    "Scanner",
+    "Scanner Infrastructure",
+    "Performance",
+    "Release / CI",
+    "Contribution Flow",
+    "Governance",
 ]
 
 SELF_SCAN_HEADINGS = [
@@ -57,20 +77,10 @@ def main() -> int:
     for heading in REQUIRED_HEADINGS:
         _require_heading(body, heading, errors)
 
-    if not (
-        _checked(body, "Self-scan contribution")
-        or _checked(body, "Maintainer improvement")
-        or _checked(body, "Docs or governance change")
-    ):
+    if not any(_checked(body, label) for label in CONTRIBUTION_MODE_LABELS):
         errors.append("At least one contribution mode checkbox must be checked.")
 
-    if not (
-        _checked(body, "Doctrine")
-        or _checked(body, "Contract")
-        or _checked(body, "Scanner")
-        or _checked(body, "Contribution Flow")
-        or _checked(body, "Governance")
-    ):
+    if not any(_checked(body, label) for label in LAYER_LABELS):
         errors.append("At least one layer checkbox must be checked.")
 
     is_self_scan = _checked(body, "Self-scan contribution")
@@ -84,16 +94,17 @@ def main() -> int:
         if not _checked(body, "The agent owner explicitly agreed that this contribution may be published upstream."):
             errors.append("Self-scan PRs require explicit owner consent.")
 
-        if not _checked(body, "No secrets, credentials, proprietary code dumps, customer data, or internal-only materials are included."):
+        if not _checked(
+            body,
+            "No secrets, credentials, proprietary code dumps, customer data, or internal-only materials are included.",
+        ):
             errors.append("Self-scan PRs must confirm public safety.")
 
         if not _checked(body, "Examples and evidence have been minimized and generalized for public release."):
             errors.append("Self-scan PRs must confirm evidence minimization.")
     else:
         if not _checked(body, "This PR is not based on a self-scan contribution."):
-            errors.append(
-                "Non-self-scan PRs must check 'This PR is not based on a self-scan contribution.'"
-            )
+            errors.append("Non-self-scan PRs must check 'This PR is not based on a self-scan contribution.'")
 
     for pattern in PLACEHOLDER_PATTERNS:
         if re.search(pattern, body, re.IGNORECASE):
