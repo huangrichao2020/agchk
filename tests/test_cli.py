@@ -62,6 +62,10 @@ def test_cli_accepts_direct_target_path_and_writes_outputs(tmp_path: Path) -> No
 
     markdown = report_output.read_text(encoding="utf-8")
     assert "**Architecture Era**" in markdown
+    assert "## Architecture Analysis" in markdown
+    assert "```mermaid" in markdown
+    assert "Top Risk" in markdown
+    assert "Recommended Move" in markdown
     assert "## Architecture Era Score" in markdown
     assert "### Positive Signal Ledger" in markdown
     assert "### Penalty Ledger" in markdown

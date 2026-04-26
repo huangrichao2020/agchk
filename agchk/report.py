@@ -19,10 +19,160 @@ def _cell(value: Any) -> str:
 
 
 def _finding_penalty_lookup(maturity: Dict[str, Any]) -> dict[str, int]:
-    return {
-        item.get("title", ""): item.get("total_penalty", 0)
-        for item in maturity.get("penalty_breakdown", [])
-    }
+    return {item.get("title", ""): item.get("total_penalty", 0) for item in maturity.get("penalty_breakdown", [])}
+
+
+def _shorten(value: Any, limit: int = 72) -> str:
+    text = _cell(value).strip()
+    if len(text) <= limit:
+        return text
+    return text[: limit - 3].rstrip() + "..."
+
+
+def _comma_items(items: list[Any], limit: int = 3) -> str:
+    cleaned = [str(item) for item in items if item]
+    if not cleaned:
+        return "unknown"
+    shown = cleaned[:limit]
+    if len(cleaned) > limit:
+        shown.append(f"+{len(cleaned) - limit} more")
+    return ", ".join(shown)
+
+
+def _mermaid_label(value: Any, limit: int = 72) -> str:
+    return _shorten(value, limit).replace('"', "'").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _score_value(maturity: Dict[str, Any]) -> int:
+    try:
+        return int(maturity.get("score", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _risk_score(finding: dict[str, Any]) -> tuple[int, float]:
+    severity_weight = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    severity = str(finding.get("severity", "low")).lower()
+    confidence = finding.get("confidence", 0)
+    try:
+        confidence_value = float(confidence)
+    except (TypeError, ValueError):
+        confidence_value = 0
+    return severity_weight.get(severity, 1), confidence_value
+
+
+def _top_risk_finding(findings: list[dict[str, Any]]) -> dict[str, Any]:
+    if not findings:
+        return {}
+    return max(findings, key=_risk_score)
+
+
+def _architecture_posture(maturity: Dict[str, Any], findings: list[dict[str, Any]]) -> str:
+    score = _score_value(maturity)
+    strengths = " ".join(maturity.get("strengths", [])).lower()
+    if score >= 80:
+        return "self-improving agent OS"
+    if score >= 65 or "stateful recovery" in strengths:
+        return "stateful agent runtime"
+    if score >= 45 or "agent runtime" in strengths:
+        return "tool-using agent runtime"
+    if findings:
+        return "agent wrapper with visible architecture debt"
+    return "lightweight agent project"
+
+
+def _architecture_layer_rows(findings: list[dict[str, Any]]) -> list[tuple[str, int, str]]:
+    severity_weight = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    layers: dict[str, dict[str, Any]] = {}
+    for finding in findings:
+        layer = finding.get("source_layer") or "unknown"
+        item = layers.setdefault(layer, {"weight": 0, "title": finding.get("title", "Unknown")})
+        item["weight"] += severity_weight.get(finding.get("severity", "low"), 1)
+        if severity_weight.get(finding.get("severity", "low"), 1) > severity_weight.get(item.get("severity", "low"), 1):
+            item["title"] = finding.get("title", "Unknown")
+            item["severity"] = finding.get("severity", "low")
+    return [
+        (layer, data["weight"], data["title"])
+        for layer, data in sorted(layers.items(), key=lambda pair: pair[1]["weight"], reverse=True)[:4]
+    ]
+
+
+def _build_architecture_analysis(results: Dict[str, Any]) -> list[str]:
+    scope = results.get("scope", {})
+    maturity = results.get("maturity_score", {})
+    findings = results.get("findings", [])
+    strengths = maturity.get("strengths", [])
+    milestones = maturity.get("next_milestones", [])
+    top_finding = _top_risk_finding(findings)
+    top_strength = strengths[0] if strengths else "No strong architectural signal detected yet"
+    next_milestone = (
+        milestones[0] if milestones else "Keep the current architecture contract covered by tests and evidence"
+    )
+    posture = _architecture_posture(maturity, findings)
+    era = maturity.get("era_name", "Unknown")
+    score = maturity.get("score", "N/A")
+    entrypoints = _comma_items(scope.get("entrypoints", []), limit=2)
+    channels = _comma_items(scope.get("channels", []), limit=3)
+    models = _comma_items(scope.get("model_stack", []), limit=3)
+    top_risk = top_finding.get("title", "No major risk detected")
+    urgent_fix = results.get("executive_verdict", {}).get("most_urgent_fix", "No immediate fix required")
+
+    lines = [
+        "## Architecture Analysis",
+        "",
+        f"**Posture**: **{posture}**. The scan reads this project as `{era}` with `{score}/100` maturity.",
+        f"**Best signal**: {top_strength}.",
+        f"**Main drag**: {_shorten(top_risk, 120)}.",
+        f"**Next move**: {_shorten(next_milestone, 160)}",
+        "",
+        "### Architecture Map",
+        "",
+        "```mermaid",
+        "flowchart LR",
+        f'    User["User / Channels<br/>{_mermaid_label(channels)}"] --> Entry["Entry Points<br/>{_mermaid_label(entrypoints)}"]',
+        f'    Entry --> Runtime["Agent Runtime<br/>{_mermaid_label(posture, 48)}"]',
+        f'    Runtime --> Models["Model Stack<br/>{_mermaid_label(models)}"]',
+        f'    Runtime --> Memory["Memory and Context<br/>{_mermaid_label(top_strength, 58)}"]',
+        f'    Runtime --> Tools["Tools and Boundaries<br/>{_mermaid_label(_comma_items(scope.get("layers_to_audit", []), 2), 58)}"]',
+        f'    Runtime --> Ops["Evidence and Operations<br/>{_mermaid_label("logs, handoff, verification", 58)}"]',
+        f'    Tools --> Risk{{"Top Risk<br/>{_mermaid_label(top_risk, 58)}"}}',
+        "    Memory --> Risk",
+        f'    Ops --> Fix["Recommended Move<br/>{_mermaid_label(urgent_fix, 58)}"]',
+        "    Risk --> Fix",
+        "    classDef entry fill:#f6f9fe,stroke:#3285c2,stroke-width:2px",
+        "    classDef runtime fill:#fffbf5,stroke:#ff8000,stroke-width:2px",
+        "    classDef model fill:#f9f7fa,stroke:#834d9d,stroke-width:2px",
+        "    classDef data fill:#f8faf9,stroke:#699261,stroke-width:2px",
+        "    classDef risk fill:#fef5f6,stroke:#c80705,stroke-width:2px",
+        "    class User,Entry entry",
+        "    class Runtime runtime",
+        "    class Models model",
+        "    class Memory,Ops data",
+        "    class Tools,Fix runtime",
+        "    class Risk risk",
+        "```",
+        "",
+        "### Risk Hotspots",
+        "",
+        "| Layer | Risk Weight | Leading Signal |",
+        "|-------|-------------|----------------|",
+    ]
+    for layer, weight, title in _architecture_layer_rows(findings):
+        lines.append(f"| {_cell(layer)} | {weight} | {_cell(_shorten(title, 96))} |")
+    if not findings:
+        lines.append("| - | 0 | No findings emitted |")
+    lines.extend(
+        [
+            "",
+            "### Reading Guide",
+            "",
+            "- The orange center is the runtime contract agchk inferred from the repo.",
+            "- Green nodes are capabilities that make the agent easier to operate, resume, and improve.",
+            "- The red diamond is the first architectural bottleneck a maintainer should feel in day-to-day work.",
+            "",
+        ]
+    )
+    return lines
 
 
 def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
@@ -64,6 +214,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
     for severity in ("critical", "high", "medium", "low"):
         lines.append(f"| {SEVERITY_EMOJI.get(severity, '')} {severity.upper()} | {summary.get(severity, 0)} |")
     lines.extend(["", f"**Total findings**: {sum(summary.values())}", ""])
+    lines.extend(_build_architecture_analysis(results))
 
     if maturity:
         lines.extend(
@@ -87,9 +238,7 @@ def generate_report(results: Dict[str, Any], output_file: Optional[str] = None) 
         if maturity.get("score_caps"):
             lines.append("**Score Caps Applied**:")
             for cap in maturity["score_caps"]:
-                lines.append(
-                    f"- `{cap.get('gate')}`: {cap.get('before')} -> {cap.get('after')}. {cap.get('reason')}"
-                )
+                lines.append(f"- `{cap.get('gate')}`: {cap.get('before')} -> {cap.get('after')}. {cap.get('reason')}")
             lines.append("")
         if maturity.get("signal_points"):
             lines.extend(
