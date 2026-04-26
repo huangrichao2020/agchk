@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from typing import Any, Dict, List
+from agchk.scanners.path_filters import iter_source_files
 
 SKILL_FILE_RE = re.compile(r"(?:skill|sop|runbook|playbook|guide|checklist|instruction)", re.IGNORECASE)
 SUFFIX_RE = re.compile(r"(?:^|[-_ ])(?:old|new|latest|final|draft|copy|backup|bak|v\d+)(?:$|[-_ ])", re.IGNORECASE)
@@ -27,7 +28,7 @@ def scan_skill_duplication(target: Path) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
     skill_files: list[Path] = []
 
-    files = [target] if target.is_file() else sorted(target.rglob("*"))
+    files = list(iter_source_files(target))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue

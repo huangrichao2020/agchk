@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from typing import Any, Dict, List
+from agchk.scanners.path_filters import iter_source_files
 
 SCAN_EXTENSIONS = {".py", ".ts", ".js", ".tsx", ".jsx", ".json", ".yaml", ".yml", ".toml", ".md"}
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", "coverage"}
@@ -26,7 +27,7 @@ def scan_runtime_complexity(target: Path) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
     matched_categories: dict[str, list[str]] = {key: [] for key in RUNTIME_PATTERNS}
 
-    files = [target] if target.is_file() else sorted(target.rglob("*"))
+    files = list(iter_source_files(target))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
             continue
