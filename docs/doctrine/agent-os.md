@@ -31,6 +31,8 @@ Treat RAG as mounted storage. Skills, docs, GitHub references, notes, and vector
 
 Treat scheduling as a product feature. User-visible work should not be starved by background jobs, long tools, heartbeats, or stuck workers. Priority, timeout, cancellation, and queue visibility are architecture primitives.
 
+Treat chat responsiveness as a standard runtime capability. If a Feishu/Lark/Slack/Telegram gateway starts a long agent task, the channel must not become unusable until that task finishes. The gateway should acknowledge quickly, move long work into a bounded background worker, keep a per-session mailbox or in-flight task table, and reserve at least one follow-up-message worker path so later messages can ask for status, interrupt, or run small foreground requests.
+
 ## Scanner Implication
 
 The `os_architecture` scanner looks for projects that already have agent OS symptoms but do not name the matching OS primitive:
@@ -39,6 +41,7 @@ The `os_architecture` scanner looks for projects that already have agent OS symp
 - context replay and interrupted runs without environment-state recovery
 - tool calling without a syscall or capability table
 - workers and queues without fairness controls
+- chat gateways with long-running tasks but no follow-up-message worker, mailbox, status, or interrupt path
 - RAG, skills, and docs without semantic mount points
 
 The finding is not saying "build a full OS." It is saying the project has crossed the line where OS vocabulary becomes the cleanest way to reduce internal drag.

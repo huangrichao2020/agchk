@@ -85,9 +85,10 @@ PATTERNS = {
     "channel_responsiveness": re.compile(
         r"\b(?:ack|acknowledge|immediate reply|respond immediately|non[-_ ]?blocking|background worker|"
         r"foreground worker|task worker|worker pool|in[-_ ]?flight|interrupt|preempt|continue chatting|"
-        r"second message|concurrent session|session mailbox|message queue|asyncio\.create_task)\b|"
+        r"second message|follow[-_ ]?up message|message worker|concurrent session|session mailbox|"
+        r"message queue|asyncio\.create_task)\b|"
         r"(?:立即回复|先回复|非阻塞|前台\s*worker|后台\s*worker|任务\s*worker|多\s*worker|"
-        r"继续聊天|第二句|消息队列|会话邮箱|打断|抢占|异步任务)",
+        r"后续消息\s*worker|消息\s*worker|继续聊天|第二句|后续消息|消息队列|会话邮箱|打断|抢占|异步任务)",
         re.IGNORECASE,
     ),
     "semantic_storage": re.compile(
@@ -293,30 +294,32 @@ def scan_os_architecture(target: Path) -> List[Dict[str, Any]]:
         findings.append(
             {
                 "severity": "high",
-                "title": "Channel gateway lacks non-blocking worker handoff",
+                "title": "Channel gateway lacks multi-worker responsiveness",
                 "symptom": (
                     f"Found {signals.count('channel_entrypoint')} chat/channel entrypoint markers and "
                     f"{signals.count('long_user_task')} long-task markers, but only "
-                    f"{signals.count('channel_responsiveness')} non-blocking response or multi-worker markers."
+                    f"{signals.count('channel_responsiveness')} non-blocking, mailbox, or follow-up worker markers."
                 ),
                 "user_impact": (
                     "A messaging agent can appear frozen when one Feishu/Lark/Slack/Telegram session is busy. "
-                    "The user should still be able to send a second message, interrupt, ask for status, or start a "
-                    "small foreground request while the original task continues in the background."
+                    "The user should still be able to send a second message and have an extra worker acknowledge it, "
+                    "report status, interrupt the active run, or handle a small foreground request while the original "
+                    "task continues in the background."
                 ),
                 "source_layer": "os_scheduler",
-                "mechanism": "OS-lens scan for chat gateway entrypoints plus long-running tasks versus foreground/background worker handoff signals.",
+                "mechanism": "OS-lens scan for chat gateway entrypoints plus long-running tasks versus foreground/background and follow-up-message worker signals.",
                 "root_cause": (
                     "The channel gateway appears to couple message receipt to long-running agent execution instead of "
-                    "acknowledging messages quickly and handing work to a bounded task worker."
+                    "acknowledging messages quickly and routing initial work plus follow-up messages through bounded workers."
                 ),
                 "evidence_refs": signals.evidence("channel_entrypoint", "long_user_task", "channel_responsiveness"),
                 "confidence": 0.7,
                 "fix_type": "architecture_change",
                 "recommended_fix": (
                     "Split channel handling from task execution: the gateway should ack or status-reply quickly, enqueue "
-                    "long work to a background worker, keep a per-session mailbox/in-flight task table, and let later "
-                    "messages interrupt, query, or run small foreground actions without waiting for the old task to end."
+                    "long work to a background worker, keep a per-session mailbox/in-flight task table, and reserve at "
+                    "least one follow-up-message worker so later messages can interrupt, query status, or run small "
+                    "foreground actions without waiting for the old task to end."
                 ),
             }
         )

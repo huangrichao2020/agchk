@@ -167,7 +167,7 @@ def test_os_architecture_flags_cli_worker_without_prompt_contract(tmp_path: Path
     assert "LLM CLI worker contract incomplete" in _titles(findings)
 
 
-def test_os_architecture_flags_blocking_chat_gateway_without_worker_handoff(tmp_path: Path) -> None:
+def test_os_architecture_flags_blocking_chat_gateway_without_multi_worker_responsiveness(tmp_path: Path) -> None:
     (tmp_path / "feishu_gateway.py").write_text(
         "\n".join(
             [
@@ -184,10 +184,10 @@ def test_os_architecture_flags_blocking_chat_gateway_without_worker_handoff(tmp_
 
     findings = scan_os_architecture(tmp_path)
 
-    assert "Channel gateway lacks non-blocking worker handoff" in _titles(findings)
+    assert "Channel gateway lacks multi-worker responsiveness" in _titles(findings)
 
 
-def test_os_architecture_accepts_non_blocking_chat_gateway_handoff(tmp_path: Path) -> None:
+def test_os_architecture_accepts_multi_worker_chat_gateway_responsiveness(tmp_path: Path) -> None:
     (tmp_path / "feishu_gateway.py").write_text(
         "\n".join(
             [
@@ -197,6 +197,8 @@ def test_os_architecture_accepts_non_blocking_chat_gateway_handoff(tmp_path: Pat
                 "    session_mailbox.append(event)",
                 "    task = asyncio.create_task(background_worker.run(event.text))",
                 "    inflight_tasks[event.session_id] = task",
+                "    # A follow-up message worker keeps later messages responsive.",
+                "    follow_up_message_worker.reserve(event.session_id)",
                 "    # Later messages can interrupt, query status, or continue chatting while the long tool call runs.",
                 "    return task_worker_pool.enqueue(tool_call('browser', event.text), timeout=60)",
             ]
