@@ -78,7 +78,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 4 | Memory Lifecycle Governance | high | Memory systems without typed records, retrieval budgets, conflict resolution, decay, source pointers, or active-rule GC |
 | 5 | Memory Retrieval I18N | medium/high | FTS/unicode memory retrieval without CJK-safe tokenization, fallback, or multilingual regression tests |
 | 6 | RAG Pipeline Governance | medium/high | RAG stacks without chunking, retrieval budget, ingestion state, or full-context controls |
-| 7 | Self-Evolution Capability | high | Agents without external-signal learning, source dissection, pattern extraction, constraint adaptation, safe landing, and verification closure |
+| 7 | Self-Evolution Capability | high | Agents without external-signal learning, source dissection, pattern extraction, constraint adaptation, safe landing, verification closure, hands-on validation, and reusable assetization |
 | 8 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
 | 9 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
 | 10 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
@@ -166,7 +166,7 @@ Profile differences are not just about safety gates. They also change what `agch
   - missing memory lifecycle governance: typed records, retrieval budgets, conflict merge, decay, source pointers, active-rule GC
   - brittle multilingual memory retrieval, especially FTS/unicode CJK lookup without fallback or regression tests
   - brittle RAG systems: unclear chunking, unbounded full-context modes, missing ingestion state, weak rerank/retrieval budgets
-  - missing self-evolution loop: external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure
+  - missing self-evolution loop: external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure -> hands-on validation -> methodology/skill/impression assetization
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
   - OS-style architecture gaps: paging, stateful recovery, LLM CLI worker pools, scheduling, syscalls, and semantic mount points
@@ -257,7 +257,7 @@ The score is evidence-based. Positive primitives add points, while findings such
 
 Methodology is a gate, not just a bonus. A project without clear methodology concepts is capped at `青铜时代`, even if it has many skills, MCP tools, or runtime pieces. A project with high-information-density methodology such as dimensional frameworks, review rubrics, anti-slop checklists, and compact prompt protocols can enter `青铜时代` and above.
 
-Self-evolution is also a gate. A project without the full loop `external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure` is capped at `内燃气时代`, even if it already has memory, tools, scheduling, RAG, or plugins. `agchk` treats deliberate evolution as a core agent capability, not a nice-to-have.
+Self-evolution is also a gate. A project without the full loop `external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure -> hands-on validation -> reusable assetization` is capped at `内燃气时代`, even if it already has memory, tools, scheduling, RAG, or plugins. `agchk` treats deliberate evolution as a core agent capability, not a nice-to-have. Learning is not counted as complete until the agent runs the new capability in a realistic scenario and turns the accepted result into reusable methodology, a skill/runbook, and impression-level recall cues.
 
 Example methodology signal:
 

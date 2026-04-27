@@ -41,7 +41,7 @@ def test_maturity_score_rewards_agent_os_primitives(tmp_path: Path) -> None:
                 "syscall table with capabilities and permission matrix",
                 "permission policy uses blocklist, allowlist, needs_approval, read_scope, write_scope, and temp_scope",
                 "memory_type identity preference goal habit decision constraint episode reflection with top_k retrieval_budget confidence overlap dedupe active durable ttl decay",
-                "external signal intake reads upstream issues PRs benchmarks and user feedback; source-level learning reads directory tree entrypoint main loop core class ADR and boundary analysis; pattern extraction turns design patterns into reusable patterns not copied code; constraint adaptation checks local constraints zero heavy dependencies lightweight 2GB RAM fit; small-step landing uses independent modules try/except fail-soft rollback; verification loop runs regression test smoke test acceptance and retro",
+                "external signal intake reads upstream issues PRs benchmarks and user feedback; source-level learning reads directory tree entrypoint main loop core class ADR and boundary analysis; pattern extraction turns design patterns into reusable patterns not copied code; constraint adaptation checks local constraints zero heavy dependencies lightweight 2GB RAM fit; small-step landing uses independent modules try/except fail-soft rollback; verification loop runs regression test smoke test acceptance and retro; hands-on live tool call validates the real endpoint; the lesson is crystallized into a methodology artifact, procedure skill, and impression fragment",
                 "semantic VFS mount point /knowledge/docs and /skills resource path",
                 "trace spans, eval, reward, telemetry",
             ]
@@ -256,6 +256,8 @@ def test_maturity_score_rewards_self_evolution_loop(tmp_path: Path) -> None:
                 "constraint adaptation checks local constraints, zero heavy dependencies, lightweight fit, and 2GB RAM",
                 "small-step landing uses independent modules, try/except, fail-soft integration, and rollback",
                 "verification loop runs regression test, smoke test, acceptance, and retro",
+                "hands-on validation runs a live tool call against a real endpoint",
+                "learning assetization crystallizes the result into a methodology artifact, procedure skill, and impression fragment",
             ]
         ),
         encoding="utf-8",
@@ -268,3 +270,5 @@ def test_maturity_score_rewards_self_evolution_loop(tmp_path: Path) -> None:
     assert "self-evolution loop" in score["strengths"]
     assert "external signal intake" in score["strengths"]
     assert "verification closure" in score["strengths"]
+    assert "hands-on validation" in score["strengths"]
+    assert "learning assetization" in score["strengths"]
