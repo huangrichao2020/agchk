@@ -69,7 +69,16 @@ def _should_skip(path: Path) -> bool:
 def _collect_refs(target: Path) -> dict[str, list[str]]:
     refs = {
         key: []
-        for key in ("memory", "typed", "budget", "conflict", "lifecycle", "pointer", "active_retention", "completed_memory")
+        for key in (
+            "memory",
+            "typed",
+            "budget",
+            "conflict",
+            "lifecycle",
+            "pointer",
+            "active_retention",
+            "completed_memory",
+        )
     }
     files = list(iter_source_files(target))
     for fp in files:
@@ -133,30 +142,30 @@ def scan_memory_lifecycle(target: Path) -> List[Dict[str, Any]]:
     if len(present) < 3:
         findings.append(
             {
-            "severity": "high",
-            "title": "Memory system lacks lifecycle governance",
-            "symptom": (
-                f"Found {len(refs['memory'])} memory-system markers, but only {len(present)} memory governance "
-                f"categories were visible ({governance_summary})."
-            ),
-            "user_impact": (
-                "A memory-rich agent can accumulate stale, contradictory, over-injected, or untraceable memories unless "
-                "it controls memory type, retrieval budget, merge/conflict behavior, lifecycle, and source pointers."
-            ),
-            "source_layer": "memory_lifecycle",
-            "mechanism": (
-                "Repository scan for memory systems versus typed memories, retrieval budgets, conflict/merge policy, "
-                "lifecycle/decay policy, and pointer/source-reference signals."
-            ),
-            "root_cause": "The project appears to store or retrieve memory before defining how memories age, merge, compete, and re-enter context.",
-            "evidence_refs": _evidence(refs, "memory", "typed", "budget", "conflict", "lifecycle", "pointer"),
-            "confidence": 0.71,
-            "fix_type": "architecture_change",
-            "recommended_fix": (
-                "Add memory lifecycle governance: explicit memory types, top-k/token/character retrieval budgets, "
-                "confidence-based conflict resolution, dedupe/merge rules, active-vs-durable lifecycle with decay, "
-                "and pointers back to raw evidence or episodic source records."
-            ),
+                "severity": "high",
+                "title": "Memory system lacks lifecycle governance",
+                "symptom": (
+                    f"Found {len(refs['memory'])} memory-system markers, but only {len(present)} memory governance "
+                    f"categories were visible ({governance_summary})."
+                ),
+                "user_impact": (
+                    "A memory-rich agent can accumulate stale, contradictory, over-injected, or untraceable memories unless "
+                    "it controls memory type, retrieval budget, merge/conflict behavior, lifecycle, and source pointers."
+                ),
+                "source_layer": "memory_lifecycle",
+                "mechanism": (
+                    "Repository scan for memory systems versus typed memories, retrieval budgets, conflict/merge policy, "
+                    "lifecycle/decay policy, and pointer/source-reference signals."
+                ),
+                "root_cause": "The project appears to store or retrieve memory before defining how memories age, merge, compete, and re-enter context.",
+                "evidence_refs": _evidence(refs, "memory", "typed", "budget", "conflict", "lifecycle", "pointer"),
+                "confidence": 0.71,
+                "fix_type": "architecture_change",
+                "recommended_fix": (
+                    "Add memory lifecycle governance: explicit memory types, top-k/token/character retrieval budgets, "
+                    "confidence-based conflict resolution, dedupe/merge rules, active-vs-durable lifecycle with decay, "
+                    "and pointers back to raw evidence or episodic source records."
+                ),
             }
         )
 

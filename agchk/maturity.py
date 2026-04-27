@@ -350,8 +350,7 @@ MILESTONES = {
     "rag_governance": "给 RAG 增加 chunk、retrieval budget、rerank、ingestion 状态和 full-context 预算约束。",
     "token_efficiency": "学习 GenericAgent 的省 token 路线：<30K 热上下文、分层记忆、skill 复用、top-k/page-table 召回和成本指标。",
     "self_evolution_loop": (
-        "建立自我进化闭环：外部信号、源码解剖、模式提取、约束适配、小步落地、"
-        "验证复盘、实战跑通和资产化沉淀。"
+        "建立自我进化闭环：外部信号、源码解剖、模式提取、约束适配、小步落地、验证复盘、实战跑通和资产化沉淀。"
     ),
     "external_signal": "建立外部信号筛选，只学习能解决当前未解决问题的项目、issue、PR、benchmark 或线上反馈。",
     "dissection_learning": "把学习对象读到源码层：目录结构、入口、主循环、核心类、ADR/DESIGN 和模块边界。",
