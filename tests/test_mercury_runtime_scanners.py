@@ -197,6 +197,7 @@ def test_memory_lifecycle_accepts_typed_budgeted_decay_memory(tmp_path: Path) ->
                 "Each memory has confidence; conflicts are resolved by confidence, overlap, merge, and dedupe.",
                 "Active memories can become durable after reinforcement; TTL, decay, retention, prune, and dismissed state exist.",
                 "Each record keeps pointer_ref, source_ref, topic_anchor, semantic_hash, and page fault swap in metadata.",
+                "Memory GC keeps only rules/facts that still need to be followed; delete completed-work notes after landing.",
                 "The agent can remember, recall, summarize history, and update profile facts.",
             ]
         ),
@@ -204,6 +205,31 @@ def test_memory_lifecycle_accepts_typed_budgeted_decay_memory(tmp_path: Path) ->
     )
 
     assert scan_memory_lifecycle(tmp_path) == []
+
+
+def test_memory_lifecycle_flags_missing_active_retention_gc(tmp_path: Path) -> None:
+    (tmp_path / "memory_policy.md").write_text(
+        "\n".join(
+            [
+                "Memory types: identity, preference, goal, project, habit, decision, constraint, episode, reflection.",
+                "Retrieval uses FTS5 and top_k=5 with a token_budget and character_limit.",
+                "Each memory has confidence; conflicts are resolved by confidence, overlap, merge, and dedupe.",
+                "Active memories can become durable after reinforcement; TTL, decay, retention, prune, and archive exist.",
+                "Each record keeps pointer_ref, source_ref, topic_anchor, semantic_hash, and page fault swap in metadata.",
+                "The agent can remember task progress, completed_work notes, finished task summaries, and session outcomes.",
+                "Memory recall loads profile facts, preferences, reflection summaries, and history into the agent.",
+                "The second brain memory store saves facts and episode summaries for future sessions.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_memory_lifecycle(tmp_path)
+
+    assert "Memory retention lacks active-rule GC policy" in _titles(findings)
+    finding = next(f for f in findings if f["title"] == "Memory retention lacks active-rule GC policy")
+    assert finding["severity"] == "high"
+    assert "delete or skip the completed-work memory" in finding["recommended_fix"]
 
 
 def test_memory_retrieval_i18n_flags_unicode61_without_cjk_fallback(tmp_path: Path) -> None:

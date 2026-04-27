@@ -150,7 +150,7 @@ Produces `audit_results.json` and `audit_report.md`.
 | 2 | Tool Enforcement Gap | high | "Must use tool X" in prompt but no code validation |
 | 3 | Hidden LLM Calls | high | Secret second-pass LLM calls in fallback/repair loops |
 | 4 | Unrestricted Code Execution | critical | exec(), eval(), subprocess(shell=True) without sandbox |
-| 5 | Memory Pattern Issues | medium | Unbounded context growth, missing TTL |
+| 5 | Memory Pattern Issues | medium | Unbounded context growth, missing TTL, missing active-rule GC |
 | 6 | Output Pipeline Mutation | medium | Response transformation corrupting correct answers |
 | 7 | Missing Observability | medium | No tracing, logging, or cost tracking |
 
@@ -244,7 +244,7 @@ Focus: resource limits, input validation, isolation.
 
 Use when: memory/context grows without limits.
 Scanner: `scan_memory_patterns`
-Focus: size limits, TTL, retention policies.
+Focus: size limits, TTL, retention policies, and deleting completed/landed work from always-on memory.
 
 ## observability-gap
 

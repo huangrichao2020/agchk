@@ -75,7 +75,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 1 | Internal Orchestration Sprawl | high | Planner/router/subagent/scheduler/retry layers that create internal drag |
 | 2 | Completion Closure Gap | medium/high | File/index work that stops before card, anchor, pointer, and acceptance |
 | 3 | Memory Freshness Confusion | high | Too many checkpoints, summaries, archives, and memory generations |
-| 4 | Memory Lifecycle Governance | high | Memory systems without typed records, retrieval budgets, conflict resolution, decay, or source pointers |
+| 4 | Memory Lifecycle Governance | high | Memory systems without typed records, retrieval budgets, conflict resolution, decay, source pointers, or active-rule GC |
 | 5 | Memory Retrieval I18N | medium/high | FTS/unicode memory retrieval without CJK-safe tokenization, fallback, or multilingual regression tests |
 | 6 | RAG Pipeline Governance | medium/high | RAG stacks without chunking, retrieval budget, ingestion state, or full-context controls |
 | 7 | Self-Evolution Capability | high | Agents without external-signal learning, source dissection, pattern extraction, constraint adaptation, safe landing, and verification closure |
@@ -163,7 +163,7 @@ Profile differences are not just about safety gates. They also change what `agch
   - orchestration sprawl
   - completion closure gaps
   - memory freshness confusion
-  - missing memory lifecycle governance: typed records, retrieval budgets, conflict merge, decay, source pointers
+  - missing memory lifecycle governance: typed records, retrieval budgets, conflict merge, decay, source pointers, active-rule GC
   - brittle multilingual memory retrieval, especially FTS/unicode CJK lookup without fallback or regression tests
   - brittle RAG systems: unclear chunking, unbounded full-context modes, missing ingestion state, weak rerank/retrieval budgets
   - missing self-evolution loop: external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure

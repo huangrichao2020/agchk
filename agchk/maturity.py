@@ -360,6 +360,7 @@ FINDING_PENALTIES = {
     "Tool syscalls lack explicit capability table": 8,
     "High-agency tools lack layered permission policy": 10,
     "Memory system lacks lifecycle governance": 10,
+    "Memory retention lacks active-rule GC policy": 9,
     "Memory FTS lacks CJK-safe retrieval path": 9,
     "Memory retrieval lacks multilingual regression tests": 5,
     "RAG pipeline lacks retrieval governance": 9,
