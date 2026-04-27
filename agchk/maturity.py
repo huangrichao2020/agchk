@@ -380,6 +380,7 @@ FINDING_PENALTIES = {
     "Impression memory layer missing": 10,
     "Impression pointers missing": 12,
     "Agent scheduler lacks fairness controls": 8,
+    "Channel gateway lacks non-blocking worker handoff": 9,
     "Agent/tool loop lacks loop safety budget": 10,
     "Scheduled agent work lacks stuck-job controls": 7,
     "Tool syscalls lack explicit capability table": 8,

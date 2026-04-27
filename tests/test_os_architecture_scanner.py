@@ -165,3 +165,43 @@ def test_os_architecture_flags_cli_worker_without_prompt_contract(tmp_path: Path
     findings = scan_os_architecture(tmp_path)
 
     assert "LLM CLI worker contract incomplete" in _titles(findings)
+
+
+def test_os_architecture_flags_blocking_chat_gateway_without_worker_handoff(tmp_path: Path) -> None:
+    (tmp_path / "feishu_gateway.py").write_text(
+        "\n".join(
+            [
+                "def handle_feishu_message(event):",
+                "    # Feishu/Lark message handler receives an incoming message from the chat gateway.",
+                "    result = agent.run(event.text)",
+                "    tool_call('browser', event.text)",
+                "    run_long_research_audit(event.text)",
+                "    return send_lark_reply(result)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_os_architecture(tmp_path)
+
+    assert "Channel gateway lacks non-blocking worker handoff" in _titles(findings)
+
+
+def test_os_architecture_accepts_non_blocking_chat_gateway_handoff(tmp_path: Path) -> None:
+    (tmp_path / "feishu_gateway.py").write_text(
+        "\n".join(
+            [
+                "def handle_feishu_message(event):",
+                "    # Feishu/Lark chat gateway receives an incoming message.",
+                "    send_ack_immediate_reply(event.session_id)",
+                "    session_mailbox.append(event)",
+                "    task = asyncio.create_task(background_worker.run(event.text))",
+                "    inflight_tasks[event.session_id] = task",
+                "    # Later messages can interrupt, query status, or continue chatting while the long tool call runs.",
+                "    return task_worker_pool.enqueue(tool_call('browser', event.text), timeout=60)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    assert scan_os_architecture(tmp_path) == []

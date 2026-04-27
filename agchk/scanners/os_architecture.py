@@ -69,6 +69,27 @@ PATTERNS = {
         r"\b(?:time slice|timeslice|deadline|budget|priority|preempt|context switch|yield|cancel|cancellation|backpressure)\b",
         re.IGNORECASE,
     ),
+    "channel_entrypoint": re.compile(
+        r"\b(?:feishu|lark|telegram|discord|slack|wechat|wecom|websocket|message handler|"
+        r"chat gateway|bot gateway|channel gateway|incoming message|event callback|webhook)\b|"
+        r"(?:飞书|消息入口|聊天入口|会话入口|网关|长连接|消息回调|事件回调)",
+        re.IGNORECASE,
+    ),
+    "long_user_task": re.compile(
+        r"\b(?:long[-_ ]?running|background task|tool[_ -]?call|function[_ -]?call|subprocess|browser|"
+        r"playwright|crawl|research|audit|scan|build|deploy|publish|minutes?|elapsed|iteration)\b|"
+        r"\b(?:run|start|execute)[_a-z0-9]*(?:research|audit|scan|build|deploy|publish)[_a-z0-9]*\b|"
+        r"(?:长任务|后台任务|工具调用|审计|扫描|构建|部署|发布|耗时|迭代)",
+        re.IGNORECASE,
+    ),
+    "channel_responsiveness": re.compile(
+        r"\b(?:ack|acknowledge|immediate reply|respond immediately|non[-_ ]?blocking|background worker|"
+        r"foreground worker|task worker|worker pool|in[-_ ]?flight|interrupt|preempt|continue chatting|"
+        r"second message|concurrent session|session mailbox|message queue|asyncio\.create_task)\b|"
+        r"(?:立即回复|先回复|非阻塞|前台\s*worker|后台\s*worker|任务\s*worker|多\s*worker|"
+        r"继续聊天|第二句|消息队列|会话邮箱|打断|抢占|异步任务)",
+        re.IGNORECASE,
+    ),
     "semantic_storage": re.compile(
         r"\b(?:knowledge|skills?|rag|vector[_ -]?store|vectordb|embedding|docs?|notes?|github|resources?)\b",
         re.IGNORECASE,
@@ -260,6 +281,42 @@ def scan_os_architecture(target: Path) -> List[Dict[str, Any]]:
                 "recommended_fix": (
                     "Add scheduler policy before adding more workers: per-task timeouts, user-command priority, "
                     "background-task budgets, cancellation, and a visible queue state for stuck or starved work."
+                ),
+            }
+        )
+
+    if (
+        signals.count("channel_entrypoint") >= 1
+        and signals.count("long_user_task") >= 2
+        and signals.count("channel_responsiveness") < 2
+    ):
+        findings.append(
+            {
+                "severity": "high",
+                "title": "Channel gateway lacks non-blocking worker handoff",
+                "symptom": (
+                    f"Found {signals.count('channel_entrypoint')} chat/channel entrypoint markers and "
+                    f"{signals.count('long_user_task')} long-task markers, but only "
+                    f"{signals.count('channel_responsiveness')} non-blocking response or multi-worker markers."
+                ),
+                "user_impact": (
+                    "A messaging agent can appear frozen when one Feishu/Lark/Slack/Telegram session is busy. "
+                    "The user should still be able to send a second message, interrupt, ask for status, or start a "
+                    "small foreground request while the original task continues in the background."
+                ),
+                "source_layer": "os_scheduler",
+                "mechanism": "OS-lens scan for chat gateway entrypoints plus long-running tasks versus foreground/background worker handoff signals.",
+                "root_cause": (
+                    "The channel gateway appears to couple message receipt to long-running agent execution instead of "
+                    "acknowledging messages quickly and handing work to a bounded task worker."
+                ),
+                "evidence_refs": signals.evidence("channel_entrypoint", "long_user_task", "channel_responsiveness"),
+                "confidence": 0.7,
+                "fix_type": "architecture_change",
+                "recommended_fix": (
+                    "Split channel handling from task execution: the gateway should ack or status-reply quickly, enqueue "
+                    "long work to a background worker, keep a per-session mailbox/in-flight task table, and let later "
+                    "messages interrupt, query, or run small foreground actions without waiting for the old task to end."
                 ),
             }
         )

@@ -81,7 +81,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 7 | Self-Evolution Capability | high | Agents without external-signal learning, source dissection, pattern extraction, constraint adaptation, safe landing, verification closure, hands-on validation, and reusable assetization |
 | 8 | Impression Pointer Memory | medium | Fact memory and skills without semantic anchors, pointers, and page-fault recovery |
 | 9 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
-| 10 | Agent OS Architecture | medium/high | Missing paging, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
+| 10 | Agent OS Architecture | medium/high | Missing paging, non-blocking chat workers, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
 | 11 | Loop Safety Budget | medium/high | Agent/tool loops and cron jobs without max iterations, repeated-call detection, timeouts, retry budgets, or backoff |
 | 12 | Daemon Lifecycle Safety | medium/high | Always-on agents without active-work drain, checkpoint/resume, or post-restart verification |
 | 13 | Capability Permission Policy | high/critical | High-agency tools without blocklist, allowlist, approval gates, and path scopes |
@@ -169,7 +169,7 @@ Profile differences are not just about safety gates. They also change what `agch
   - missing self-evolution loop: external signal -> source dissection -> pattern extraction -> constraint adaptation -> small safe landing -> verification closure -> hands-on validation -> methodology/skill/impression assetization
   - missing impression pointers between facts, skills, and raw memory
   - role-play handoff chains
-  - OS-style architecture gaps: paging, stateful recovery, LLM CLI worker pools, scheduling, syscalls, and semantic mount points
+  - OS-style architecture gaps: paging, non-blocking chat gateway workers, stateful recovery, LLM CLI worker pools, scheduling, syscalls, and semantic mount points
   - missing loop safety for tool loops, cron jobs, retries, and provider fallback paths
   - unsafe daemon restart lifecycles for always-on agents
   - missing capability policy for high-agency tools
@@ -246,6 +246,7 @@ Negative signals:
 - external LLM CLI workers without Task JSON, natural-language prompt handoff, captured stdout/stderr/exit code, timeout, or concurrency control
 - file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure
+- chat gateways that block new Feishu/Lark/Slack/Telegram messages while one long task is still running
 - skills, RAG, docs, and GitHub knowledge living in separate unmounted paths
 - role-play org charts such as PM -> architect -> coder -> QA without proving information flow
 
