@@ -92,7 +92,7 @@ These checks are the default emphasis for solo builders and local prototypes:
 | 9 | Role-Play Handoff Orchestration | medium/high | PM/architect/coder/QA style agent org charts with serial handoffs |
 | 10 | Agent OS Architecture | medium/high | Missing paging, multi-worker chat responsiveness, stateful recovery, LLM CLI workers, scheduler fairness, syscall tables, or semantic VFS |
 | 11 | Loop Safety Budget | medium/high | Agent/tool loops and cron jobs without max iterations, repeated-call detection, timeouts, retry budgets, or backoff |
-| 12 | Daemon Lifecycle Safety | medium/high | Always-on agents without active-work drain, checkpoint/resume, or post-restart verification |
+| 12 | Daemon Lifecycle Safety | medium/high | Always-on agents without active-work drain, checkpoint/resume, recent-session recall, or post-restart verification |
 | 13 | Capability Permission Policy | high/critical | High-agency tools without blocklist, allowlist, approval gates, and path scopes |
 | 14 | Plugin Execution Policy | high/critical | Executable plugins without sandboxing, dependency pinning, package allowlists, or trust boundaries |
 | 15 | Remote Tool Server Boundary | medium/critical | MCP/OpenAPI tool servers without allowlists, auth, schema pinning, or high-agency approval |
@@ -252,6 +252,7 @@ Negative signals:
 - linear `summary` / `compact_memory` without hot/cold paging
 - impression cues without `topic_anchor`, `semantic_hash`, `pointer_ref`, or page-fault recovery
 - context replay or resumable runs without environment-state inspection and side-effect logs
+- restart recovery that revives the process but does not read and inject the last few session/conversation memories
 - external LLM CLI workers without Task JSON, natural-language prompt handoff, captured stdout/stderr/exit code, timeout, or concurrency control
 - file/index workflows that lack impression cards, anchor mapping, pointer registration, and acceptance criteria
 - workers and tool calls without priority, budget, cancellation, or backpressure

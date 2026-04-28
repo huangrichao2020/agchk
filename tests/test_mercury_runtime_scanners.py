@@ -358,6 +358,7 @@ def test_daemon_lifecycle_accepts_externalized_self_restart_handoff(tmp_path: Pa
                 "        wait_for_idle(active_agents)",
                 "        drain_job_queue()",
                 "        checkpoint_sessions_for_resume()",
+                "        load_recent_session_recall(limit=5, source='feishu')",
                 "        subprocess.run(['systemd-run', '--on-active=2s', 'systemctl', 'restart', 'hermes-gateway.service'])",
                 "        post_restart_health_check(status='connected')",
             ]
@@ -378,6 +379,7 @@ def test_daemon_lifecycle_accepts_drain_recovery_and_verification(tmp_path: Path
                 "        wait_for_idle(active_agents)",
                 "        drain_job_queue()",
                 "        checkpoint_sessions_for_resume()",
+                "        inject_startup_recall_context(load_recent_sessions(limit=5))",
                 "        old_pid = read_pid_file()",
                 "        restart_barrier(old_pid)",
                 "        post_restart_health_check(status='connected')",
@@ -387,6 +389,39 @@ def test_daemon_lifecycle_accepts_drain_recovery_and_verification(tmp_path: Path
     )
 
     assert scan_daemon_lifecycle(tmp_path) == []
+
+
+def test_daemon_lifecycle_flags_restart_without_recent_session_recall(tmp_path: Path) -> None:
+    (tmp_path / "gateway.py").write_text(
+        "\n".join(
+            [
+                "class GatewayDaemon:",
+                "    def run_forever(self):",
+                "        # always on gateway service",
+                "        service_heartbeat.tick()",
+                "",
+                "    def restart(self):",
+                "        active_agents = gateway_state.active_agents",
+                "        wait_for_idle(active_agents)",
+                "        drain_job_queue()",
+                "        checkpoint_sessions_for_resume()",
+                "        old_pid = read_pid_file()",
+                "        restart_barrier(old_pid)",
+                "        post_restart_health_check(status='connected')",
+                "        session_store.save_message(user_message)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_daemon_lifecycle(tmp_path)
+    by_title = {finding["title"]: finding for finding in findings}
+
+    assert by_title["Restart recovery loses recent session memory"]["severity"] == "high"
+    assert (
+        "bounded recent-session recall packet"
+        in by_title["Restart recovery loses recent session memory"]["recommended_fix"]
+    )
 
 
 def test_new_runtime_scanners_are_enabled_in_personal_audits(tmp_path: Path) -> None:

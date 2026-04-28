@@ -177,6 +177,28 @@ def test_maturity_score_heavily_penalizes_suicidal_self_restart(tmp_path: Path) 
     assert score["score"] <= score["pre_penalty_score"] - 37
 
 
+def test_maturity_score_penalizes_restart_without_recent_session_recall(tmp_path: Path) -> None:
+    (tmp_path / "agent_os.md").write_text(
+        "\n".join(
+            [
+                "methodology: always-on gateway runtime safety checklist",
+                "agent loop harness with session history, memory, checkpoint, resume, and post_restart health_check",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    findings = [
+        {"title": "Restart recovery loses recent session memory", "severity": "high"},
+    ]
+
+    score = score_maturity(tmp_path, findings=findings)
+
+    penalties = {item["title"]: item for item in score["penalty_breakdown"]}
+    assert penalties["Restart recovery loses recent session memory"]["title_penalty"] == 17
+    assert penalties["Restart recovery loses recent session memory"]["severity_penalty"] == 5
+    assert penalties["Restart recovery loses recent session memory"]["total_penalty"] == 22
+
+
 def test_maturity_score_rewards_runtime_safety_governance(tmp_path: Path) -> None:
     (tmp_path / "runtime_safety.md").write_text(
         "\n".join(
@@ -204,6 +226,7 @@ def test_maturity_score_rewards_stateful_agent_primitives(tmp_path: Path) -> Non
             [
                 "methodology: recovery rubric for Stateful Agent runtime behavior",
                 "context replay restores conversation history after an interrupted run",
+                "restart recall loads recent session history after cold start and injects it as background context",
                 "environment is the state: filesystem state, workspace state, and server state are inspected first",
                 "side-effect log stores tool result and command output for idempotent recovery checkpoints",
             ]
@@ -214,6 +237,7 @@ def test_maturity_score_rewards_stateful_agent_primitives(tmp_path: Path) -> Non
     score = score_maturity(tmp_path, findings=[])
 
     assert "stateful recovery" in score["strengths"]
+    assert "restart session recall" in score["strengths"]
     assert "environment-as-state" in score["strengths"]
 
 

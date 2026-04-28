@@ -51,6 +51,22 @@ RECOVERY_RE = re.compile(
     r"idempotent|session[_ -]?replay|state[_ -]?restore|crash[_ -]?recovery)\b",
     re.IGNORECASE,
 )
+AGENT_SESSION_MEMORY_RE = re.compile(
+    r"\b(?:agent|assistant|bot|gateway|chat|message(?:s)?|session(?:s)?|conversation(?:s)?|"
+    r"transcript(?:s)?|history|memory|session[_ -]?store|message[_ -]?store|save[_ -]?message|"
+    r"state[_ -]?db|sqlite)\b|(?:智能体|会话|聊天|消息|记忆|上下文)",
+    re.IGNORECASE,
+)
+RECENT_SESSION_RECALL_RE = re.compile(
+    r"\b(?:restart[_ -]?recall|startup[_ -]?recall|cold[-_ ]?start[_ -]?(?:recall|context)|"
+    r"post[_ -]?restart[_ -]?(?:recall|memory|context)|recent[_ -]?(?:session|conversation|chat|"
+    r"message|history|transcript)s?|last[_ -]?(?:n|few|several)[_ -]?(?:session|conversation|"
+    r"message|turn)s?|load[_ -]?recent[_ -]?(?:sessions|history|messages)|list_recent_sessions|"
+    r"get_session_messages|conversation[_ -]?replay|transcript[_ -]?replay)\b|"
+    r"(?:重启恢复|启动恢复|冷启动.{0,12}(?:记忆|上下文)|最近.{0,12}(?:会话|聊天|消息|历史)|"
+    r"近期.{0,12}(?:会话|聊天|消息|历史)|会话.{0,12}回放|上下文.{0,12}恢复|恢复.{0,12}记忆)",
+    re.IGNORECASE,
+)
 CHANNEL_VERIFY_RE = re.compile(
     r"\b(?:connected|health[_ -]?check|status|ready|readiness|websocket|gateway[_ -]?state|post[_ -]?restart)\b",
     re.IGNORECASE,
@@ -96,7 +112,20 @@ def _looks_like_self_restart_line(fp: Path, line: str, context: str = "") -> boo
 
 
 def _collect_refs(target: Path) -> dict[str, list[str]]:
-    refs = {key: [] for key in ("daemon", "restart", "active", "drain", "recovery", "verify", "self_restart")}
+    refs = {
+        key: []
+        for key in (
+            "daemon",
+            "restart",
+            "active",
+            "drain",
+            "recovery",
+            "agent_session_memory",
+            "recent_recall",
+            "verify",
+            "self_restart",
+        )
+    }
     files = list(iter_source_files(target))
     for fp in files:
         if not fp.is_file() or _should_skip(fp) or fp.suffix not in SCAN_EXTENSIONS:
@@ -117,9 +146,13 @@ def _collect_refs(target: Path) -> dict[str, list[str]]:
                 refs["drain"].append(ref)
             if RECOVERY_RE.search(line):
                 refs["recovery"].append(ref)
+            if AGENT_SESSION_MEMORY_RE.search(line):
+                refs["agent_session_memory"].append(ref)
+            context_window = "\n".join(lines[max(0, lineno - 4) : min(len(lines), lineno + 3)])
+            if RECENT_SESSION_RECALL_RE.search(line + "\n" + context_window):
+                refs["recent_recall"].append(ref)
             if CHANNEL_VERIFY_RE.search(line):
                 refs["verify"].append(ref)
-            context_window = "\n".join(lines[max(0, lineno - 4) : min(len(lines), lineno + 3)])
             if _looks_like_self_restart_line(fp, line, context_window):
                 refs["self_restart"].append(ref)
     return refs
@@ -180,10 +213,47 @@ def scan_daemon_lifecycle(target: Path) -> List[Dict[str, Any]]:
     if len(refs["daemon"]) < 2 or not refs["restart"]:
         return findings
 
+    if refs["agent_session_memory"] and not refs["recent_recall"]:
+        findings.append(
+            {
+                "severity": "high",
+                "title": "Restart recovery loses recent session memory",
+                "symptom": (
+                    "Detected an agent/gateway restart lifecycle and session or memory state, but no bounded "
+                    "recent-session recall path was visible after restart."
+                ),
+                "user_impact": (
+                    "After a restart, the agent may come back alive but emotionally and operationally lose the "
+                    "last few conversations, forcing the user to repeat context and making interrupted work feel lost."
+                ),
+                "source_layer": "daemon_lifecycle",
+                "mechanism": (
+                    "Repository scan for restartable agent daemons with session/message/history/memory state, checked "
+                    "against explicit startup/restart recall of recent sessions, transcripts, or conversation history."
+                ),
+                "root_cause": (
+                    "The recovery contract appears to restore process health or checkpoints without restoring a small, "
+                    "fresh, user-visible continuity packet from recent persisted conversations."
+                ),
+                "evidence_refs": _evidence(
+                    refs, "daemon", "restart", "agent_session_memory", "recovery", "verify", limit=9
+                ),
+                "confidence": 0.74,
+                "fix_type": "architecture_change",
+                "recommended_fix": (
+                    "Persist conversation transcripts durably and, on cold start or post-restart first turn, inject a "
+                    "bounded recent-session recall packet from the last few user/assistant exchanges. Mark it as "
+                    "background context rather than new instructions, skip noisy cron/tool rows, and keep the user's "
+                    "current message authoritative."
+                ),
+            }
+        )
+
     guard_categories = {
         "active_work_check": refs["active"],
         "drain_protocol": refs["drain"],
         "recovery_checkpoint": refs["recovery"],
+        "recent_session_recall": refs["recent_recall"],
         "post_restart_verification": refs["verify"],
     }
     present = {name: values for name, values in guard_categories.items() if values}

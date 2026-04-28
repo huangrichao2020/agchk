@@ -211,6 +211,15 @@ SIGNAL_PATTERNS = {
         r"(?:Stateful Agent|上下文回放|录像带|自动续接|唤醒指令|中断恢复|幂等恢复|恢复检查点)",
         re.IGNORECASE,
     ),
+    "restart_session_recall": re.compile(
+        r"\b(?:restart[_ -]?recall|startup[_ -]?recall|cold[-_ ]?start[_ -]?(?:recall|context)|"
+        r"post[_ -]?restart[_ -]?(?:recall|memory|context)|recent[_ -]?(?:session|conversation|chat|"
+        r"history|transcript)[_ -]?(?:recall|context|replay)|load[_ -]?recent[_ -]?(?:sessions|"
+        r"history|messages)|list_recent_sessions|get_session_messages)\b|"
+        r"(?:重启恢复.{0,24}(?:会话|记忆|上下文)|启动恢复.{0,24}(?:会话|记忆|上下文)|"
+        r"最近.{0,12}会话.{0,12}(?:恢复|召回|注入)|近期.{0,12}会话.{0,12}(?:恢复|召回|注入))",
+        re.IGNORECASE,
+    ),
     "environment_state": re.compile(
         r"\b(?:environment state|environment is the state|filesystem state|file system state|workspace state|"
         r"working tree|server state|durable filesystem|durable workspace|persistent workspace|on-disk state|"
@@ -287,6 +296,7 @@ SIGNAL_POINTS = {
     "evidence_logging": 8,
     "handoff_workbook": 6,
     "stateful_recovery": 10,
+    "restart_session_recall": 12,
     "environment_state": 8,
     "llm_cli_workers": 8,
     "task_envelope": 7,
@@ -330,6 +340,7 @@ SIGNAL_LABELS = {
     "evidence_logging": "before/after evidence logging",
     "handoff_workbook": "handoff/workbook habit",
     "stateful_recovery": "stateful recovery",
+    "restart_session_recall": "restart session recall",
     "environment_state": "environment-as-state",
     "llm_cli_workers": "LLM CLI workers",
     "task_envelope": "task envelope",
@@ -369,6 +380,7 @@ MILESTONES = {
     "evidence_logging": "给每次行动留下 before/after evidence：前置状态、动作、stdout/stderr/exit code、变更文件和验证结果。",
     "handoff_workbook": "把运行经验写成交接手册或工作手册：启动、重启、日志位置、状态文件、验收命令和常见坑。",
     "stateful_recovery": "把自动续接做成 Stateful Agent 契约：context replay + environment state + side-effect log + idempotent recovery。",
+    "restart_session_recall": "把重启恢复升级成近期会话召回：冷启动后读最近几次会话，只作为背景恢复包注入，不当作新指令。",
     "environment_state": "把 filesystem/server/workspace 状态纳入可验证状态模型，恢复时先读取现场再决定下一步。",
     "llm_cli_workers": "把 Qwen/Codex/Claude 等外部 CLI 当作 bounded worker process，而不是临时 shell 魔法。",
     "task_envelope": "用 Task JSON + stdout/stderr/exit code + timeout/concurrency 控制定义 CLI worker 的输入输出契约。",
@@ -399,6 +411,7 @@ FINDING_PENALTIES = {
     "Knowledge surfaces lack semantic VFS": 7,
     "Daemon restart lacks active-work drain protocol": 9,
     "Self-restart can kill its own control plane": 25,
+    "Restart recovery loses recent session memory": 17,
     "Permission policy is not enforced on all dispatch paths": 9,
     "Loop detector does not observe all tool-call paths": 9,
     "Executable plugin system lacks sandbox policy": 10,
@@ -570,6 +583,7 @@ def score_maturity(target: Path, findings: list[dict[str, Any]]) -> dict[str, An
             "paging",
             "page_fault",
             "stateful_recovery",
+            "restart_session_recall",
             "environment_state",
             "llm_cli_workers",
             "task_envelope",
