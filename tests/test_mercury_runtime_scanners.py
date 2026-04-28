@@ -322,6 +322,52 @@ def test_daemon_lifecycle_flags_restart_without_drain(tmp_path: Path) -> None:
     assert "Daemon restart lacks active-work drain protocol" in _titles(findings)
 
 
+def test_daemon_lifecycle_flags_suicidal_self_restart(tmp_path: Path) -> None:
+    (tmp_path / "gateway.py").write_text(
+        "\n".join(
+            [
+                "import subprocess",
+                "class GatewayDaemon:",
+                "    def run_forever(self):",
+                "        heartbeat.tick()",
+                "",
+                "    def restart_from_inside_active_turn(self):",
+                "        subprocess.run(",
+                "            'systemctl stop hermes-gateway && sleep 2 && systemctl start hermes-gateway',",
+                "            shell=True,",
+                "        )",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    findings = scan_daemon_lifecycle(tmp_path)
+    by_title = {finding["title"]: finding for finding in findings}
+
+    assert by_title["Self-restart can kill its own control plane"]["severity"] == "critical"
+
+
+def test_daemon_lifecycle_accepts_externalized_self_restart_handoff(tmp_path: Path) -> None:
+    (tmp_path / "gateway.py").write_text(
+        "\n".join(
+            [
+                "import subprocess",
+                "class GatewayDaemon:",
+                "    def safe_restart(self):",
+                "        active_agents = gateway_state.active_agents",
+                "        wait_for_idle(active_agents)",
+                "        drain_job_queue()",
+                "        checkpoint_sessions_for_resume()",
+                "        subprocess.run(['systemd-run', '--on-active=2s', 'systemctl', 'restart', 'hermes-gateway.service'])",
+                "        post_restart_health_check(status='connected')",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    assert scan_daemon_lifecycle(tmp_path) == []
+
+
 def test_daemon_lifecycle_accepts_drain_recovery_and_verification(tmp_path: Path) -> None:
     (tmp_path / "gateway.py").write_text(
         "\n".join(

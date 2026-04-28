@@ -398,6 +398,7 @@ FINDING_PENALTIES = {
     "Learning loop lacks reusable assetization": 9,
     "Knowledge surfaces lack semantic VFS": 7,
     "Daemon restart lacks active-work drain protocol": 9,
+    "Self-restart can kill its own control plane": 25,
     "Permission policy is not enforced on all dispatch paths": 9,
     "Loop detector does not observe all tool-call paths": 9,
     "Executable plugin system lacks sandbox policy": 10,

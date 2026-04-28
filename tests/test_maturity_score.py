@@ -153,6 +153,30 @@ def test_maturity_score_penalizes_architecture_findings(tmp_path: Path) -> None:
     assert score["score_formula"]
 
 
+def test_maturity_score_heavily_penalizes_suicidal_self_restart(tmp_path: Path) -> None:
+    (tmp_path / "agent_os.md").write_text(
+        "\n".join(
+            [
+                "methodology: always-on gateway runtime safety checklist",
+                "agent loop harness with tool_call and function_call",
+                "graceful_restart drain active_agents checkpoint resume post_restart health_check",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    findings = [
+        {"title": "Self-restart can kill its own control plane", "severity": "critical"},
+    ]
+
+    score = score_maturity(tmp_path, findings=findings)
+
+    penalties = {item["title"]: item for item in score["penalty_breakdown"]}
+    assert penalties["Self-restart can kill its own control plane"]["title_penalty"] == 25
+    assert penalties["Self-restart can kill its own control plane"]["severity_penalty"] == 12
+    assert penalties["Self-restart can kill its own control plane"]["total_penalty"] == 37
+    assert score["score"] <= score["pre_penalty_score"] - 37
+
+
 def test_maturity_score_rewards_runtime_safety_governance(tmp_path: Path) -> None:
     (tmp_path / "runtime_safety.md").write_text(
         "\n".join(
